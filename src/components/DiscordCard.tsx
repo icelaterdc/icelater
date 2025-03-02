@@ -3,21 +3,20 @@ import { motion } from 'framer-motion';
 
 
 const getStatusIcon = (status: string) => {
-  let iconSrc = "/statusIcon/offline.png"; // Varsayılan olarak offline
+  const iconSize = 16; // Burayı ihtiyacına göre küçültebilirsin
+  const iconPath = `/statusIcon/${status}.png`;
 
-  switch (status) {
-    case "online":
-      iconSrc = "/statusIcon/online.png";
-      break;
-    case "idle":
-      iconSrc = "/statusIcon/idle.png";
-      break;
-    case "dnd":
-      iconSrc = "/statusIcon/dnd.png";
-      break;
-  }
-
-  return <img src={iconSrc} alt={status} className="w-5 h-5" />;
+  return (
+    <img
+      src={iconPath}
+      alt={status}
+      className="w-4 h-4" // Tailwind kullanıyorsan bu küçük yapar
+      style={{
+        width: `${iconSize}px`,
+        height: `${iconSize}px`,
+      }}
+    />
+  );
 };
 
 /* --- Rozet Mapping --- */

@@ -182,6 +182,7 @@ const DiscordCard: React.FC = () => {
     const totalDuration = end - start;
     const elapsed = Math.min(Math.max(currentTime - start, 0), totalDuration);
     const progressPercent = (elapsed / totalDuration) * 100;
+
     spotifyCard = (
       <div className="mt-4 bg-gray-700/50 rounded-2xl p-4">
         <div className="flex items-center">
@@ -216,6 +217,34 @@ const DiscordCard: React.FC = () => {
     );
   }
 
+  // Aktivite kartı
+  let activityCard = null;
+  if (activities.length > 0) {
+    const currentActivity = activities.find((a) => a.type !== 4); // 4 = Custom Status
+    if (currentActivity) {
+      activityCard = (
+        <div className="mt-4 bg-gray-900 p-3 rounded-lg flex items-center">
+          <img
+            src={currentActivity.assets?.large_image || ""}
+            alt={currentActivity.name}
+            className="w-12 h-12 rounded-lg mr-3"
+          />
+          <div>
+            <p className="text-sm text-blue-400 font-semibold">
+              {currentActivity.name}
+            </p>
+            {currentActivity.details && (
+              <p className="text-xs text-gray-300">{currentActivity.details}</p>
+            )}
+            {currentActivity.state && (
+              <p className="text-xs text-gray-500">{currentActivity.state}</p>
+            )}
+          </div>
+        </div>
+      );
+    }
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -247,10 +276,15 @@ const DiscordCard: React.FC = () => {
           <div className="ml-4">
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
-            {/* Rozetler: Tek birleşik, yuvarlatılmış arka plan (rounded-lg) */}
+            {/* Rozetler */}
             <div className="mt-1 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
-              {badgeMapping.map(mapping => (
-                <img key={mapping.bit} src={mapping.img} alt="rozet" className="w-4 h-4 mr-1 last:mr-0" />
+              {badgeMapping.map((mapping) => (
+                <img
+                  key={mapping.bit}
+                  src={mapping.img}
+                  alt="rozet"
+                  className="w-4 h-4 mr-1 last:mr-0"
+                />
               ))}
             </div>
           </div>
@@ -260,7 +294,10 @@ const DiscordCard: React.FC = () => {
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
-              <div className="bg-gray-700 text-white text-sm px-3 py-1.5 rounded-lg shadow-lg" style={{ maxWidth: "180px", wordBreak: "break-word" }}>
+              <div
+                className="bg-gray-700 text-white text-sm px-3 py-1.5 rounded-lg shadow-lg"
+                style={{ maxWidth: "180px", wordBreak: "break-word" }}
+              >
                 {customState}
               </div>
               {/* Bağlantı noktaları - Profil resmine doğru */}

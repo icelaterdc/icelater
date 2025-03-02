@@ -148,33 +148,6 @@ const DiscordCard: React.FC = () => {
   const customActivity = activities.find(act => act.id === "custom" && act.state && act.state.trim() !== "");
   const customState = customActivity ? customActivity.state : null;
 
-  // Aktivite kartı (custom status dışındaki aktiviteler)
-  let activityCard = null;
-  const nonCustomActivities = activities.filter(
-    act => act.id !== "custom" && act.timestamps && act.timestamps.start
-  );
-  if (!listening_to_spotify && nonCustomActivities.length > 0) {
-    const activity = nonCustomActivities[0];
-    const elapsedActivity = currentTime - activity.timestamps!.start;
-    activityCard = (
-      <div className="mt-4 bg-gray-700/50 rounded-2xl p-4 flex items-center">
-        {activity.assets?.large_image && (
-          <img
-            src={`https://cdn.discordapp.com/${activity.assets.large_image}`}
-            alt={activity.name}
-            className="w-16 h-16 rounded-md object-cover mr-4"
-          />
-        )}
-        <div className="flex-1">
-          <h3 className="text-sm font-bold text-white">{activity.name}</h3>
-          <p className="text-xs text-green-500 font-medium mt-1">
-            {formatDurationMs(elapsedActivity)}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Spotify kartı
   let spotifyCard = null;
   if (listening_to_spotify && spotify) {

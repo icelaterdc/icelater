@@ -7,7 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import { Code, ChevronDown } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -30,7 +30,7 @@ function App() {
       
       <Header />
       
-      {/* Audio Player */}
+      {/* Audio Player: Sağ altta yer alan buton üzerinden müzik kontrolü */}
       <AudioPlayer audioSrc="/music/music.mp3" />
       
       {/* Hero Section */}

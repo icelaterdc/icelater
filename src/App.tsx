@@ -15,9 +15,9 @@ import GameModal from './components/GameModal';
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
-  const [trails, setTrails] = useState([]);
-  const [clickEffects, setClickEffects] = useState([]);
-  const [drawingPoints, setDrawingPoints] = useState([]);
+  const [trails, setTrails] = useState<any[]>([]);
+  const [clickEffects, setClickEffects] = useState<any[]>([]);
+  const [drawingPoints, setDrawingPoints] = useState<any[]>([]);
   const fadeDuration = 2000; // milisaniye, iz ve çizimlerin solma süresi
 
   // Ortak sis bulutu stili
@@ -114,7 +114,7 @@ function InteractiveEffects() {
       />
 
       {/* Sürükleme izleri */}
-      {trails.map((trail: any) => (
+      {trails.map((trail) => (
         <div
           key={trail.id}
           style={{
@@ -133,7 +133,7 @@ function InteractiveEffects() {
       ))}
 
       {/* Tıklama efekti */}
-      {clickEffects.map((ce: any) => (
+      {clickEffects.map((ce) => (
         <div
           key={ce.id}
           style={{
@@ -170,7 +170,7 @@ function InteractiveEffects() {
               <stop offset="100%" stopColor="rgba(0,123,255,0)" />
             </radialGradient>
           </defs>
-          {drawingPoints.map((point: any, index: number) => {
+          {drawingPoints.map((point, index) => {
             const elapsed = Date.now() - point.t;
             const opacity = Math.max(0, 1 - elapsed / fadeDuration);
             return (
@@ -331,7 +331,7 @@ function App() {
 
       <Footer />
 
-      {/* Eğer 30 saniye hareketsizlik varsa ve oyun modali açık değilse sol alt köşede bekleme resmi göster */}
+      {/* Idle durumunda, ekranın sol alt köşesinde wait image (üstte, sabit overlay) */}
       {idle && !gameModalOpen && (
         <div
           onClick={handleWaitImageClick}
@@ -352,7 +352,7 @@ function App() {
         </div>
       )}
 
-      {/* Game Modal: Resme tıklayınca açılır */}
+      {/* Game Modal: Resme tıklanınca açılır */}
       {gameModalOpen && <GameModal onClose={closeGameModal} />}
 
       <style>{`

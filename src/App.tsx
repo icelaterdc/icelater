@@ -7,6 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
+import MusicPlayer from './components/MusicPlayer';
 import { ChevronDown } from 'lucide-react';
 
 function App() {
@@ -104,6 +105,8 @@ function App() {
           </div>
           
           <GitHubRepos />
+          {/* MusicPlayer bileşenini ekliyoruz */}
+          <MusicPlayer />
         </div>
       </section>
       

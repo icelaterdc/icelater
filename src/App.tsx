@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
@@ -9,26 +9,24 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
+import GameModal from './components/GameModal';
 
-// Yeni: InteractiveEffects bileşeni (Desktop ve Mobil uyumlu)
+// InteractiveEffects: fare/touch hareketlerine bağlı sis bulutu efektleri
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [trails, setTrails] = useState([]);
   const [clickEffects, setClickEffects] = useState([]);
   const [drawingPoints, setDrawingPoints] = useState([]);
-  const [tick, setTick] = useState(0);
-  const fadeDuration = 2000; // ms, iz ve çizimlerin solma süresi
+  const fadeDuration = 2000; // milisaniye, iz ve çizimlerin solma süresi
 
-  // Ortak bir "efekt" stili: sis bulutu efekti
+  // Ortak sis bulutu stili
   const mistStyle = {
     background: 'radial-gradient(circle, rgba(0,123,255,0.5) 0%, rgba(0,123,255,0) 70%)',
   };
 
-  // Event handler’lar; touch event’leri de ekleniyor
   useEffect(() => {
-    const addTrailAndPoint = (x, y) => {
-      // Trail (iz) ekle
+    const addTrailAndPoint = (x: number, y: number) => {
       const id = Date.now() + Math.random();
       const newTrail = { id, x, y };
       setTrails((prev) => [...prev, newTrail]);
@@ -36,33 +34,28 @@ function InteractiveEffects() {
         setTrails((prev) => prev.filter((trail) => trail.id !== id));
       }, fadeDuration);
 
-      // Aynı anda free drawing noktasını ekle
       setDrawingPoints((prev) => [...prev, { x, y, t: Date.now() }]);
     };
 
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      if (isDragging) {
-        addTrailAndPoint(e.clientX, e.clientY);
-      }
+      if (isDragging) addTrailAndPoint(e.clientX, e.clientY);
     };
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
-        if (isDragging) {
-          addTrailAndPoint(touch.clientX, touch.clientY);
-        }
+        if (isDragging) addTrailAndPoint(touch.clientX, touch.clientY);
       }
     };
 
-    const handleMouseDown = (e) => {
+    const handleMouseDown = (e: MouseEvent) => {
       setIsDragging(true);
       setDrawingPoints([{ x: e.clientX, y: e.clientY, t: Date.now() }]);
     };
 
-    const handleTouchStart = (e) => {
+    const handleTouchStart = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setIsDragging(true);
@@ -70,16 +63,10 @@ function InteractiveEffects() {
       }
     };
 
-    const handleMouseUp = () => {
-      setIsDragging(false);
-    };
+    const handleMouseUp = () => setIsDragging(false);
+    const handleTouchEnd = () => setIsDragging(false);
 
-    const handleTouchEnd = () => {
-      setIsDragging(false);
-    };
-
-    const handleClick = (e) => {
-      // Tıklama, sürükleme değilse
+    const handleClick = (e: MouseEvent) => {
       if (!isDragging) {
         const id = Date.now() + Math.random();
         const newClickEffect = { id, x: e.clientX, y: e.clientY };
@@ -109,15 +96,9 @@ function InteractiveEffects() {
     };
   }, [isDragging]);
 
-  // Sürekli güncelleme, free drawing opaklık hesaplamaları için
-  useEffect(() => {
-    const interval = setInterval(() => setTick((t) => t + 1), 50);
-    return () => clearInterval(interval);
-  }, []);
-
   return (
     <>
-      {/* Neon fare takipçisi, sis bulutu efekti */}
+      {/* Neon fare takipçisi */}
       <div
         style={{
           position: 'fixed',
@@ -132,8 +113,8 @@ function InteractiveEffects() {
         }}
       />
 
-      {/* Sürükleme izleri: Her biri sis bulutu şeklinde */}
-      {trails.map((trail) => (
+      {/* Sürükleme izleri */}
+      {trails.map((trail: any) => (
         <div
           key={trail.id}
           style={{
@@ -151,8 +132,8 @@ function InteractiveEffects() {
         />
       ))}
 
-      {/* Tıklama efekti: Sis bulutu şeklinde belirir */}
-      {clickEffects.map((ce) => (
+      {/* Tıklama efekti */}
+      {clickEffects.map((ce: any) => (
         <div
           key={ce.id}
           style={{
@@ -170,7 +151,7 @@ function InteractiveEffects() {
         />
       ))}
 
-      {/* Free drawing: Her nokta için sis bulutu efekti veren SVG circle */}
+      {/* Free drawing: SVG ile sis bulutu efektli noktalar */}
       {drawingPoints.length > 0 && (
         <svg
           style={{
@@ -189,7 +170,7 @@ function InteractiveEffects() {
               <stop offset="100%" stopColor="rgba(0,123,255,0)" />
             </radialGradient>
           </defs>
-          {drawingPoints.map((point, index) => {
+          {drawingPoints.map((point: any, index: number) => {
             const elapsed = Date.now() - point.t;
             const opacity = Math.max(0, 1 - elapsed / fadeDuration);
             return (
@@ -229,19 +210,47 @@ function App() {
     document.title = "IceLater | Full-Stack Developer";
   }, []);
 
+  // Idle (hareketsizlik) kontrolü: 30 saniye etkileşim olmazsa idle true olacak
+  const [idle, setIdle] = useState(false);
+  const idleTimerRef = React.useRef<number | null>(null);
+
+  const resetIdleTimer = useCallback(() => {
+    if (idle) setIdle(false);
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = window.setTimeout(() => setIdle(true), 30000);
+  }, [idle]);
+
+  useEffect(() => {
+    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart'];
+    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
+    resetIdleTimer();
+    return () => {
+      events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
+      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    };
+  }, [resetIdleTimer]);
+
+  // Game modal kontrolü
+  const [gameModalOpen, setGameModalOpen] = useState(false);
+  const handleWaitImageClick = () => {
+    setGameModalOpen(true);
+    setIdle(false);
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+  };
+  const closeGameModal = () => {
+    setGameModalOpen(false);
+    resetIdleTimer();
+  };
+
   return (
     <div className="bg-gray-900 text-white min-h-screen relative">
-      {/* Arka plan ve mouse/touch etkileşimleri için overlay */}
+      {/* Arka plan ve fare/touch efektleri */}
       <InteractiveEffects />
-
       <motion.div
         className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-50"
         style={{ scaleX }}
       />
-
       <Header />
-
-      {/* Audio Player */}
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
@@ -249,7 +258,6 @@ function App() {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-gray-900"></div>
         </div>
-
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
           <div className="flex flex-col items-center text-center mb-12">
             <motion.h1
@@ -260,7 +268,6 @@ function App() {
             >
               <span className="text-blue-500">IceLater</span> | Full-Stack Developer
             </motion.h1>
-
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -271,7 +278,6 @@ function App() {
               Transforming ideas into elegant, functional digital experiences.
             </motion.p>
           </div>
-
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -279,7 +285,6 @@ function App() {
           >
             <DiscordCard />
           </motion.div>
-
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -313,7 +318,6 @@ function App() {
               Explore my latest repositories and contributions on GitHub.
             </p>
           </div>
-
           <GitHubRepos />
         </div>
       </section>
@@ -326,6 +330,41 @@ function App() {
       </section>
 
       <Footer />
+
+      {/* Eğer 30 saniye hareketsizlik varsa ve oyun modali açık değilse sol alt köşede bekleme resmi göster */}
+      {idle && !gameModalOpen && (
+        <div
+          onClick={handleWaitImageClick}
+          style={{
+            position: 'fixed',
+            left: '20px',
+            bottom: '20px',
+            cursor: 'pointer',
+            animation: 'slideUp 1s forwards',
+            zIndex: 999,
+          }}
+        >
+          <img
+            src="/game-pictures/wait-anime.png"
+            alt="Wait Anime"
+            style={{ width: '100px', height: 'auto', display: 'block' }}
+          />
+        </div>
+      )}
+
+      {/* Game Modal: Resme tıklayınca açılır */}
+      {gameModalOpen && <GameModal onClose={closeGameModal} />}
+
+      <style>{`
+        @keyframes slideUp {
+          from { transform: translateY(100%); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes slideDown {
+          from { transform: translateY(0); opacity: 1; }
+          to { transform: translateY(100%); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }

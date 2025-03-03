@@ -7,8 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import MusicPlayer from './components/MusicPlayer';
-import { ChevronDown } from 'react-icons/hi';
+import { ChevronDown } from 'lucide-react';
 
 function App() {
   const { scrollYProgress } = useScroll();
@@ -31,17 +30,67 @@ function App() {
       
       <Header />
       
-      {/* Sağ alttaki temel AudioPlayer (örneğin arka plan müziği için) */}
+      {/* Audio Player: Sağ altta yer alan buton üzerinden müzik kontrolü */}
       <AudioPlayer audioSrc="/music/music.mp3" />
       
       {/* Hero Section */}
       <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
-        {/* ... Hero içerikleri ... */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-gray-900"></div>
+        </div>
+        
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
+            <motion.h1
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
+            >
+              <span className="text-blue-500">IceLater</span> | Full-Stack Developer
+            </motion.h1>
+            
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
+          </div>
+          
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+          
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 1, delay: 0.8 }}
+            className="flex justify-center mt-12"
+          >
+            <a
+              href="#about"
+              className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
+            >
+              <span className="mb-2">Scroll Down</span>
+              <ChevronDown className="animate-bounce" />
+            </a>
+          </motion.div>
+        </div>
       </section>
       
       {/* About Section */}
       <section id="about" className="py-20 bg-gray-900">
-        {/* ... About içerikleri ... */}
+        <div className="container mx-auto px-4 md:px-6">
+          <AboutSection />
+        </div>
       </section>
       
       {/* Projects Section */}
@@ -53,14 +102,8 @@ function App() {
               Explore my latest repositories and contributions on GitHub.
             </p>
           </div>
+          
           <GitHubRepos />
-        </div>
-      </section>
-      
-      {/* Müzik Arama ve Çalma Bölümü */}
-      <section id="music" className="py-20 bg-gray-900">
-        <div className="container mx-auto px-4 md:px-6">
-          <MusicPlayer />
         </div>
       </section>
       

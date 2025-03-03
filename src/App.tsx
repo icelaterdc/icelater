@@ -1,4 +1,3 @@
-// src/App.tsx
 import React, { useEffect } from 'react';
 import { motion, useScroll, useSpring } from 'framer-motion';
 import Header from './components/Header';
@@ -15,7 +14,7 @@ function App() {
   const scaleX = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
-    restDelta: 0.001
+    restDelta: 0.001,
   });
 
   useEffect(() => {
@@ -32,7 +31,7 @@ function App() {
       <Header />
       
       {/* Audio Player */}
-      <AudioPlayer audioSrc="/music/music.mp4" />
+      <AudioPlayer audioSrc="/music/music.mp3" />
       
       {/* Hero Section */}
       <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
@@ -121,4 +120,3 @@ function App() {
 }
 
 export default App;
-                        

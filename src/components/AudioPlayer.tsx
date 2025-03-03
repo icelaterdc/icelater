@@ -16,15 +16,17 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
       if (!hasInteracted) {
         setHasInteracted(true);
         if (audioRef.current) {
-          audioRef.current.play().catch(error => {
+          audioRef.current.play().then(() => {
+            setIsPlaying(true);
+            console.log('Audio çalmaya başladı.');
+          }).catch(error => {
             console.error("Audio playback failed:", error);
           });
-          setIsPlaying(true);
         }
       }
     };
 
-    // Listen for user interaction events
+    // Kullanıcı etkileşimleri için event listener ekleniyor
     document.addEventListener('click', handleInteraction);
     document.addEventListener('touchstart', handleInteraction);
     document.addEventListener('keydown', handleInteraction);

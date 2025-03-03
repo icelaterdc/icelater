@@ -7,6 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
+import MusicPlayer from './components/MusicPlayer';
 import { ChevronDown } from 'lucide-react';
 
 function App() {
@@ -30,7 +31,7 @@ function App() {
       
       <Header />
       
-      {/* Audio Player: Sağ altta yer alan buton üzerinden müzik kontrolü */}
+      {/* Sağ alt ses butonuyla basit AudioPlayer */}
       <AudioPlayer audioSrc="/music/music.mp3" />
       
       {/* Hero Section */}
@@ -104,6 +105,13 @@ function App() {
           </div>
           
           <GitHubRepos />
+        </div>
+      </section>
+      
+      {/* Müzik Arama ve Çalma Bölümü */}
+      <section id="music" className="py-20 bg-gray-900">
+        <div className="container mx-auto px-4 md:px-6">
+          <MusicPlayer />
         </div>
       </section>
       

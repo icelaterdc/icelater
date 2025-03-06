@@ -11,7 +11,6 @@ import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
 import GameModal from './components/GameModal';
 
-// InteractiveEffects: fare/touch hareketlerine bağlı sis bulutu efektleri
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -243,7 +242,18 @@ function App() {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen relative">
+    <div
+      className="text-white min-h-screen relative"
+      style={{
+        background: `
+          radial-gradient(circle at top center, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0) 70%),
+          radial-gradient(circle at center, rgba(0,255,255,0.7) 0%, rgba(0,255,255,0) 60%),
+          radial-gradient(circle at bottom center, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0) 70%),
+          linear-gradient(to bottom, #3b82f6, #111827)
+        `,
+        backgroundBlendMode: "screen, screen, screen, normal",
+      }}
+    >
       {/* Arka plan ve fare/touch efektleri */}
       <InteractiveEffects />
       <motion.div
@@ -303,7 +313,7 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-900">
+      <section id="about" className="py-20">
         <div className="container mx-auto px-4 md:px-6">
           <AboutSection />
         </div>
@@ -323,7 +333,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-gray-900">
+      <section id="contact" className="py-20">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
@@ -331,7 +341,7 @@ function App() {
 
       <Footer />
 
-      {/* Idle durumunda, ekranın sol alt köşesinde wait image (üstte, sabit overlay) */}
+      {/* Idle durumunda, ekranın sol alt köşesinde wait image */}
       {idle && !gameModalOpen && (
         <div
           onClick={handleWaitImageClick}

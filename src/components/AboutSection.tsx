@@ -4,12 +4,12 @@ import { Code, Server, Globe, Database, Cpu, Layers } from 'lucide-react';
 
 const AboutSection: React.FC = () => {
   const skills = [
-    { name: 'Frontend Development', icon: <Code size={20} />, description: 'React, Vue, Angular, TypeScript, HTML/CSS' },
-    { name: 'Backend Development', icon: <Server size={20} />, description: 'Node.js, Express, NestJS, Django, Flask' },
-    { name: 'Full-Stack Development', icon: <Layers size={20} />, description: 'MERN, MEAN, JAMstack, Next.js' },
-    { name: 'Database Management', icon: <Database size={20} />, description: 'MongoDB, PostgreSQL, MySQL, Redis' },
-    { name: 'DevOps', icon: <Cpu size={20} />, description: 'Docker, Kubernetes, CI/CD, AWS, Azure' },
-    { name: 'Web Services', icon: <Globe size={20} />, description: 'RESTful APIs, GraphQL, WebSockets' },
+    { name: 'Frontend Development', icon: <Code size={20} />, description: 'React, TypeScript, HTML/CSS' },
+    { name: 'Backend Development', icon: <Server size={20} />, description: 'Node.js, Express' },
+    { name: 'Full-Stack Development', icon: <Layers size={20} />, description: 'JAMstack, Next.js' },
+    { name: 'Database Management', icon: <Database size={20} />, description: 'MongoDB, PostgreSQL, SQLite, Supabase' },
+    { name: 'DevOps', icon: <Cpu size={20} />, description: 'Docker, AWS, Azure' },
+    { name: 'Web Services', icon: <Globe size={20} />, description: 'RESTful APIs, GraphQL' },
   ];
 
   const techLogos = [
@@ -29,6 +29,14 @@ const AboutSection: React.FC = () => {
     { name: 'Express', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg' },
     { name: 'Vite', logo: 'https://vitejs.dev/logo.svg' },
     { name: 'GraphQL', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg' },
+    { name: 'Supabase', logo: 'https://supabase.com/_next/image?url=%2Fimages%2Flogo-light.png&w=96&q=75' },
+    { name: 'Astro', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/astro/astro-original.svg' },
+    { name: 'SQLite', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/sqlite/sqlite-original.svg' },
+    { name: 'NPM', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/npm/npm-original-wordmark.svg' },
+    { name: 'Terminal', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/bash/bash-original.svg' },
+    { name: 'Vercel', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/vercel/vercel-original.svg' },
+    { name: 'ESLint', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/eslint/eslint-original.svg' },
+    { name: 'Discord.js', logo: 'https://cdn.jsdelivr.net/gh/devicons/devicon/icons/discordjs/discordjs-original.svg' }
   ];
 
   return (

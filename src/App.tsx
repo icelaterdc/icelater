@@ -14,11 +14,10 @@ import GameModal from './components/GameModal';
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: boyut artırıldı, daha soluk ve kademeli fade-out (kenarlara doğru azalan parlaklık)
+  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
-    // Daha açık mavi ton ve daha hafif neon efekti
-    background: 'radial-gradient(circle, rgba(10,130,255,0.12) 0%, rgba(10,130,255,0.04) 60%, rgba(10,130,255,0) 100%)',
-    boxShadow: 'none', // Dümdüz sınırları kaldırmak için boxShadow kaldırıldı
+    // Daha yumuşak geçişli ve ortası parlak olan gradyan
+    background: 'radial-gradient(circle, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
   };
 
   useEffect(() => {
@@ -49,7 +48,7 @@ function InteractiveEffects() {
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '75px', // 75px olarak güncellendi
+          width: '75px',
           height: '75px',
           borderRadius: '50%',
           pointerEvents: 'none',
@@ -65,22 +64,56 @@ function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
+  const [visibleChars, setVisibleChars] = useState<number[]>([]);
   
-  // Bir metni rastgele şekilde harflerini solduracak/gösterecek fonksiyon
-  const animateText = (text, targetOpacity) => {
-    const characters = text.split("");
-    // Rastgele bir sıralama oluştur
-    const randomOrder = [...Array(characters.length).keys()].sort(() => Math.random() - 0.5);
-    
-    // Her harf için ayrı bir zamanlayıcı ile solma/belirme efekti
-    randomOrder.forEach((index, i) => {
-      setTimeout(() => {
-        const span = document.getElementById(`char-${index}`);
-        if (span) {
-          span.style.opacity = targetOpacity.toString();
-        }
-      }, i * 150); // Daha yavaş belirme/solma için 100ms -> 150ms
-    });
+  // Bir metni rastgele şekilde harflerini belirtecek/solduracak fonksiyon
+  const animateText = (text, isAppearing) => {
+    if (isAppearing) {
+      // Belirme animasyonu için tüm karakterleri önce gizle
+      setVisibleChars([]);
+      
+      // Bir dizinin tüm indekslerini al
+      const allIndices = [...Array(text.length).keys()];
+      
+      // Ana yazı için özel düzenleme (tüm karakterlerin aynı anda belirmesi için)
+      if (text === "IceLater Full-Stack Developer") {
+        // "IceLater" ve kalan kısmı için ayrı indeks grupları
+        const iceIndices = allIndices.slice(0, 8); // "IceLater" için
+        const restIndices = allIndices.slice(8);   // " Full-Stack Developer" için
+        
+        // Tüm IceLater harflerini aynı anda göster
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...iceIndices]);
+        }, 200);
+        
+        // Full-Stack Developer kısmını da aynı anda göster
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...restIndices]);
+        }, 600);
+      } else {
+        // Diğer metinler için rastgele sırayla harfleri belirt
+        const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
+        
+        // Çok yavaş şekilde harfleri belirt
+        randomOrder.forEach((index, i) => {
+          setTimeout(() => {
+            setVisibleChars(prev => [...prev, index]);
+          }, 200 + i * 180); // Daha yavaş belirme için 180ms
+        });
+      }
+    } else {
+      // Soldurma animasyonu için tüm karakterleri göster
+      const allIndices = [...Array(text.length).keys()];
+      setVisibleChars(allIndices);
+      
+      // Rastgele sırayla harfleri soldur
+      const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
+      randomOrder.forEach((index, i) => {
+        setTimeout(() => {
+          setVisibleChars(prev => prev.filter(idx => idx !== index));
+        }, i * 120); // Solma hızı
+      });
+    }
   };
   
   useEffect(() => {
@@ -90,32 +123,26 @@ function AnimatedTitle() {
       // Metni göster
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
+        animateText("IceLater Full-Stack Developer", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
         }, 8000); // 8 saniye ana yazı
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
+        animateText("Hello, I'm IceLater", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
         }, 5000); // 5 saniye hello yazısı
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
+        animateText("Sometimes Icy", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
         }, 5000); // 5 saniye icy yazısı
       }
-      
-      // Yazı göründükten sonra her karakterin görünür olduğundan emin ol
-      setTimeout(() => {
-        const charElements = document.querySelectorAll('[id^="char-"]');
-        charElements.forEach(el => {
-          el.style.opacity = "1";
-        });
-      }, 150);
-      
     } else if (fadeDirection === "out") {
-      // Metni rastgele sıralamayla soldur
-      animateText(displayText, "0");
+      // Metni soldur
+      animateText(displayText, false);
       
       // Soldurma tamamlandıktan sonra bir sonraki duruma geç
       timer = setTimeout(() => {
@@ -127,32 +154,33 @@ function AnimatedTitle() {
           setAnimationState("main");
         }
         setFadeDirection("in");
-      }, displayText.length * 150 + 300); // Tüm harflerin solması için yeterli süre (daha yavaş)
+      }, displayText.length * 120 + 300); // Tüm harflerin solması için yeterli süre
     }
     
     return () => clearTimeout(timer);
-  }, [animationState, fadeDirection, displayText]);
+  }, [animationState, fadeDirection]);
+  
+  // IceLater mi kontrolü
+  const isIceLaterChar = (char: string, index: number, text: string) => {
+    if (text === "IceLater Full-Stack Developer" && index >= 0 && index <= 7) {
+      return true;
+    } else if (text === "Hello, I'm IceLater" && index >= 10 && index <= 17) {
+      return true;
+    } else if (text === "Sometimes Icy" && index >= 10 && index <= 12) {
+      return true;
+    }
+    return false;
+  };
   
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
         <span 
           key={index} 
-          id={`char-${index}`}
           style={{ 
-            transition: "opacity 0.5s ease", // Daha yavaş geçiş
-            opacity: 1,
-            color: char === 'I' && (index === 0 || (displayText.includes("Hello, I'm IceLater") && index === 10)) || 
-                  char === 'c' && (index === 1 || (displayText.includes("Hello, I'm IceLater") && index === 11)) || 
-                  char === 'e' && (index === 2 || (displayText.includes("Hello, I'm IceLater") && index === 12)) || 
-                  char === 'L' && (index === 3 || (displayText.includes("Hello, I'm IceLater") && index === 13)) || 
-                  char === 'a' && (index === 4 || (displayText.includes("Hello, I'm IceLater") && index === 14)) || 
-                  char === 't' && (index === 5 || (displayText.includes("Hello, I'm IceLater") && index === 15)) || 
-                  char === 'e' && (index === 6 || (displayText.includes("Hello, I'm IceLater") && index === 16)) || 
-                  char === 'r' && (index === 7 || (displayText.includes("Hello, I'm IceLater") && index === 17)) || 
-                  displayText === "Sometimes Icy" && (index === 10 || index === 11 || index === 12)
-                    ? "#3b82f6" // IceLater her zaman mavi
-                    : "white"
+            opacity: visibleChars.includes(index) ? 1 : 0,
+            transition: "opacity 0.3s ease",
+            color: isIceLaterChar(char, index, displayText) ? "#3b82f6" : "white"
           }}
         >
           {char}
@@ -163,8 +191,6 @@ function AnimatedTitle() {
 }
 
 function App() {
-  // Progress bar kaldırıldı.
-
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
   }, []);
@@ -201,11 +227,12 @@ function App() {
     resetIdleTimer();
   };
 
-  // Sadece scroll down için smooth scroll özelliği
+  // Sadece scroll down butonu için smooth scroll özelliği
   const handleScrollToAbout = (e) => {
     e.preventDefault();
     const aboutSection = document.getElementById('about');
     if (aboutSection) {
+      // Smooth scroll sadece buraya özel uygulanır
       aboutSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -327,9 +354,16 @@ function App() {
           font-family: 'Permanent Marker', cursive;
         }
         
-        /* Sadece scroll down için smooth scroll, diğer sayfa geçişleri için ani geçiş */
+        /* Sayfa kaydırma davranışını normale döndür (anlık geçişler) */
         html {
-          scroll-behavior: auto;
+          scroll-behavior: auto !important;
+        }
+        
+        /* Scroll snap ve otomatik kayan özelliğini kaldır */
+        body, section {
+          scroll-snap-type: none !important;
+          scroll-snap-align: none !important;
+          overscroll-behavior: auto !important;
         }
         
         @keyframes slideUp {

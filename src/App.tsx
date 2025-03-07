@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useCallback } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import React, { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -8,7 +8,6 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
-import GameModal from './components/GameModal';
 
 // InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
@@ -23,11 +22,11 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (e) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
@@ -65,7 +64,7 @@ function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
-  const [visibleChars, setVisibleChars] = useState<number[]>([]);
+  const [visibleChars, setVisibleChars] = useState([]);
   
   // Bir metni rastgele şekilde harflerini belirtecek/solduracak fonksiyon
   const animateText = (text, isAppearing) => {
@@ -162,7 +161,7 @@ function AnimatedTitle() {
   }, [animationState, fadeDirection]);
   
   // IceLater kontrolü
-  const getCharColor = (char: string, index: number, text: string) => {
+  const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
       // IceLater tamamen mavi (0-7 indeksleri)
       if (index >= 0 && index <= 7) {
@@ -236,39 +235,6 @@ function App() {
     };
   }, []);
 
-  // Idle kontrolü: 30 saniye hareketsizlikte idle true olacak
-  const [idle, setIdle] = useState(false);
-  const idleTimerRef = React.useRef<number | null>(null);
-
-  const resetIdleTimer = useCallback(() => {
-    if (idle) setIdle(false);
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    idleTimerRef.current = window.setTimeout(() => setIdle(true), 30000);
-  }, [idle]);
-
-  useEffect(() => {
-    const events = ['mousemove', 'mousedown', 'keydown', 'touchstart'];
-    events.forEach((event) => window.addEventListener(event, resetIdleTimer));
-    resetIdleTimer();
-    
-    return () => {
-      events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-    };
-  }, [resetIdleTimer]);
-
-  // Game modal kontrolü
-  const [gameModalOpen, setGameModalOpen] = useState(false);
-  const handleWaitImageClick = () => {
-    setGameModalOpen(true);
-    setIdle(false);
-    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-  };
-  const closeGameModal = () => {
-    setGameModalOpen(false);
-    resetIdleTimer();
-  };
-
   // Scroll down butonu için smooth scroll özelliği
   const handleScrollToAbout = (e) => {
     e.preventDefault();
@@ -286,7 +252,7 @@ function App() {
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
+      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20 snap-scroll-area">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
@@ -335,10 +301,10 @@ function App() {
       </section>
 
       {/* Boşluk bölümü - Snap kaydırma için */}
-      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950"></div>
+      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950 snap-scroll-area"></div>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-950">
+      <section id="about" className="py-20 bg-gray-950 snap-scroll-area">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
@@ -367,30 +333,6 @@ function App() {
 
       <Footer />
 
-      {/* Idle durumunda, ekranın sol alt köşesinde wait image (sabit overlay) */}
-      {idle && !gameModalOpen && (
-        <div
-          onClick={handleWaitImageClick}
-          style={{
-            position: 'fixed',
-            left: '20px',
-            bottom: '20px',
-            cursor: 'pointer',
-            animation: 'slideUp 1s forwards',
-            zIndex: 999,
-          }}
-        >
-          <img
-            src="/game-pictures/wait-anime.png"
-            alt="Wait Anime"
-            style={{ width: '100px', height: 'auto', display: 'block' }}
-          />
-        </div>
-      )}
-
-      {/* Game Modal */}
-      {gameModalOpen && <GameModal onClose={closeGameModal} />}
-
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         
@@ -402,25 +344,6 @@ function App() {
         .snap-scroll-area {
           scroll-snap-align: start;
         }
-        
-        #home {
-          scroll-snap-align: start;
-        }
-        
-        #about {
-          scroll-snap-align: start;
-        }
-        
-        /* Özel kaydırma davranışı */
-        @keyframes slideUp {
-          from { transform: translateY(100%); opacity: 0; }
-          to { transform: translateY(0); opacity: 1; }
-        }
-        
-        @keyframes slideDown {
-          from { transform: translateY(0); opacity: 1; }
-          to { transform: translateY(100%); opacity: 0; }
-        }
       `}</style>
 
       {/* Özel kaydırma davranışı için JavaScript */}
@@ -429,29 +352,9 @@ function App() {
           document.addEventListener('DOMContentLoaded', function() {
             let lastScrollTop = 0;
             let isScrollingToSection = false;
-            let scrollTimeout;
             
-            // Sadece belirli alanlar için snap scrolling uygula
-            function setupSnapScrolling() {
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-              
-              if (homeSection) homeSection.classList.add('snap-scroll-area');
-              if (aboutSection) aboutSection.classList.add('snap-scroll-area');
-              if (spacerSection) spacerSection.classList.add('snap-scroll-area');
-              
-              // Sadece home ve about arasındaki alanı snap-scroll yapacak container
-              const snapContainer = document.createElement('div');
-              snapContainer.id = 'snap-container';
-              snapContainer.style.cssText = 'position: relative; scroll-snap-type: y mandatory;';
-              
-              // Sadece scroll snap gereken bölüm içindir
-              document.body.addEventListener('scroll', handleSnapScroll, { passive: true });
-              window.addEventListener('scroll', handleSnapScroll, { passive: true });
-            }
-            
-            function handleSnapScroll(e) {
+            // Kaydırma işleyici fonksiyonu
+            function handleScrollBetweenSections() {
               const currentScroll = window.scrollY || document.documentElement.scrollTop;
               const homeSection = document.getElementById('home');
               const aboutSection = document.getElementById('about');
@@ -459,91 +362,88 @@ function App() {
               
               if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
               
-              // Home ve About bölümleri arasındaki boşlukta kaydırma yaparken
+              // Sadece Home ve About arasındaki alanda etkin olsun
               const homeSectionBottom = homeSection.getBoundingClientRect().bottom;
               const aboutSectionTop = aboutSection.getBoundingClientRect().top;
+              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
+              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
               
-              // Eğer home section'ın alt kısmı veya about section'ın üst kısmı görünür alandaysa
-              if (homeSectionBottom >= 0 && homeSectionBottom <= window.innerHeight ||
-                  aboutSectionTop >= 0 && aboutSectionTop <= window.innerHeight) {
+              // Sadece spacer bölümünde veya sınırlarında isek özel kaydırma uygula
+              if (spacerSectionTop >= -window.innerHeight/2 && 
+                  spacerSectionBottom <= window.innerHeight*1.5) {
                 
-                // Spacer bölümünde isek, kullanıcıyı bir section'a taşı
-                if (spacerSection.getBoundingClientRect().top >= -window.innerHeight/2 && 
-                    spacerSection.getBoundingClientRect().bottom <= window.innerHeight*1.5) {
-                  
-                  clearTimeout(scrollTimeout);
-                  
-                  scrollTimeout = setTimeout(() => {
-                    isScrollingToSection = true;
-                    
-                    // Aşağı kaydırılıyorsa about bölümüne git
-                    if (currentScroll > lastScrollTop + 10) {
-                      aboutSection.scrollIntoView({ behavior: 'smooth' });
-                    } 
-                    // Yukarı kaydırılıyorsa home bölümüne git
-                    else if (currentScroll < lastScrollTop - 10) {
-                      homeSection.scrollIntoView({ behavior: 'smooth' });
-                    }
-                    
-                    // Animasyon bitiminde flag'i sıfırla
-                    setTimeout(() => {
-                      isScrollingToSection = false;
-                    }, 1000);
-                  }, 5);
+                isScrollingToSection = true;
+                
+                // Aşağı kaydırılıyorsa about bölümüne git
+                if (currentScroll > lastScrollTop + 5) {
+                  aboutSection.scrollIntoView({ behavior: 'smooth' });
+                } 
+                // Yukarı kaydırılıyorsa home bölümüne git
+                else if (currentScroll < lastScrollTop - 5) {
+                  homeSection.scrollIntoView({ behavior: 'smooth' });
                 }
+                
+                // Animasyon bitiminde flag'i sıfırla
+                setTimeout(() => {
+                  isScrollingToSection = false;
+                }, 1000);
               }
               
               lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
             }
             
-            // Dokunmatik cihazlar için özel kaydırma desteği
+            // Dokunmatik cihazlar için özel dokunma işleyicisi
             let touchStartY = 0;
             let touchEndY = 0;
             const touchThreshold = 30; // Kaydırma için eşik değeri
             
-            function setupTouchHandlers() {
-              document.addEventListener('touchstart', function(e) {
-                touchStartY = e.touches[0].clientY;
-              }, { passive: true });
-              
-              document.addEventListener('touchend', function(e) {
-                if (isScrollingToSection) return;
-                
-                touchEndY = e.changedTouches[0].clientY;
-                
-                const homeSection = document.getElementById('home');
-                const aboutSection = document.getElementById('about');
-                const spacerSection = document.querySelector('.spacer-section');
-                
-                if (!homeSection || !aboutSection || !spacerSection) return;
-                
-                const homeSectionBottom = homeSection.getBoundingClientRect().bottom;
-                const spacerSectionTop = spacerSection.getBoundingClientRect().top;
-                const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
-                const aboutSectionTop = aboutSection.getBoundingClientRect().top;
-                
-                // Sadece home ve about section arasındaki alanda etkin olsun
-                if ((spacerSectionTop <= window.innerHeight && aboutSectionTop > -window.innerHeight) || 
-                    (homeSectionBottom >= -window.innerHeight && homeSectionBottom <= window.innerHeight)) {
-                  
-                  isScrollingToSection = true;
-                  
-                  // Yukarıdan aşağıya kaydırma (about bölümüne)
-                  if (touchStartY > touchEndY && Math.abs(touchStartY - touchEndY) > touchThreshold) {
-                    aboutSection.scrollIntoView({ behavior: 'smooth' });
-               }
-
-               // Animasyon bitiminde flag'i sıfırla
-                  setTimeout(() => {
-                    isScrollingToSection = false;
-                  }, 1000);
-                }
-              }, { passive: true });
+            function handleTouchStart(e) {
+              touchStartY = e.touches[0].clientY;
             }
             
-            // Sayfa yüklendiğinde kaydırma ayarlarını kur
-            setupSnapScrolling();
-            setupTouchHandlers();
+            function handleTouchEnd(e) {
+              if (isScrollingToSection) return;
+              
+              touchEndY = e.changedTouches[0].clientY;
+              const difference = touchStartY - touchEndY;
+              
+              if (Math.abs(difference) < touchThreshold) return;
+              
+              const homeSection = document.getElementById('home');
+              const aboutSection = document.getElementById('about');
+              const spacerSection = document.querySelector('.spacer-section');
+              
+              if (!homeSection || !aboutSection || !spacerSection) return;
+              
+              // Sadece spacer bölümünde veya home/about sınırlarında isek özel kaydırma uygula
+              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
+              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
+              
+              if (spacerSectionTop >= -window.innerHeight/2 && 
+                  spacerSectionBottom <= window.innerHeight*1.5) {
+                
+                isScrollingToSection = true;
+                
+                // Yukarıdan aşağıya kaydırma (aşağı yönde)
+                if (difference > 0) {
+                  aboutSection.scrollIntoView({ behavior: 'smooth' });
+                } 
+                // Aşağıdan yukarıya kaydırma (yukarı yönde)
+                else {
+                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Animasyon bitiminde flag'i sıfırla
+                setTimeout(() => {
+                  isScrollingToSection = false;
+                }, 1000);
+              }
+            }
+            
+            // Olay dinleyicileri ekle
+            window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
+            document.addEventListener('touchstart', handleTouchStart, { passive: true });
+            document.addEventListener('touchend', handleTouchEnd, { passive: true });
           });
         `
       }} />

@@ -198,8 +198,8 @@ function AnimatedTitle() {
   );
 }
 
-// Scroll bazlı animasyon için özel hook
-function useScrollAnimation(threshold = 0.1) {
+// Bileşenlerin görünürlüğünü kontrol eden özel hook
+function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
@@ -277,54 +277,45 @@ function App() {
     };
   }, []);
 
-  // Section refs
+  // Bölüm referansları
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
   
-  // Scroll animation refs
-  const [projectsAnimRef, projectsVisible] = useScrollAnimation(0.1);
-  const [contactAnimRef, contactVisible] = useScrollAnimation(0.1);
+  // Bileşenlerin görünürlüğünü izle
+  const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
+  const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
-  // Calculate opacity based on scroll position for home and about sections
+  // Kaydırma pozisyonuna göre opaklık hesapla
   const calculateHomeOpacity = () => {
-    if (!homeRef.current || !aboutRef.current) return 1;
+    if (!homeRef.current) return 1;
     
     const homeRect = homeRef.current.getBoundingClientRect();
-    const homeHeight = homeRect.height;
-    const homeTop = homeRect.top;
+    const viewport = window.innerHeight;
     
-    // Start fading out when scrolled 20% down the home section
-    const fadeStart = homeHeight * 0.2;
-    const fadeEnd = homeHeight * 0.8;
+    // Home bölümünün ekrandan çıkma oranını hesapla
+    const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     
-    if (homeTop < -fadeEnd) return 0;
-    if (homeTop > -fadeStart) return 1;
-    
-    // Calculate opacity based on scroll position
-    return 1 - (-homeTop - fadeStart) / (fadeEnd - fadeStart);
+    // Home alanı ekrandan çıkarken kademeli olarak sönükleş
+    return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
   const calculateAboutOpacity = () => {
-    if (!homeRef.current || !aboutRef.current) return 0;
+    if (!aboutRef.current) return 0;
     
-    const homeRect = homeRef.current.getBoundingClientRect();
-    const homeHeight = homeRect.height;
-    const homeTop = homeRect.top;
+    const aboutRect = aboutRef.current.getBoundingClientRect();
+    const viewport = window.innerHeight;
     
-    // Start fading in when scrolled 20% down the home section
-    const fadeStart = homeHeight * 0.2;
-    const fadeEnd = homeHeight * 0.8;
+    // About bölümünün ekrana girme oranını hesapla
+    const visibleTop = Math.max(0, viewport - aboutRect.top);
+    const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     
-    if (homeTop < -fadeEnd) return 1;
-    if (homeTop > -fadeStart) return 0;
-    
-    // Calculate opacity based on scroll position
-    return (-homeTop - fadeStart) / (fadeEnd - fadeStart);
+    // About alanı ekrana girerken kademeli olarak belir
+    return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
-  // Calculate home and about section opacities
+  // Home ve About bölümlerinin opaklığını hesapla
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
@@ -342,7 +333,7 @@ function App() {
         className="min-h-screen flex items-center justify-center relative pt-20"
         style={{ 
           opacity: homeOpacity,
-          transition: "opacity 0.3s ease-out" 
+          transition: "opacity 0.5s ease"
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -384,7 +375,7 @@ function App() {
         className="min-h-screen py-20 bg-gray-950"
         style={{ 
           opacity: aboutOpacity,
-          transition: "opacity 0.3s ease-out",
+          transition: "opacity 0.5s ease",
           position: "relative",
           zIndex: aboutOpacity > 0.5 ? 10 : 5
         }}
@@ -402,12 +393,11 @@ function App() {
         className="py-20 bg-gray-950/50"
       >
         <div 
-          ref={projectsAnimRef}
+          ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: projectsVisible ? 1 : 0,
-            transform: projectsVisible ? "translateY(0)" : "translateY(50px)",
-            transition: "opacity 0.6s ease-out, transform 0.6s ease-out"
+            transition: "opacity 0.8s ease"
           }}
         >
           <div className="mb-12">
@@ -427,12 +417,11 @@ function App() {
         className="py-20 bg-gray-950"
       >
         <div 
-          ref={contactAnimRef}
+          ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: contactVisible ? 1 : 0,
-            transform: contactVisible ? "translateY(0)" : "translateY(50px)",
-            transition: "opacity 0.6s ease-out, transform 0.6s ease-out"
+            transition: "opacity 0.8s ease"
           }}
         >
           <ContactSection />
@@ -448,9 +437,15 @@ function App() {
           font-family: 'Permanent Marker', cursive;
         }
         
-        /* Remove snap scrolling */
+        /* Normal scroll behavior */
         html {
-          scroll-behavior: smooth;
+          scroll-behavior: auto;
+        }
+        
+        /* Prevent any scroll animations */
+        * {
+          scroll-snap-align: none;
+          scroll-snap-stop: normal;
         }
       `}</style>
     </div>

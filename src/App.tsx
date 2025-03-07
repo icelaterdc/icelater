@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -9,7 +9,7 @@ import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
 
-// InteractiveEffects bileşeni (değişmedi)
+// InteractiveEffects bileşeni
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -57,7 +57,7 @@ function InteractiveEffects() {
   );
 }
 
-// AnimatedTitle bileşeni (değişmedi)
+// AnimatedTitle bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -164,6 +164,42 @@ function AnimatedTitle() {
   );
 }
 
+// Animasyonlu Section bileşeni
+const AnimatedSection = ({ id, children, className }) => {
+  const controls = useAnimation();
+  const [ref, setRef] = useState(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          controls.start({ opacity: 1, y: 0 });
+        }
+      },
+      { threshold: 0.2 } // Bölümün %20'si göründüğünde tetiklenir
+    );
+
+    if (ref) observer.observe(ref);
+
+    return () => {
+      if (ref) observer.unobserve(ref);
+    };
+  }, [ref, controls]);
+
+  return (
+    <motion.section
+      ref={setRef}
+      id={id}
+      className={className}
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+      transition={{ duration: 0.8, ease: "easeOut" }}
+    >
+      {children}
+    </motion.section>
+  );
+};
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -211,8 +247,8 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
+      {/* Hero Section (Home) */}
+      <AnimatedSection id="home" className="min-h-screen flex items-center justify-center relative pt-20">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
@@ -258,21 +294,21 @@ function App() {
             </a>
           </motion.div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      {/* Boşluk bölümü - Snap kaydırma için */}
+      {/* Boşluk bölümü */}
       <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950"></div>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-950">
+      <AnimatedSection id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 bg-gray-950/50">
+      <AnimatedSection id="projects" className="py-20 bg-gray-950/50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -282,14 +318,14 @@ function App() {
           </div>
           <GitHubRepos />
         </div>
-      </section>
+      </AnimatedSection>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-gray-950">
+      <AnimatedSection id="contact" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
-      </section>
+      </AnimatedSection>
 
       <Footer />
 
@@ -308,7 +344,7 @@ function App() {
             let lastScrollTop = 0;
             let isScrollingToSection = false;
 
-            // Kaydırma işleyici fonksiyonu (sadece home ve about arasında çalışır)
+            // Kaydırma işleyici fonksiyonu (sadece home ve about arasında)
             function handleScrollBetweenSections() {
               const currentScroll = window.scrollY || document.documentElement.scrollTop;
               const homeSection = document.getElementById('home');
@@ -317,12 +353,10 @@ function App() {
 
               if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
 
-              const homeBottom = homeSection.getBoundingClientRect().bottom;
               const spacerTop = spacerSection.getBoundingClientRect().top;
               const spacerBottom = spacerSection.getBoundingClientRect().bottom;
-              const aboutTop = aboutSection.getBoundingClientRect().top;
 
-              // Sadece home ve about arasındaki spacer alanında çalışsın
+              // Sadece spacer alanında çalışsın
               if (spacerTop <= window.innerHeight && spacerBottom >= 0) {
                 isScrollingToSection = true;
 

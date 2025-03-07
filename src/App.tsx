@@ -164,16 +164,17 @@ function AnimatedTitle() {
   // IceLater kontrolü - tamamı mavi olacak, hiçbir harf beyaz olmayacak
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
-      // IceLater tamamen mavi
+      // IceLater tamamen mavi (0-7 indeksleri)
       if (index >= 0 && index <= 7) {
         return "#3b82f6";
       }
     } else if (text === "Hello, I'm IceLater") {
-      // IceLater tamamen mavi - tüm harfler (r dahil) mavi olacak
+      // IceLater tamamen mavi (10-17 indeksleri)
       if (index >= 10 && index <= 17) {
         return "#3b82f6";
       }
     } else if (text === "Sometimes Icy") {
+      // Icy tamamen mavi (10-12 indeksleri)
       if (index >= 10 && index <= 12) {
         return "#3b82f6";
       }
@@ -277,46 +278,6 @@ function App() {
     }
   };
 
-  // Güvenli kaydırma için - tek yönlü kullanıma izin verir ve istenmeyen geri kaydırmayı engeller
-  useEffect(() => {
-    let lastScrollTop = 0;
-    let isScrollingToSection = false;
-    const scrollThreshold = 200; // Boşluğu kontrol etmek için eşik değeri (pixeller)
-    
-    const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const viewportHeight = window.innerHeight;
-      const aboutSection = document.getElementById('about');
-      const homeSection = document.getElementById('home');
-      
-      if (!aboutSection || !homeSection || isScrollingToSection) return;
-      
-      const aboutPosition = aboutSection.getBoundingClientRect().top + scrollTop;
-      const homeBottom = homeSection.getBoundingClientRect().bottom + scrollTop;
-      
-      // Boşluk kontrolü - eğer kullanıcı home ve about bölümleri arasındaki boşlukta ise
-      if (scrollTop > homeBottom - scrollThreshold && scrollTop < aboutPosition - viewportHeight/2) {
-        // Eğer kullanıcı aşağı yönde kaydırıyorsa about bölümüne git
-        if (scrollTop > lastScrollTop) {
-          isScrollingToSection = true;
-          aboutSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
-        } 
-        // Eğer kullanıcı yukarı yönde kaydırıyorsa home bölümüne git
-        else {
-          isScrollingToSection = true;
-          homeSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
-        }
-      }
-      
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Negatif kaydırma için fix
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
   return (
     <div className="bg-gray-950 text-white min-h-screen relative">
       {/* Arka plan ve fare/touch efekti */}
@@ -373,8 +334,8 @@ function App() {
         </div>
       </section>
 
-      {/* Boşluk Bölümü - Snap Scrolling için */}
-      <div className="h-screen/2"></div>
+      {/* Boşluk bölümü - Snap kaydırma için */}
+      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950"></div>
 
       {/* About Section */}
       <section id="about" className="py-20 bg-gray-950">
@@ -437,23 +398,26 @@ function App() {
           font-family: 'Permanent Marker', cursive;
         }
         
-        /* Sayfa kaydırma davranışını normale döndür (anlık geçişler) */
+        /* Sadece belirli bölgeler için snap scrolling ayarları */
+        .spacer-section {
+          scroll-snap-align: start;
+        }
+        
+        #home {
+          scroll-snap-align: start;
+        }
+        
+        #about {
+          scroll-snap-align: start;
+        }
+        
+        /* Sayfa kaydırma davranışını düzenle */
         html {
-          scroll-behavior: auto !important;
+          scroll-behavior: smooth;
+          scroll-snap-type: y proximity;
         }
         
-        /* Scroll snap ve otomatik kayan özelliğini kaldır */
-        body, section {
-          scroll-snap-type: none !important;
-          scroll-snap-align: none !important;
-          overscroll-behavior: auto !important;
-        }
-
-        /* Ekran yüksekliğinin yarısı kadar boşluk */
-        .h-screen/2 {
-          height: 50vh;
-        }
-        
+        /* Özel kaydırma davranışı */
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
@@ -464,6 +428,51 @@ function App() {
           to { transform: translateY(100%); opacity: 0; }
         }
       `}</style>
+
+      {/* Özel kaydırma davranışı için JavaScript */}
+      <script dangerouslySetInnerHTML={{
+        __html: `
+          document.addEventListener('DOMContentLoaded', function() {
+            let lastScrollTop = 0;
+            let isScrollingToSection = false;
+            
+            window.addEventListener('scroll', function() {
+              const currentScroll = window.scrollY || document.documentElement.scrollTop;
+              const homeSection = document.getElementById('home');
+              const aboutSection = document.getElementById('about');
+              const spacerSection = document.querySelector('.spacer-section');
+              
+              if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
+              
+              const homeSectionBottom = homeSection.getBoundingClientRect().bottom;
+              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
+              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
+              const aboutSectionTop = aboutSection.getBoundingClientRect().top;
+              
+              // Eğer spacer bölümünde isek ve kaydırma yapılıyorsa
+              if (spacerSectionTop <= 100 && aboutSectionTop > 0) {
+                isScrollingToSection = true;
+                
+                // Aşağı kaydırılıyorsa about bölümüne git
+                if (currentScroll > lastScrollTop) {
+                  aboutSection.scrollIntoView({ behavior: 'smooth' });
+                } 
+                // Yukarı kaydırılıyorsa home bölümüne git
+                else {
+                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                }
+                
+                // Animasyon bitiminde flag'i sıfırla
+                setTimeout(() => {
+                  isScrollingToSection = false;
+                }, 1000);
+              }
+              
+              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+            });
+          });
+        `
+      }} />
     </div>
   );
 }

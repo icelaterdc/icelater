@@ -11,189 +11,51 @@ import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
 import GameModal from './components/GameModal';
 
-// InteractiveEffects: fare/touch hareketlerine bağlı sis bulutu efektleri
+// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmıyor)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [trails, setTrails] = useState<any[]>([]);
-  const [clickEffects, setClickEffects] = useState<any[]>([]);
-  const [drawingPoints, setDrawingPoints] = useState<any[]>([]);
-  const fadeDuration = 2000; // milisaniye, iz ve çizimlerin solma süresi
 
-  // Ortak sis bulutu stili
+  // Sis efekti: biraz daha büyük ve daha soluk
   const mistStyle = {
-    background: 'radial-gradient(circle, rgba(0,123,255,0.5) 0%, rgba(0,123,255,0) 70%)',
+    background: 'radial-gradient(circle, rgba(0,123,255,0.3) 0%, rgba(0,123,255,0) 80%)',
   };
 
   useEffect(() => {
-    const addTrailAndPoint = (x: number, y: number) => {
-      const id = Date.now() + Math.random();
-      const newTrail = { id, x, y };
-      setTrails((prev) => [...prev, newTrail]);
-      setTimeout(() => {
-        setTrails((prev) => prev.filter((trail) => trail.id !== id));
-      }, fadeDuration);
-
-      setDrawingPoints((prev) => [...prev, { x, y, t: Date.now() }]);
-    };
-
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      if (isDragging) addTrailAndPoint(e.clientX, e.clientY);
     };
 
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
-        if (isDragging) addTrailAndPoint(touch.clientX, touch.clientY);
-      }
-    };
-
-    const handleMouseDown = (e: MouseEvent) => {
-      setIsDragging(true);
-      setDrawingPoints([{ x: e.clientX, y: e.clientY, t: Date.now() }]);
-    };
-
-    const handleTouchStart = (e: TouchEvent) => {
-      const touch = e.touches[0];
-      if (touch) {
-        setIsDragging(true);
-        setDrawingPoints([{ x: touch.clientX, y: touch.clientY, t: Date.now() }]);
-      }
-    };
-
-    const handleMouseUp = () => setIsDragging(false);
-    const handleTouchEnd = () => setIsDragging(false);
-
-    const handleClick = (e: MouseEvent) => {
-      if (!isDragging) {
-        const id = Date.now() + Math.random();
-        const newClickEffect = { id, x: e.clientX, y: e.clientY };
-        setClickEffects((prev) => [...prev, newClickEffect]);
-        setTimeout(() => {
-          setClickEffects((prev) => prev.filter((ce) => ce.id !== id));
-        }, 1000);
       }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
-    window.addEventListener('mousedown', handleMouseDown);
-    window.addEventListener('touchstart', handleTouchStart, { passive: true });
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('touchend', handleTouchEnd);
-    window.addEventListener('click', handleClick);
-
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
       window.removeEventListener('touchmove', handleTouchMove);
-      window.removeEventListener('mousedown', handleMouseDown);
-      window.removeEventListener('touchstart', handleTouchStart);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('touchend', handleTouchEnd);
-      window.removeEventListener('click', handleClick);
     };
-  }, [isDragging]);
+  }, []);
 
   return (
     <>
-      {/* Neon fare takipçisi */}
+      {/* Neon fare takipçisi (iz bırakmadan, sadece imleç etrafında) */}
       <div
         style={{
           position: 'fixed',
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '30px',
-          height: '30px',
+          width: '50px', // boyut arttırıldı
+          height: '50px',
           borderRadius: '50%',
           pointerEvents: 'none',
           ...mistStyle,
         }}
       />
-
-      {/* Sürükleme izleri */}
-      {trails.map((trail) => (
-        <div
-          key={trail.id}
-          style={{
-            position: 'fixed',
-            left: trail.x,
-            top: trail.y,
-            transform: 'translate(-50%, -50%)',
-            width: '20px',
-            height: '20px',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            ...mistStyle,
-            animation: 'fadeOut 2s forwards',
-          }}
-        />
-      ))}
-
-      {/* Tıklama efekti */}
-      {clickEffects.map((ce) => (
-        <div
-          key={ce.id}
-          style={{
-            position: 'fixed',
-            left: ce.x,
-            top: ce.y,
-            transform: 'translate(-50%, -50%)',
-            width: '40px',
-            height: '40px',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            ...mistStyle,
-            animation: 'fadeOut 1s forwards',
-          }}
-        />
-      ))}
-
-      {/* Free drawing: SVG ile sis bulutu efektli noktalar */}
-      {drawingPoints.length > 0 && (
-        <svg
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            overflow: 'visible',
-          }}
-        >
-          <defs>
-            <radialGradient id="mistGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" stopColor="rgba(0,123,255,0.5)" />
-              <stop offset="100%" stopColor="rgba(0,123,255,0)" />
-            </radialGradient>
-          </defs>
-          {drawingPoints.map((point, index) => {
-            const elapsed = Date.now() - point.t;
-            const opacity = Math.max(0, 1 - elapsed / fadeDuration);
-            return (
-              <circle
-                key={index}
-                cx={point.x}
-                cy={point.y}
-                r={12}
-                fill="url(#mistGradient)"
-                fillOpacity={opacity}
-              />
-            );
-          })}
-        </svg>
-      )}
-
-      {/* Animasyon keyframe tanımlaması */}
-      <style>{`
-        @keyframes fadeOut {
-          from { opacity: 1; }
-          to { opacity: 0; }
-        }
-      `}</style>
     </>
   );
 }

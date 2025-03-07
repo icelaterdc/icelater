@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation, useInView } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -49,8 +49,8 @@ function InteractiveEffects() {
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '85px', // Biraz daha büyük yapıldı
-          height: '85px', // Biraz daha büyük yapıldı
+          width: '85px', 
+          height: '85px',
           pointerEvents: 'none',
           ...mistStyle,
         }}
@@ -199,6 +199,37 @@ function AnimatedTitle() {
   );
 }
 
+// Görünüm alanına girildiğinde animasyon yapacak bileşen
+const AnimateOnScroll = ({ children, className = "", delay = 0, threshold = 0.1 }) => {
+  const ref = React.useRef(null);
+  const isInView = useInView(ref, { once: true, threshold: threshold });
+  const animations = useAnimation();
+
+  useEffect(() => {
+    if (isInView) {
+      animations.start({
+        y: 0,
+        opacity: 1,
+        transition: {
+          duration: 0.5,
+          delay: delay
+        }
+      });
+    }
+  }, [isInView, animations, delay]);
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ y: 30, opacity: 0 }}
+      animate={animations}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+};
+
 function App() {
   // Sayfa yükleme durumu için
   const [isLoading, setIsLoading] = useState(true);
@@ -252,7 +283,7 @@ function App() {
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20 snap-scroll-area">
+      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
@@ -300,34 +331,41 @@ function App() {
         </div>
       </section>
 
-      {/* Boşluk bölümü - Snap kaydırma için */}
-      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950 snap-scroll-area"></div>
-
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-950 snap-scroll-area">
+      <section id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
+          <AnimateOnScroll>
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          </AnimateOnScroll>
+          <AnimateOnScroll delay={0.2}>
+            <AboutSection />
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Projects Section */}
       <section id="projects" className="py-20 bg-gray-950/50">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-            <p className="text-gray-300">
-              Explore my latest repositories and contributions on GitHub.
-            </p>
-          </div>
-          <GitHubRepos />
+          <AnimateOnScroll>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+              <p className="text-gray-300">
+                Explore my latest repositories and contributions on GitHub.
+              </p>
+            </div>
+          </AnimateOnScroll>
+          <AnimateOnScroll delay={0.2}>
+            <GitHubRepos />
+          </AnimateOnScroll>
         </div>
       </section>
 
       {/* Contact Section */}
       <section id="contact" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <ContactSection />
+          <AnimateOnScroll>
+            <ContactSection />
+          </AnimateOnScroll>
         </div>
       </section>
 
@@ -339,114 +377,7 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        
-        /* Sadece belirli bölgeler için snap scrolling ayarları */
-        .snap-scroll-area {
-          scroll-snap-align: start;
-        }
       `}</style>
-
-      {/* Özel kaydırma davranışı için JavaScript */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            let lastScrollTop = 0;
-            let isScrollingToSection = false;
-            
-            // Kaydırma işleyici fonksiyonu
-            function handleScrollBetweenSections() {
-              const currentScroll = window.scrollY || document.documentElement.scrollTop;
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-              
-              if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
-              
-              // Sadece Home ve About arasındaki alanda etkin olsun
-              const homeSectionBottom = homeSection.getBoundingClientRect().bottom;
-              const aboutSectionTop = aboutSection.getBoundingClientRect().top;
-              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
-              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
-              
-              // Sadece spacer bölümünde veya sınırlarında isek özel kaydırma uygula
-              if (spacerSectionTop >= -window.innerHeight/2 && 
-                  spacerSectionBottom <= window.innerHeight*1.5) {
-                
-                isScrollingToSection = true;
-                
-                // Aşağı kaydırılıyorsa about bölümüne git
-                if (currentScroll > lastScrollTop + 5) {
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } 
-                // Yukarı kaydırılıyorsa home bölümüne git
-                else if (currentScroll < lastScrollTop - 5) {
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                }
-                
-                // Animasyon bitiminde flag'i sıfırla
-                setTimeout(() => {
-                  isScrollingToSection = false;
-                }, 1000);
-              }
-              
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-            }
-            
-            // Dokunmatik cihazlar için özel dokunma işleyicisi
-            let touchStartY = 0;
-            let touchEndY = 0;
-            const touchThreshold = 30; // Kaydırma için eşik değeri
-            
-            function handleTouchStart(e) {
-              touchStartY = e.touches[0].clientY;
-            }
-            
-            function handleTouchEnd(e) {
-              if (isScrollingToSection) return;
-              
-              touchEndY = e.changedTouches[0].clientY;
-              const difference = touchStartY - touchEndY;
-              
-              if (Math.abs(difference) < touchThreshold) return;
-              
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-              
-              if (!homeSection || !aboutSection || !spacerSection) return;
-              
-              // Sadece spacer bölümünde veya home/about sınırlarında isek özel kaydırma uygula
-              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
-              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
-              
-              if (spacerSectionTop >= -window.innerHeight/2 && 
-                  spacerSectionBottom <= window.innerHeight*1.5) {
-                
-                isScrollingToSection = true;
-                
-                // Yukarıdan aşağıya kaydırma (aşağı yönde)
-                if (difference > 0) {
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } 
-                // Aşağıdan yukarıya kaydırma (yukarı yönde)
-                else {
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                }
-                
-                // Animasyon bitiminde flag'i sıfırla
-                setTimeout(() => {
-                  isScrollingToSection = false;
-                }, 1000);
-              }
-            }
-            
-            // Olay dinleyicileri ekle
-            window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
-            document.addEventListener('touchstart', handleTouchStart, { passive: true });
-            document.addEventListener('touchend', handleTouchEnd, { passive: true });
-          });
-        `
-      }} />
     </div>
   );
 }

@@ -79,7 +79,7 @@ function AnimatedTitle() {
         if (span) {
           span.style.opacity = targetOpacity.toString();
         }
-      }, i * 100); // Her harf arasında 100ms
+      }, i * 150); // Daha yavaş belirme/solma için 100ms -> 150ms
     });
   };
   
@@ -92,17 +92,17 @@ function AnimatedTitle() {
         setDisplayText("IceLater Full-Stack Developer");
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 5000); // 5 saniye ana yazı
+        }, 8000); // 8 saniye ana yazı
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 3000); // 3 saniye hello yazısı
+        }, 5000); // 5 saniye hello yazısı
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 3000); // 3 saniye icy yazısı
+        }, 5000); // 5 saniye icy yazısı
       }
       
       // Yazı göründükten sonra her karakterin görünür olduğundan emin ol
@@ -111,7 +111,7 @@ function AnimatedTitle() {
         charElements.forEach(el => {
           el.style.opacity = "1";
         });
-      }, 100);
+      }, 150);
       
     } else if (fadeDirection === "out") {
       // Metni rastgele sıralamayla soldur
@@ -127,7 +127,7 @@ function AnimatedTitle() {
           setAnimationState("main");
         }
         setFadeDirection("in");
-      }, displayText.length * 100 + 200); // Tüm harflerin solması için yeterli süre
+      }, displayText.length * 150 + 300); // Tüm harflerin solması için yeterli süre (daha yavaş)
     }
     
     return () => clearTimeout(timer);
@@ -140,7 +140,7 @@ function AnimatedTitle() {
           key={index} 
           id={`char-${index}`}
           style={{ 
-            transition: "opacity 0.3s ease", 
+            transition: "opacity 0.5s ease", // Daha yavaş geçiş
             opacity: 1,
             color: char === 'I' && (index === 0 || (displayText.includes("Hello, I'm IceLater") && index === 10)) || 
                   char === 'c' && (index === 1 || (displayText.includes("Hello, I'm IceLater") && index === 11)) || 
@@ -201,11 +201,12 @@ function App() {
     resetIdleTimer();
   };
 
-  // Smooth scroll özelliği için
-  const scrollToSection = (sectionId) => {
-    const section = document.getElementById(sectionId);
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth' });
+  // Sadece scroll down için smooth scroll özelliği
+  const handleScrollToAbout = (e) => {
+    e.preventDefault();
+    const aboutSection = document.getElementById('about');
+    if (aboutSection) {
+      aboutSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
@@ -256,10 +257,7 @@ function App() {
             <a
               href="#about"
               className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
-              onClick={(e) => {
-                e.preventDefault();
-                scrollToSection('about');
-              }}
+              onClick={handleScrollToAbout}
             >
               <span className="mb-2">Scroll Down</span>
               <ChevronDown className="animate-bounce" />
@@ -271,7 +269,7 @@ function App() {
       {/* About Section */}
       <section id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-5xl font-['Permanent_Marker'] text-center mb-8">Who am I ?</h2>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
         </div>
       </section>
@@ -323,13 +321,15 @@ function App() {
       {gameModalOpen && <GameModal onClose={closeGameModal} />}
 
       <style>{`
-        @font-face {
-          font-family: 'Permanent Marker';
-          src: url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
+        .font-permanent-marker {
+          font-family: 'Permanent Marker', cursive;
         }
         
+        /* Sadece scroll down için smooth scroll, diğer sayfa geçişleri için ani geçiş */
         html {
-          scroll-behavior: smooth;
+          scroll-behavior: auto;
         }
         
         @keyframes slideUp {

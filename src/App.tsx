@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useAnimation } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -133,6 +133,40 @@ function AnimatedTitle() {
   );
 }
 
+// Intersection Observer ile animasyonu tetikleyen özel bir bileşen
+function AnimatedSection({ children, id }) {
+  const controls = useAnimation();
+  const [ref, setRef] = useState(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          controls.start({ opacity: 1, y: 0 });
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    if (ref) observer.observe(ref);
+    return () => {
+      if (ref) observer.unobserve(ref);
+    };
+  }, [ref, controls]);
+
+  return (
+    <motion.section
+      ref={setRef}
+      id={id}
+      initial={{ opacity: 0, y: 50 }}
+      animate={controls}
+      transition={{ duration: 1 }}
+    >
+      {children}
+    </motion.section>
+  );
+}
+
 function App() {
   const [isLoading, setIsLoading] = useState(true);
 
@@ -153,10 +187,29 @@ function App() {
       ::-webkit-scrollbar-thumb:hover {
         background: #2563eb;
       }
+      footer {
+        min-height: 100vh; /* Footer'ın mobilde yeterince yer kaplamasını sağlar */
+      }
     `;
     document.head.appendChild(style);
     setTimeout(() => setIsLoading(false), 500);
-    return () => document.head.removeChild(style);
+
+    // Scroll kontrolü: En alta ulaşıldığında footer'ı görünür tut
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight;
+      const footer = document.querySelector('footer');
+
+      if (scrollPosition >= documentHeight - 10) { // En alta yakınsa
+        footer.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      document.head.removeChild(style);
+    };
   }, []);
 
   const handleScrollToAbout = (e) => {
@@ -171,189 +224,87 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20 snap-scroll-area">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5 }}>
+      <AnimatedSection id="home">
+        <div className="min-h-screen flex items-center justify-center relative pt-20">
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
               <AnimatedTitle />
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
             </motion.div>
-            <motion.p initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.2 }} className="text-xl text-gray-300 max-w-2xl">
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 1, delay: 0.8 }}
+              className="flex justify-center mt-12"
+            >
+              <a href="#about" className="flex flex-col items-center text-gray-400 hover:text-white transition-colors" onClick={handleScrollToAbout}>
+                <span className="mb-2">Scroll Down</span>
+                <ChevronDown className="animate-bounce" />
+              </a>
+            </motion.div>
           </div>
-          <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}>
-            <DiscordCard />
-          </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.8 }} className="flex justify-center mt-12">
-            <a href="#about" className="flex flex-col items-center text-gray-400 hover:text-white transition-colors" onClick={handleScrollToAbout}>
-              <span className="mb-2">Scroll Down</span>
-              <ChevronDown className="animate-bounce" />
-            </a>
-          </motion.div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950 snap-scroll-area"></div>
+      <div className="h-48 bg-gradient-to-b from-gray-950 to-gray-950"></div>
 
-      <section id="about" className="py-20 bg-gray-950 snap-scroll-area">
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
-
-      <section id="projects" className="py-20 bg-gray-950/50 snap-scroll-area">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-            <p className="text-gray-300">Explore my latest repositories and contributions on GitHub.</p>
+      <AnimatedSection id="about">
+        <div className="py-20 bg-gray-950">
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
           </div>
-          <GitHubRepos />
         </div>
-      </section>
+      </AnimatedSection>
 
-      <section id="contact" className="py-20 bg-gray-950 snap-scroll-area">
-        <div className="container mx-auto px-4 md:px-6">
-          <ContactSection />
+      <AnimatedSection id="projects">
+        <div className="py-20 bg-gray-950/50">
+          <div className="container mx-auto px-4 md:px-6">
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+              <p className="text-gray-300">Explore my latest repositories and contributions on GitHub.</p>
+            </div>
+            <GitHubRepos />
+          </div>
         </div>
-      </section>
+      </AnimatedSection>
 
-      <Footer />
+      <AnimatedSection id="contact">
+        <div className="py-20 bg-gray-950">
+          <div className="container mx-auto px-4 md:px-6">
+            <ContactSection />
+          </div>
+        </div>
+      </AnimatedSection>
+
+      <AnimatedSection id="footer">
+        <Footer />
+      </AnimatedSection>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        .snap-scroll-area {
-          scroll-snap-align: start;
-        }
       `}</style>
-
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            let lastScrollTop = 0;
-            let isScrollingToSection = false;
-            const sections = ['home', 'about', 'projects', 'contact'];
-            let currentSection = 'home';
-
-            // Hangi bölümün viewport'ta en çok yer kapladığını bul
-            function getCurrentSection() {
-              let maxVisibleHeight = 0;
-              let current = 'home';
-              sections.forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                  const rect = section.getBoundingClientRect();
-                  const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-                  if (visibleHeight > maxVisibleHeight) {
-                    maxVisibleHeight = visibleHeight;
-                    current = sectionId;
-                  }
-                }
-              });
-              return current;
-            }
-
-            // Kaydırma işleyici
-            function handleScrollBetweenSections() {
-              const currentScroll = window.scrollY || document.documentElement.scrollTop;
-              const direction = currentScroll > lastScrollTop ? 'down' : 'up';
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-
-              if (isScrollingToSection) return;
-
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              if (!homeSection || !aboutSection) return;
-
-              const updatedCurrentSection = getCurrentSection();
-              if (updatedCurrentSection !== currentSection) {
-                currentSection = updatedCurrentSection;
-              }
-
-              // Home'dan About'a geçiş
-              if (direction === 'down' && currentSection === 'home') {
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
-                  isScrollingToSection = true;
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // About'tan Home'a geçiş
-              else if (direction === 'up' && currentSection === 'about') {
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
-                  isScrollingToSection = true;
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // Diğer durumlarda hiçbir şey yapma (normal kaydırma)
-            }
-
-            // Dokunma olayları için
-            let touchStartY = 0;
-            let touchEndY = 0;
-            const touchThreshold = 30;
-
-            function handleTouchStart(e) {
-              touchStartY = e.touches[0].clientY;
-            }
-
-            function handleTouchEnd(e) {
-              if (isScrollingToSection) return;
-              touchEndY = e.changedTouches[0].clientY;
-              const difference = touchStartY - touchEndY;
-              if (Math.abs(difference) < touchThreshold) return;
-
-              const direction = difference > 0 ? 'down' : 'up';
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              if (!homeSection || !aboutSection) return;
-
-              const updatedCurrentSection = getCurrentSection();
-              if (updatedCurrentSection !== currentSection) {
-                currentSection = updatedCurrentSection;
-              }
-
-              // Home'dan About'a geçiş
-              if (direction === 'down' && currentSection === 'home') {
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
-                  isScrollingToSection = true;
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // About'tan Home'a geçiş
-              else if (direction === 'up' && currentSection === 'about') {
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
-                  isScrollingToSection = true;
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-            }
-
-            // Olay dinleyicileri
-            window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
-            document.addEventListener('touchstart', handleTouchStart, { passive: true });
-            document.addEventListener('touchend', handleTouchEnd, { passive: true });
-          });
-        `
-      }} />
     </div>
   );
 }

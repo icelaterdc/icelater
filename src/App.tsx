@@ -372,7 +372,7 @@ function App() {
       <section 
         id="about" 
         ref={aboutRef}
-        className="min-h-screen py-20 bg-gray-950"
+        className="py-20 bg-gray-950"
         style={{ 
           opacity: aboutOpacity,
           transition: "opacity 0.5s ease",

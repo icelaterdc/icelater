@@ -176,7 +176,7 @@ const AnimatedSection = ({ id, children, className }) => {
           controls.start({ opacity: 1, y: 0 });
         }
       },
-      { threshold: 0.2 } // Bölümün %20'si göründüğünde tetiklenir
+      { threshold: 0.2 }
     );
 
     if (ref) observer.observe(ref);
@@ -193,7 +193,7 @@ const AnimatedSection = ({ id, children, className }) => {
       className={className}
       initial={{ opacity: 0, y: 50 }}
       animate={controls}
-      transition={{ duration: 1, ease: "easeOut" }} // 0.8'den 1'e yükseltildi (hafif yavaşlama)
+      transition={{ duration: 1, ease: "easeOut" }}
     >
       {children}
     </motion.section>
@@ -228,8 +228,50 @@ function App() {
       setIsLoading(false);
     }, 500);
 
+    // Özel kaydırma mekanizması için IntersectionObserver
+    const spacer = document.querySelector('.spacer-section');
+    let lastScrollY = window.scrollY;
+    let isScrolling = false;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isScrolling) {
+          const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+            const homeSection = document.getElementById('home');
+            const aboutSection = document.getElementById('about');
+
+            if (!homeSection || !aboutSection) return;
+
+            if (currentScrollY > lastScrollY + 50) { // Aşağı kaydırma
+              isScrolling = true;
+              aboutSection.scrollIntoView({ behavior: 'smooth' });
+              setTimeout(() => {
+                isScrolling = false;
+              }, 1000);
+            } else if (currentScrollY < lastScrollY - 50) { // Yukarı kaydırma
+              isScrolling = true;
+              homeSection.scrollIntoView({ behavior: 'smooth' });
+              setTimeout(() => {
+                isScrolling = false;
+              }, 1000);
+            }
+
+            lastScrollY = currentScrollY;
+          };
+
+          window.addEventListener('scroll', handleScroll, { passive: true });
+          return () => window.removeEventListener('scroll', handleScroll);
+        }
+      },
+      { threshold: 0.5 } // Spacer'ın %50'si göründüğünde tetiklenir
+    );
+
+    if (spacer) observer.observe(spacer);
+
     return () => {
       document.head.removeChild(style);
+      if (spacer) observer.unobserve(spacer);
     };
   }, []);
 

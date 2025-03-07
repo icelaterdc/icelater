@@ -161,7 +161,7 @@ function AnimatedTitle() {
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  // IceLater kontrolü - tamamı mavi olacak, hiçbir harf beyaz olmayacak
+  // IceLater kontrolü - "Hello, I'm IceLater" için r harfi mavi olacak
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
       // IceLater tamamen mavi (0-7 indeksleri)
@@ -171,7 +171,14 @@ function AnimatedTitle() {
     } else if (text === "Hello, I'm IceLater") {
       // IceLater tamamen mavi (10-17 indeksleri)
       if (index >= 10 && index <= 17) {
-        return "#3b82f6";
+        // "r" mavi, "o" beyaz olacak şekilde
+        if (index === 15) { // r harfi
+          return "#3b82f6";
+        } else if (index === 12) { // o harfi
+          return "white";
+        } else {
+          return "#3b82f6";
+        }
       }
     } else if (text === "Sometimes Icy") {
       // Icy tamamen mavi (10-12 indeksleri)
@@ -414,7 +421,7 @@ function App() {
         /* Sayfa kaydırma davranışını düzenle */
         html {
           scroll-behavior: smooth;
-          scroll-snap-type: y proximity;
+          scroll-snap-type: y mandatory;
         }
         
         /* Özel kaydırma davranışı */
@@ -435,6 +442,10 @@ function App() {
           document.addEventListener('DOMContentLoaded', function() {
             let lastScrollTop = 0;
             let isScrollingToSection = false;
+            let scrollTimeout;
+            
+            // Threshold değerleri - daha düşük değerler kaydırmayı daha hassas yapar
+            const scrollThreshold = 10;
             
             window.addEventListener('scroll', function() {
               const currentScroll = window.scrollY || document.documentElement.scrollTop;
@@ -449,16 +460,68 @@ function App() {
               const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
               const aboutSectionTop = aboutSection.getBoundingClientRect().top;
               
-              // Eğer spacer bölümünde isek ve kaydırma yapılıyorsa
-              if (spacerSectionTop <= 100 && aboutSectionTop > 0) {
+              // Eğer spacer bölümü veya yakınlarında isek ve kaydırma yapılıyorsa
+              if ((spacerSectionTop <= 200 && aboutSectionTop > -200) || 
+                  (homeSectionBottom > -200 && homeSectionBottom < 200)) {
+                
+                clearTimeout(scrollTimeout);
+                
+                scrollTimeout = setTimeout(() => {
+                  isScrollingToSection = true;
+                  
+                  // Aşağı kaydırılıyorsa about bölümüne git
+                  if (currentScroll > lastScrollTop + scrollThreshold) {
+                    aboutSection.scrollIntoView({ behavior: 'smooth' });
+                  } 
+                  // Yukarı kaydırılıyorsa home bölümüne git
+                  else if (currentScroll < lastScrollTop - scrollThreshold) {
+                    homeSection.scrollIntoView({ behavior: 'smooth' });
+                  }
+                  
+                  // Animasyon bitiminde flag'i sıfırla
+                  setTimeout(() => {
+                    isScrollingToSection = false;
+                  }, 1000);
+                }, 5); // Daha hassas kaydırma için timeout değeri azaltıldı
+              }
+              
+              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+            }, { passive: true });
+            
+            // Dokunmatik cihazlar için özel kaydırma desteği
+            let touchStartY = 0;
+            let touchEndY = 0;
+            const touchThreshold = 50; // Kaydırma için eşik değeri
+            
+            document.addEventListener('touchstart', function(e) {
+              touchStartY = e.touches[0].clientY;
+            }, { passive: true });
+            
+            document.addEventListener('touchend', function(e) {
+              touchEndY = e.changedTouches[0].clientY;
+              
+              const homeSection = document.getElementById('home');
+              const aboutSection = document.getElementById('about');
+              const spacerSection = document.querySelector('.spacer-section');
+              
+              if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
+              
+              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
+              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
+              const aboutSectionTop = aboutSection.getBoundingClientRect().top;
+              
+              // Eğer spacer bölümü veya yakınlarında isek
+              if ((spacerSectionTop <= 200 && aboutSectionTop > -200) || 
+                  (spacerSectionTop <= 0 && spacerSectionBottom >= 0)) {
+                
                 isScrollingToSection = true;
                 
-                // Aşağı kaydırılıyorsa about bölümüne git
-                if (currentScroll > lastScrollTop) {
+                // Yukarıdan aşağıya kaydırma (about bölümüne)
+                if (touchStartY > touchEndY && Math.abs(touchStartY - touchEndY) > touchThreshold) {
                   aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } 
-                // Yukarı kaydırılıyorsa home bölümüne git
-                else {
+                }
+                // Aşağıdan yukarıya kaydırma (home bölümüne)
+                else if (touchStartY < touchEndY && Math.abs(touchStartY - touchEndY) > touchThreshold) {
                   homeSection.scrollIntoView({ behavior: 'smooth' });
                 }
                 
@@ -467,9 +530,7 @@ function App() {
                   isScrollingToSection = false;
                 }, 1000);
               }
-              
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-            });
+            }, { passive: true });
           });
         `
       }} />

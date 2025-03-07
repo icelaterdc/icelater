@@ -13,7 +13,6 @@ import { ChevronDown } from 'lucide-react';
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
     background: 'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
@@ -224,7 +223,7 @@ function App() {
         </div>
       </section>
 
-      <section id="projects" className="py-20 bg-gray-950/50">
+      <section id="projects" className="py-20 bg-gray-950/50 snap-scroll-area">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -234,7 +233,7 @@ function App() {
         </div>
       </section>
 
-      <section id="contact" className="py-20 bg-gray-950">
+      <section id="contact" className="py-20 bg-gray-950 snap-scroll-area">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
@@ -257,65 +256,108 @@ function App() {
           document.addEventListener('DOMContentLoaded', function() {
             let lastScrollTop = 0;
             let isScrollingToSection = false;
-            
+            const sections = ['home', 'about', 'projects', 'contact'];
+
+            // Hangi bölümün viewport'ta en çok yer kapladığını bul
+            function getCurrentSection() {
+              let maxVisibleHeight = 0;
+              let current = 'home';
+              sections.forEach(sectionId => {
+                const section = document.getElementById(sectionId);
+                if (section) {
+                  const rect = section.getBoundingClientRect();
+                  const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
+                  if (visibleHeight > maxVisibleHeight) {
+                    maxVisibleHeight = visibleHeight;
+                    current = sectionId;
+                  }
+                }
+              });
+              return current;
+            }
+
+            // Kaydırma işleyici fonksiyonu
             function handleScrollBetweenSections() {
               const currentScroll = window.scrollY || document.documentElement.scrollTop;
+              const direction = currentScroll > lastScrollTop ? 'down' : 'up';
+              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+
+              if (isScrollingToSection) return;
+
               const homeSection = document.getElementById('home');
               const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-              
-              if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
-              
-              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
-              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
-              
-              if (spacerSectionTop < window.innerHeight && spacerSectionBottom > 0) {
-                isScrollingToSection = true;
-                if (currentScroll > lastScrollTop + 5) {
+              if (!homeSection || !aboutSection) return;
+
+              const currentSection = getCurrentSection();
+
+              // Home'dan About'a geçiş
+              if (direction === 'down' && currentSection === 'home') {
+                const homeBottom = homeSection.getBoundingClientRect().bottom;
+                const aboutTop = aboutSection.getBoundingClientRect().top;
+                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
+                  isScrollingToSection = true;
                   aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } else if (currentScroll < lastScrollTop - 5) {
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                  setTimeout(() => isScrollingToSection = false, 1000);
                 }
-                setTimeout(() => isScrollingToSection = false, 1000);
               }
-              
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+              // About'tan Home'a geçiş
+              else if (direction === 'up' && currentSection === 'about') {
+                const aboutTop = aboutSection.getBoundingClientRect().top;
+                const homeBottom = homeSection.getBoundingClientRect().bottom;
+                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
+                  isScrollingToSection = true;
+                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                  setTimeout(() => isScrollingToSection = false, 1000);
+                }
+              }
+              // Diğer durumlarda hiçbir şey yapma
             }
-            
+
+            // Dokunma olayları için
             let touchStartY = 0;
             let touchEndY = 0;
             const touchThreshold = 30;
-            
+
             function handleTouchStart(e) {
               touchStartY = e.touches[0].clientY;
             }
-            
+
             function handleTouchEnd(e) {
               if (isScrollingToSection) return;
               touchEndY = e.changedTouches[0].clientY;
               const difference = touchStartY - touchEndY;
               if (Math.abs(difference) < touchThreshold) return;
-              
+
+              const direction = difference > 0 ? 'down' : 'up';
               const homeSection = document.getElementById('home');
               const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-              
-              if (!homeSection || !aboutSection || !spacerSection) return;
-              
-              const spacerSectionTop = spacerSection.getBoundingClientRect().top;
-              const spacerSectionBottom = spacerSection.getBoundingClientRect().bottom;
-              
-              if (spacerSectionTop < window.innerHeight && spacerSectionBottom > 0) {
-                isScrollingToSection = true;
-                if (difference > 0) {
+              if (!homeSection || !aboutSection) return;
+
+              const currentSection = getCurrentSection();
+
+              // Home'dan About'a geçiş
+              if (direction === 'down' && currentSection === 'home') {
+                const homeBottom = homeSection.getBoundingClientRect().bottom;
+                const aboutTop = aboutSection.getBoundingClientRect().top;
+                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
+                  isScrollingToSection = true;
                   aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } else {
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                  setTimeout(() => isScrollingToSection = false, 1000);
                 }
-                setTimeout(() => isScrollingToSection = false, 1000);
+              }
+              // About'tan Home'a geçiş
+              else if (direction === 'up' && currentSection === 'about') {
+                const aboutTop = aboutSection.getBoundingClientRect().top;
+                const homeBottom = homeSection.getBoundingClientRect().bottom;
+                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
+                  isScrollingToSection = true;
+                  homeSection.scrollIntoView({ behavior: 'smooth' });
+                  setTimeout(() => isScrollingToSection = false, 1000);
+                }
               }
             }
-            
+
+            // Olay dinleyicileri
             window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
             document.addEventListener('touchstart', handleTouchStart, { passive: true });
             document.addEventListener('touchend', handleTouchEnd, { passive: true });

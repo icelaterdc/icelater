@@ -1,6 +1,5 @@
-// App.tsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion } from 'framer-motion';
+import { motion, useScroll, useSpring } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -8,125 +7,32 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import GameModal from './components/GameModal';
 import { ChevronDown } from 'lucide-react';
+import GameModal from './components/GameModal';
 
-/* 
-  AnimatedHeroText: 
-  Bu bileşen, aşağıdaki sırayla animasyon uygular:
-  1. "IceLater Full-Stack Developer" (başlangıçta 5 saniye sabit, 
-     'IceLater' kısmı her zaman mavi),
-  2. ardından harfler rastgele sırayla (karma şekilde) solup
-  3. "Hello, I'm IceLater" harfleri rastgele sırayla belirir (3 saniye),
-  4. sonra yine harfler rastgele solup,
-  5. "Sometimes Icy" harfleri rastgele sırayla belirir (3 saniye) ve
-  6. sonrasında tekrar ana metinle döngü başa döner.
-*/
-const AnimatedHeroText: React.FC = () => {
-  const texts = [
-    "IceLater Full-Stack Developer",
-    "Hello, I'm IceLater",
-    "Sometimes Icy"
-  ];
-  const displayDurations = [5000, 3000, 3000]; // ms
-  const fadeDuration = 1000; // ms (fade-out ve fade-in süresi)
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [phase, setPhase] = useState<"display" | "fadeOut" | "fadeIn">("display");
-  const [letterDelays, setLetterDelays] = useState<number[]>([]);
-
-  const currentText = texts[currentTextIndex];
-
-  // Geçiş başladığında, her harf için rastgele bir delay oluştur.
-  useEffect(() => {
-    const delays = currentText.split("").map(() => Math.random() * 0.5);
-    setLetterDelays(delays);
-  }, [currentText]);
-
-  // Her faz için zamanlayıcı ayarla.
-  useEffect(() => {
-    let timer: NodeJS.Timeout;
-    if (phase === "display") {
-      timer = setTimeout(() => setPhase("fadeOut"), displayDurations[currentTextIndex]);
-    } else if (phase === "fadeOut") {
-      timer = setTimeout(() => {
-        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
-        setPhase("fadeIn");
-      }, fadeDuration);
-    } else if (phase === "fadeIn") {
-      timer = setTimeout(() => setPhase("display"), fadeDuration);
-    }
-    return () => clearTimeout(timer);
-  }, [phase, currentTextIndex, texts, displayDurations, fadeDuration]);
-
-  // Variants; fadeIn için başlangıç: opacity 0, y +20; fadeOut için opacity 0, y -20.
-  const letterVariants = {
-    initial: (custom: number) =>
-      phase === "fadeIn" ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 },
-    animate: (custom: number) =>
-      phase === "fadeIn"
-        ? { opacity: 1, y: 0 }
-        : phase === "fadeOut"
-        ? { opacity: 0, y: -20 }
-        : { opacity: 1, y: 0 },
-  };
-
-  return (
-    <motion.h1
-      className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
-      style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
-    >
-      {currentText.split("").map((char, index) => {
-        // 'IceLater' kısmı her zaman mavi olsun.
-        let isIceLater = false;
-        const pos = currentText.indexOf("IceLater");
-        if (pos !== -1 && index >= pos && index < pos + "IceLater".length) {
-          isIceLater = true;
-        }
-        return (
-          <motion.span
-            key={index}
-            custom={letterDelays[index] || 0}
-            variants={letterVariants}
-            initial="initial"
-            animate="animate"
-            transition={{ delay: letterDelays[index] || 0, duration: 0.5 }}
-            style={{
-              color: isIceLater ? "#3b82f6" : "inherit",
-              display: 'inline-block',
-              marginRight: '2px'
-            }}
-          >
-            {char}
-          </motion.span>
-        );
-      })}
-    </motion.h1>
-  );
-};
-
-/*
-  InteractiveEffects:
-  İmlecin etrafında, neon ışığın altından hafifçe yayıldığı bir sis efekti.
-  - Boyut: 75px
-  - Kenarlarda kademeli azalma (daha organik, neon ışık efekti)
-*/
+// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Sis efekti: boyut artırıldı, daha soluk ve kademeli fade-out (kenarlara doğru azalan parlaklık)
   const mistStyle = {
-    background: 'radial-gradient(circle at 50% 70%, rgba(0,123,255,0.25) 0%, rgba(0,123,255,0.15) 60%, rgba(0,123,255,0) 100%)'
+    // Daha açık mavi ton ve daha hafif neon efekti
+    background: 'radial-gradient(circle, rgba(10,130,255,0.12) 0%, rgba(10,130,255,0.04) 60%, rgba(10,130,255,0) 100%)',
+    boxShadow: 'none', // Dümdüz sınırları kaldırmak için boxShadow kaldırıldı
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
+
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
       }
     };
+
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     return () => {
@@ -136,28 +42,134 @@ function InteractiveEffects() {
   }, []);
 
   return (
-    <div
-      style={{
-        position: 'fixed',
-        left: mousePos.x,
-        top: mousePos.y,
-        transform: 'translate(-50%, -50%)',
-        width: '75px',
-        height: '75px',
-        borderRadius: '50%',
-        pointerEvents: 'none',
-        ...mistStyle
-      }}
-    />
+    <>
+      <div
+        style={{
+          position: 'fixed',
+          left: mousePos.x,
+          top: mousePos.y,
+          transform: 'translate(-50%, -50%)',
+          width: '75px', // 75px olarak güncellendi
+          height: '75px',
+          borderRadius: '50%',
+          pointerEvents: 'none',
+          ...mistStyle,
+        }}
+      />
+    </>
+  );
+}
+
+// Hareketli yazı bileşeni
+function AnimatedTitle() {
+  const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
+  const [animationState, setAnimationState] = useState("main");
+  const [fadeDirection, setFadeDirection] = useState("in");
+  
+  // Bir metni rastgele şekilde harflerini solduracak/gösterecek fonksiyon
+  const animateText = (text, targetOpacity) => {
+    const characters = text.split("");
+    // Rastgele bir sıralama oluştur
+    const randomOrder = [...Array(characters.length).keys()].sort(() => Math.random() - 0.5);
+    
+    // Her harf için ayrı bir zamanlayıcı ile solma/belirme efekti
+    randomOrder.forEach((index, i) => {
+      setTimeout(() => {
+        const span = document.getElementById(`char-${index}`);
+        if (span) {
+          span.style.opacity = targetOpacity.toString();
+        }
+      }, i * 100); // Her harf arasında 100ms
+    });
+  };
+  
+  useEffect(() => {
+    let timer;
+    
+    if (fadeDirection === "in") {
+      // Metni göster
+      if (animationState === "main") {
+        setDisplayText("IceLater Full-Stack Developer");
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 5000); // 5 saniye ana yazı
+      } else if (animationState === "hello") {
+        setDisplayText("Hello, I'm IceLater");
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 3000); // 3 saniye hello yazısı
+      } else if (animationState === "icy") {
+        setDisplayText("Sometimes Icy");
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 3000); // 3 saniye icy yazısı
+      }
+      
+      // Yazı göründükten sonra her karakterin görünür olduğundan emin ol
+      setTimeout(() => {
+        const charElements = document.querySelectorAll('[id^="char-"]');
+        charElements.forEach(el => {
+          el.style.opacity = "1";
+        });
+      }, 100);
+      
+    } else if (fadeDirection === "out") {
+      // Metni rastgele sıralamayla soldur
+      animateText(displayText, "0");
+      
+      // Soldurma tamamlandıktan sonra bir sonraki duruma geç
+      timer = setTimeout(() => {
+        if (animationState === "main") {
+          setAnimationState("hello");
+        } else if (animationState === "hello") {
+          setAnimationState("icy");
+        } else {
+          setAnimationState("main");
+        }
+        setFadeDirection("in");
+      }, displayText.length * 100 + 200); // Tüm harflerin solması için yeterli süre
+    }
+    
+    return () => clearTimeout(timer);
+  }, [animationState, fadeDirection, displayText]);
+  
+  return (
+    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
+      {displayText.split("").map((char, index) => (
+        <span 
+          key={index} 
+          id={`char-${index}`}
+          style={{ 
+            transition: "opacity 0.3s ease", 
+            opacity: 1,
+            color: char === 'I' && (index === 0 || (displayText.includes("Hello, I'm IceLater") && index === 10)) || 
+                  char === 'c' && (index === 1 || (displayText.includes("Hello, I'm IceLater") && index === 11)) || 
+                  char === 'e' && (index === 2 || (displayText.includes("Hello, I'm IceLater") && index === 12)) || 
+                  char === 'L' && (index === 3 || (displayText.includes("Hello, I'm IceLater") && index === 13)) || 
+                  char === 'a' && (index === 4 || (displayText.includes("Hello, I'm IceLater") && index === 14)) || 
+                  char === 't' && (index === 5 || (displayText.includes("Hello, I'm IceLater") && index === 15)) || 
+                  char === 'e' && (index === 6 || (displayText.includes("Hello, I'm IceLater") && index === 16)) || 
+                  char === 'r' && (index === 7 || (displayText.includes("Hello, I'm IceLater") && index === 17)) || 
+                  displayText === "Sometimes Icy" && (index === 10 || index === 11 || index === 12)
+                    ? "#3b82f6" // IceLater her zaman mavi
+                    : "white"
+          }}
+        >
+          {char}
+        </span>
+      ))}
+    </h1>
   );
 }
 
 function App() {
+  // Progress bar kaldırıldı.
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
   }, []);
 
-  // Idle kontrolü: 30 saniye hareketsizlikte idle true
+  // Idle kontrolü: 30 saniye hareketsizlikte idle true olacak
   const [idle, setIdle] = useState(false);
   const idleTimerRef = React.useRef<number | null>(null);
 
@@ -189,21 +201,52 @@ function App() {
     resetIdleTimer();
   };
 
+  // Smooth scroll özelliği için
+  const scrollToSection = (sectionId) => {
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
-    <div className="min-h-screen relative" style={{ background: '#0d0d0d', color: '#ffffff' }}>
+    <div className="bg-gray-950 text-white min-h-screen relative">
       {/* Arka plan ve fare/touch efekti */}
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
-      <section
-        id="home"
-        className="min-h-screen flex items-center justify-center relative pt-20 text-center"
-        style={{ background: 'linear-gradient(to bottom, rgba(96,165,250,0.4), #0d0d0d)' }}
-      >
+      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <AnimatedHeroText />
+          <div className="flex flex-col items-center text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AnimatedTitle />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
+          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -213,6 +256,10 @@ function App() {
             <a
               href="#about"
               className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
+              onClick={(e) => {
+                e.preventDefault();
+                scrollToSection('about');
+              }}
             >
               <span className="mb-2">Scroll Down</span>
               <ChevronDown className="animate-bounce" />
@@ -222,25 +269,15 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20" style={{ background: '#0d0d0d' }}>
+      <section id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <h2
-            style={{
-              fontFamily: "'Permanent Marker', cursive",
-              fontSize: '3rem',
-              marginBottom: '1rem',
-              textAlign: 'center',
-              color: '#ffffff'
-            }}
-          >
-            Who am I ?
-          </h2>
+          <h2 className="text-5xl font-['Permanent_Marker'] text-center mb-8">Who am I ?</h2>
           <AboutSection />
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20" style={{ background: '#141414' }}>
+      <section id="projects" className="py-20 bg-gray-950/50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -253,7 +290,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20" style={{ background: '#0d0d0d' }}>
+      <section id="contact" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
@@ -261,7 +298,7 @@ function App() {
 
       <Footer />
 
-      {/* Idle durumunda sol alt köşede wait image */}
+      {/* Idle durumunda, ekranın sol alt köşesinde wait image (sabit overlay) */}
       {idle && !gameModalOpen && (
         <div
           onClick={handleWaitImageClick}
@@ -286,10 +323,20 @@ function App() {
       {gameModalOpen && <GameModal onClose={closeGameModal} />}
 
       <style>{`
+        @font-face {
+          font-family: 'Permanent Marker';
+          src: url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        }
+        
+        html {
+          scroll-behavior: smooth;
+        }
+        
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
+        
         @keyframes slideDown {
           from { transform: translateY(0); opacity: 1; }
           to { transform: translateY(100%); opacity: 0; }

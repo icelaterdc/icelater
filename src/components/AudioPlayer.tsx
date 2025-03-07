@@ -11,23 +11,26 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
 
   const togglePlay = () => {
     if (!audioRef.current) return;
-    
+
     if (isPlaying) {
-      // Müzik çalıyorken buton tıklanırsa, müziği duraklat
       audioRef.current.pause();
       setIsPlaying(false);
     } else {
-      // Müzik duraklatılmışken veya henüz başlamadıysa, buton tıklanırsa çalmaya başla veya kaldığı yerden devam et
-      audioRef.current.play().then(() => {
-        setIsPlaying(true);
-      }).catch((error) => {
-        console.error("Audio playback failed:", error);
-      });
+      audioRef.current.play()
+        .then(() => setIsPlaying(true))
+        .catch((error) => console.error("Ses çalma hatası:", error));
     }
   };
 
+  // Bileşeni geçici olarak gizlemek için bu koşulu ekleyebilirsiniz
+  const isVisible = false; // Şu anlık görünmesin diye false yaptık
+
+  if (!isVisible) {
+    return null; // Bileşen render edilmez, yani görünmez
+  }
+
   return (
-    <div className="fixed bottom-4 right-4 z-40 opacity-60 hover:opacity-100 transition-opacity">
+    <div className="opacity-60 hover:opacity-100 transition-opacity">
       <button
         onClick={togglePlay}
         className="bg-gray-800/70 p-2 rounded-full text-gray-300 hover:text-white hover:bg-gray-700/70 transition-colors"

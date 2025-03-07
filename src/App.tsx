@@ -193,7 +193,7 @@ const AnimatedSection = ({ id, children, className }) => {
       className={className}
       initial={{ opacity: 0, y: 50 }}
       animate={controls}
-      transition={{ duration: 0.8, ease: "easeOut" }}
+      transition={{ duration: 1, ease: "easeOut" }} // 0.8'den 1'e yükseltildi (hafif yavaşlama)
     >
       {children}
     </motion.section>
@@ -327,6 +327,7 @@ function App() {
         </div>
       </AnimatedSection>
 
+      {/* Footer */}
       <Footer />
 
       <style>{`
@@ -335,94 +336,18 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
+
+        /* Footer'ın mobilde görünür olduğundan emin olmak için */
+        body, html {
+          margin: 0;
+          padding: 0;
+          height: 100%;
+        }
+
+        .min-h-screen {
+          min-height: 100vh;
+        }
       `}</style>
-
-      {/* Özel kaydırma davranışı için JavaScript */}
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            let lastScrollTop = 0;
-            let isScrollingToSection = false;
-
-            // Kaydırma işleyici fonksiyonu (sadece home ve about arasında)
-            function handleScrollBetweenSections() {
-              const currentScroll = window.scrollY || document.documentElement.scrollTop;
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-
-              if (!homeSection || !aboutSection || !spacerSection || isScrollingToSection) return;
-
-              const spacerTop = spacerSection.getBoundingClientRect().top;
-              const spacerBottom = spacerSection.getBoundingClientRect().bottom;
-
-              // Sadece spacer alanında çalışsın
-              if (spacerTop <= window.innerHeight && spacerBottom >= 0) {
-                isScrollingToSection = true;
-
-                if (currentScroll > lastScrollTop + 50) { // Aşağı kaydırma
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } else if (currentScroll < lastScrollTop - 50) { // Yukarı kaydırma
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                }
-
-                setTimeout(() => {
-                  isScrollingToSection = false;
-                }, 1000); // Animasyon süresi
-              }
-
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-            }
-
-            // Dokunmatik cihazlar için
-            let touchStartY = 0;
-            let touchEndY = 0;
-            const touchThreshold = 50;
-
-            function handleTouchStart(e) {
-              touchStartY = e.touches[0].clientY;
-            }
-
-            function handleTouchEnd(e) {
-              if (isScrollingToSection) return;
-
-              touchEndY = e.changedTouches[0].clientY;
-              const difference = touchStartY - touchEndY;
-
-              if (Math.abs(difference) < touchThreshold) return;
-
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              const spacerSection = document.querySelector('.spacer-section');
-
-              if (!homeSection || !aboutSection || !spacerSection) return;
-
-              const spacerTop = spacerSection.getBoundingClientRect().top;
-              const spacerBottom = spacerSection.getBoundingClientRect().bottom;
-
-              // Sadece spacer alanında çalışsın
-              if (spacerTop <= window.innerHeight && spacerBottom >= 0) {
-                isScrollingToSection = true;
-
-                if (difference > 0) { // Yukarıdan aşağıya
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                } else { // Aşağıdan yukarıya
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                }
-
-                setTimeout(() => {
-                  isScrollingToSection = false;
-                }, 1000);
-              }
-            }
-
-            // Olay dinleyicileri
-            window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
-            document.addEventListener('touchstart', handleTouchStart, { passive: true });
-            document.addEventListener('touchend', handleTouchEnd, { passive: true });
-          });
-        `
-      }} />
     </div>
   );
 }

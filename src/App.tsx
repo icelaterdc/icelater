@@ -8,7 +8,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import { ChevronDown } from 'lucide-react';
 
-// InteractiveEffects: İmleç etrafında sis efekti
+// İmleç etrafında sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -135,7 +135,8 @@ function AnimatedTitle() {
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
+  const [isHomeFullyOut, setIsHomeFullyOut] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -156,9 +157,52 @@ function App() {
       }
     `;
     document.head.appendChild(style);
-    setTimeout(() => setIsLoading(false), 500);
     return () => document.head.removeChild(style);
   }, []);
+
+  useEffect(() => {
+    const homeSection = document.getElementById('home');
+    if (!homeSection) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio <= 0) {
+          setIsHomeFullyOut(true);
+        } else {
+          setIsHomeFullyOut(false);
+        }
+      },
+      { threshold: [0, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1] }
+    );
+
+    observer.observe(homeSection);
+    return () => observer.unobserve(homeSection);
+  }, []);
+
+  useEffect(() => {
+    let timeoutId;
+    const handleScrollEnd = () => {
+      if (!isHomeFullyOut) {
+        const homeSection = document.getElementById('home');
+        if (homeSection) homeSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    const handleScroll = () => {
+      setIsScrolling(true);
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setIsScrolling(false);
+        handleScrollEnd();
+      }, 150);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
+    };
+  }, [isHomeFullyOut]);
 
   const handleScrollToAbout = (e) => {
     e.preventDefault();
@@ -171,7 +215,7 @@ function App() {
       <InteractiveEffects />
       <Header />
 
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20 snap-scroll-area">
+      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
@@ -207,16 +251,26 @@ function App() {
         </div>
       </section>
 
-      <div className="spacer-section h-48 bg-gradient-to-b from-gray-950 to-gray-950 snap-scroll-area"></div>
-
-      <section id="about" className="py-20 bg-gray-950 snap-scroll-area">
+      <motion.section
+        id="about"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHomeFullyOut ? 1 : 0 }}
+        transition={{ duration: 1.2 }}
+        className="py-20 bg-gray-950"
+      >
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
         </div>
-      </section>
+      </motion.section>
 
-      <section id="projects" className="py-20 bg-gray-950/50">
+      <motion.section
+        id="projects"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHomeFullyOut ? 1 : 0 }}
+        transition={{ duration: 1.2 }}
+        className="py-20 bg-gray-950/50"
+      >
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -224,139 +278,35 @@ function App() {
           </div>
           <GitHubRepos />
         </div>
-      </section>
+      </motion.section>
 
-      <section id="contact" className="py-20 bg-gray-950">
+      <motion.section
+        id="contact"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHomeFullyOut ? 1 : 0 }}
+        transition={{ duration: 1.2 }}
+        className="py-20 bg-gray-950"
+      >
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
-      </section>
+      </motion.section>
 
-      <Footer />
+      <motion.footer
+        initial={{ opacity: 0 }}
+        animate={{ opacity: isHomeFullyOut ? 1 : 0 }}
+        transition={{ duration: 1.2 }}
+        className="bg-gray-900 py-8"
+      >
+        <Footer />
+      </motion.footer>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        .snap-scroll-area {
-          scroll-snap-align: start;
-        }
       `}</style>
-
-      <script dangerouslySetInnerHTML={{
-        __html: `
-          document.addEventListener('DOMContentLoaded', function() {
-            let lastScrollTop = 0;
-            let isScrollingToSection = false;
-            const sections = ['home', 'about', 'projects', 'contact'];
-
-            // Hangi bölümün viewport'ta en çok yer kapladığını bul
-            function getCurrentSection() {
-              let maxVisibleHeight = 0;
-              let current = 'home';
-              sections.forEach(sectionId => {
-                const section = document.getElementById(sectionId);
-                if (section) {
-                  const rect = section.getBoundingClientRect();
-                  const visibleHeight = Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0);
-                  if (visibleHeight > maxVisibleHeight) {
-                    maxVisibleHeight = visibleHeight;
-                    current = sectionId;
-                  }
-                }
-              });
-              return current;
-            }
-
-            // Kaydırma işleyici fonksiyonu
-            function handleScrollBetweenSections() {
-              const currentScroll = window.scrollY || document.documentElement.scrollTop;
-              const direction = currentScroll > lastScrollTop ? 'down' : 'up';
-              lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
-
-              if (isScrollingToSection) return;
-
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              if (!homeSection || !aboutSection) return;
-
-              const currentSection = getCurrentSection();
-
-              // Home'dan About'a geçiş
-              if (direction === 'down' && currentSection === 'home') {
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
-                  isScrollingToSection = true;
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // About'tan Home'a geçiş
-              else if (direction === 'up' && currentSection === 'about') {
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
-                  isScrollingToSection = true;
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // Diğer durumlarda normal scroll devam eder
-            }
-
-            // Dokunma olayları için
-            let touchStartY = 0;
-            let touchEndY = 0;
-            const touchThreshold = 30;
-
-            function handleTouchStart(e) {
-              touchStartY = e.touches[0].clientY;
-            }
-
-            function handleTouchEnd(e) {
-              if (isScrollingToSection) return;
-              touchEndY = e.changedTouches[0].clientY;
-              const difference = touchStartY - touchEndY;
-              if (Math.abs(difference) < touchThreshold) return;
-
-              const direction = difference > 0 ? 'down' : 'up';
-              const homeSection = document.getElementById('home');
-              const aboutSection = document.getElementById('about');
-              if (!homeSection || !aboutSection) return;
-
-              const currentSection = getCurrentSection();
-
-              // Home'dan About'a geçiş
-              if (direction === 'down' && currentSection === 'home') {
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                if (homeBottom <= window.innerHeight && aboutTop <= window.innerHeight * 0.9) {
-                  isScrollingToSection = true;
-                  aboutSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-              // About'tan Home'a geçiş
-              else if (direction === 'up' && currentSection === 'about') {
-                const aboutTop = aboutSection.getBoundingClientRect().top;
-                const homeBottom = homeSection.getBoundingClientRect().bottom;
-                if (aboutTop >= 0 && homeBottom >= window.innerHeight * 0.1) {
-                  isScrollingToSection = true;
-                  homeSection.scrollIntoView({ behavior: 'smooth' });
-                  setTimeout(() => isScrollingToSection = false, 1000);
-                }
-              }
-            }
-
-            // Olay dinleyicileri
-            window.addEventListener('scroll', handleScrollBetweenSections, { passive: true });
-            document.addEventListener('touchstart', handleTouchStart, { passive: true });
-            document.addEventListener('touchend', handleTouchEnd, { passive: true });
-          });
-        `,
-      }} />
     </div>
   );
 }

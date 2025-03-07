@@ -16,10 +16,9 @@ function InteractiveEffects() {
 
   // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
-    // Daha yumuşak geçişli ve ortası parlak olan gradyan, kenarları pürüzlü olacak şekilde
     background: 'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
-    borderRadius: '70%', // Daha pürüzlü kenarlar için
+    borderRadius: '70%',
   };
 
   useEffect(() => {
@@ -50,8 +49,8 @@ function InteractiveEffects() {
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '85px', // Biraz daha büyük yapıldı
-          height: '85px', // Biraz daha büyük yapıldı
+          width: '85px',
+          height: '85px',
           pointerEvents: 'none',
           ...mistStyle,
         }}
@@ -67,52 +66,39 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState<number[]>([]);
   
-  // Bir metni rastgele şekilde harflerini belirtecek/solduracak fonksiyon
+  // Harflerin rastgele belirip soldurulmasını sağlayan fonksiyon
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
-      // Belirme animasyonu için tüm karakterleri önce gizle
       setVisibleChars([]);
-      
-      // Bir dizinin tüm indekslerini al
       const allIndices = [...Array(text.length).keys()];
       
-      // Ana yazı için özel düzenleme (tüm karakterlerin aynı anda belirmesi için)
       if (text === "IceLater Full-Stack Developer") {
-        // "IceLater" ve kalan kısmı için ayrı indeks grupları
-        const iceIndices = allIndices.slice(0, 8); // "IceLater" için
-        const restIndices = allIndices.slice(8);   // " Full-Stack Developer" için
+        const iceIndices = allIndices.slice(0, 8); // "IceLater"
+        const restIndices = allIndices.slice(8);   // " Full-Stack Developer"
         
-        // Tüm IceLater harflerini aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 150); // Biraz daha hızlı
+        }, 150);
         
-        // Full-Stack Developer kısmını da aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 450); // Biraz daha hızlı
+        }, 450);
       } else {
-        // Diğer metinler için rastgele sırayla harfleri belirt
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
-        
-        // Çok yavaş şekilde harfleri belirt
         randomOrder.forEach((index, i) => {
           setTimeout(() => {
             setVisibleChars(prev => [...prev, index]);
-          }, 150 + i * 150); // Biraz daha hızlı geçişler
+          }, 150 + i * 150);
         });
       }
     } else {
-      // Soldurma animasyonu için tüm karakterleri göster
       const allIndices = [...Array(text.length).keys()];
       setVisibleChars(allIndices);
-      
-      // Rastgele sırayla harfleri soldur
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
         setTimeout(() => {
           setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 100); // Biraz daha hızlı solma
+        }, i * 100);
       });
     }
   };
@@ -121,31 +107,27 @@ function AnimatedTitle() {
     let timer;
     
     if (fadeDirection === "in") {
-      // Metni göster
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
         animateText("IceLater Full-Stack Developer", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 7000); // 7 saniye ana yazı (biraz daha hızlı)
+        }, 7000);
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         animateText("Hello, I'm IceLater", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 4500); // 4.5 saniye hello yazısı (biraz daha hızlı)
+        }, 4500);
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         animateText("Sometimes Icy", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 4500); // 4.5 saniye icy yazısı (biraz daha hızlı)
+        }, 4500);
       }
     } else if (fadeDirection === "out") {
-      // Metni soldur
       animateText(displayText, false);
-      
-      // Soldurma tamamlandıktan sonra bir sonraki duruma geç
       timer = setTimeout(() => {
         if (animationState === "main") {
           setAnimationState("hello");
@@ -155,22 +137,21 @@ function AnimatedTitle() {
           setAnimationState("main");
         }
         setFadeDirection("in");
-      }, displayText.length * 100 + 300); // Tüm harflerin solması için yeterli süre (biraz daha hızlı)
+      }, displayText.length * 100 + 300);
     }
     
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  // IceLater kontrolü - tamamı mavi olacak, hiçbir harf beyaz olmayacak
+  // "IceLater" kelimesinin istenen kısmını mavi renge boyar
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
-      // IceLater tamamen mavi
       if (index >= 0 && index <= 7) {
         return "#3b82f6";
       }
     } else if (text === "Hello, I'm IceLater") {
-      // IceLater tamamen mavi
-      if (index >= 10 && index <= 17) {
+      // "Hello, I'm " kısmından sonra gelen "IceLater" kelimesi: indeks 11'den 18'e kadar
+      if (index >= 11 && index <= 18) {
         return "#3b82f6";
       }
     } else if (text === "Sometimes Icy") {
@@ -200,13 +181,10 @@ function AnimatedTitle() {
 }
 
 function App() {
-  // Sayfa yükleme durumu için
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    
-    // Scrollbar rengini değiştirmek için stil ekleme
     const style = document.createElement('style');
     style.innerHTML = `
       ::-webkit-scrollbar {
@@ -224,12 +202,9 @@ function App() {
       }
     `;
     document.head.appendChild(style);
-    
-    // Sayfa yükleme durumunu simüle et
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
-    
     return () => {
       document.head.removeChild(style);
     };
@@ -277,11 +252,11 @@ function App() {
     }
   };
 
-  // Güvenli kaydırma için - tek yönlü kullanıma izin verir ve istenmeyen geri kaydırmayı engeller
+  // Güvenli kaydırma: Eğer kullanıcı Discord kartı ile About kısmı arasındaki boşlukta kalırsa
   useEffect(() => {
     let lastScrollTop = 0;
     let isScrollingToSection = false;
-    const scrollThreshold = 200; // Boşluğu kontrol etmek için eşik değeri (pixeller)
+    const scrollThreshold = 200;
     
     const handleScroll = () => {
       const scrollTop = window.scrollY || document.documentElement.scrollTop;
@@ -294,23 +269,19 @@ function App() {
       const aboutPosition = aboutSection.getBoundingClientRect().top + scrollTop;
       const homeBottom = homeSection.getBoundingClientRect().bottom + scrollTop;
       
-      // Boşluk kontrolü - eğer kullanıcı home ve about bölümleri arasındaki boşlukta ise
       if (scrollTop > homeBottom - scrollThreshold && scrollTop < aboutPosition - viewportHeight/2) {
-        // Eğer kullanıcı aşağı yönde kaydırıyorsa about bölümüne git
         if (scrollTop > lastScrollTop) {
           isScrollingToSection = true;
           aboutSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
-        } 
-        // Eğer kullanıcı yukarı yönde kaydırıyorsa home bölümüne git
-        else {
+          setTimeout(() => { isScrollingToSection = false; }, 1000);
+        } else {
           isScrollingToSection = true;
           homeSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
+          setTimeout(() => { isScrollingToSection = false; }, 1000);
         }
       }
       
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Negatif kaydırma için fix
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -372,6 +343,9 @@ function App() {
           </motion.div>
         </div>
       </section>
+
+      {/* Spacer gap between Home and About Sections */}
+      <div style={{ height: '100px' }}></div>
 
       {/* About Section */}
       <section id="about" className="py-20 bg-gray-950">

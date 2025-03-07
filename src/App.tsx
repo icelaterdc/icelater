@@ -228,50 +228,60 @@ function App() {
       setIsLoading(false);
     }, 500);
 
-    // Özel kaydırma mekanizması için IntersectionObserver
-    const spacer = document.querySelector('.spacer-section');
+    // Sadece home ve about arasında çalışan özel kaydırma mekanizması
     let lastScrollY = window.scrollY;
     let isScrolling = false;
 
-    const observer = new IntersectionObserver(
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+      const homeSection = document.getElementById('home');
+      const aboutSection = document.getElementById('about');
+      const spacerSection = document.querySelector('.spacer-section');
+
+      if (!homeSection || !aboutSection || !spacerSection || isScrolling) return;
+
+      const spacerTop = spacerSection.getBoundingClientRect().top;
+      const spacerBottom = spacerSection.getBoundingClientRect().bottom;
+
+      // Spacer alanı ekranda göründüğünde çalışır
+      if (spacerTop < window.innerHeight && spacerBottom > 0) {
+        if (currentScrollY > lastScrollY + 50) { // Aşağı kaydırma
+          isScrolling = true;
+          aboutSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        } else if (currentScrollY < lastScrollY - 50) { // Yukarı kaydırma
+          isScrolling = true;
+          homeSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => {
+            isScrolling = false;
+          }, 1000);
+        }
+      }
+
+      lastScrollY = currentScrollY;
+    };
+
+    // Scroll olayını yalnızca spacer alanı için ekle/kaldır
+    const spacerObserver = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting && !isScrolling) {
-          const handleScroll = () => {
-            const currentScrollY = window.scrollY;
-            const homeSection = document.getElementById('home');
-            const aboutSection = document.getElementById('about');
-
-            if (!homeSection || !aboutSection) return;
-
-            if (currentScrollY > lastScrollY + 50) { // Aşağı kaydırma
-              isScrolling = true;
-              aboutSection.scrollIntoView({ behavior: 'smooth' });
-              setTimeout(() => {
-                isScrolling = false;
-              }, 1000);
-            } else if (currentScrollY < lastScrollY - 50) { // Yukarı kaydırma
-              isScrolling = true;
-              homeSection.scrollIntoView({ behavior: 'smooth' });
-              setTimeout(() => {
-                isScrolling = false;
-              }, 1000);
-            }
-
-            lastScrollY = currentScrollY;
-          };
-
+        if (entry.isIntersecting) {
           window.addEventListener('scroll', handleScroll, { passive: true });
-          return () => window.removeEventListener('scroll', handleScroll);
+        } else {
+          window.removeEventListener('scroll', handleScroll);
         }
       },
-      { threshold: 0.5 } // Spacer'ın %50'si göründüğünde tetiklenir
+      { threshold: 0.1 } // Spacer'ın %10’u göründüğünde tetiklenir
     );
 
-    if (spacer) observer.observe(spacer);
+    const spacer = document.querySelector('.spacer-section');
+    if (spacer) spacerObserver.observe(spacer);
 
     return () => {
       document.head.removeChild(style);
-      if (spacer) observer.unobserve(spacer);
+      if (spacer) spacerObserver.unobserve(spacer);
+      window.removeEventListener('scroll', handleScroll);
     };
   }, []);
 

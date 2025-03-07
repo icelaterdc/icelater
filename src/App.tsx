@@ -16,8 +16,10 @@ function InteractiveEffects() {
 
   // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
-    // Daha yumuşak geçişli ve ortası parlak olan gradyan
-    background: 'radial-gradient(circle, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
+    // Daha yumuşak geçişli ve ortası parlak olan gradyan, kenarları pürüzlü olacak şekilde
+    background: 'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
+    filter: 'blur(8px)',
+    borderRadius: '70%', // Daha pürüzlü kenarlar için
   };
 
   useEffect(() => {
@@ -48,9 +50,8 @@ function InteractiveEffects() {
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '75px',
-          height: '75px',
-          borderRadius: '50%',
+          width: '85px', // Biraz daha büyük yapıldı
+          height: '85px', // Biraz daha büyük yapıldı
           pointerEvents: 'none',
           ...mistStyle,
         }}
@@ -84,12 +85,12 @@ function AnimatedTitle() {
         // Tüm IceLater harflerini aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 200);
+        }, 150); // Biraz daha hızlı
         
         // Full-Stack Developer kısmını da aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 600);
+        }, 450); // Biraz daha hızlı
       } else {
         // Diğer metinler için rastgele sırayla harfleri belirt
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
@@ -98,7 +99,7 @@ function AnimatedTitle() {
         randomOrder.forEach((index, i) => {
           setTimeout(() => {
             setVisibleChars(prev => [...prev, index]);
-          }, 200 + i * 180); // Daha yavaş belirme için 180ms
+          }, 150 + i * 150); // Biraz daha hızlı geçişler
         });
       }
     } else {
@@ -111,7 +112,7 @@ function AnimatedTitle() {
       randomOrder.forEach((index, i) => {
         setTimeout(() => {
           setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 120); // Solma hızı
+        }, i * 100); // Biraz daha hızlı solma
       });
     }
   };
@@ -126,19 +127,19 @@ function AnimatedTitle() {
         animateText("IceLater Full-Stack Developer", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 8000); // 8 saniye ana yazı
+        }, 7000); // 7 saniye ana yazı (biraz daha hızlı)
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         animateText("Hello, I'm IceLater", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 5000); // 5 saniye hello yazısı
+        }, 4500); // 4.5 saniye hello yazısı (biraz daha hızlı)
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         animateText("Sometimes Icy", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 5000); // 5 saniye icy yazısı
+        }, 4500); // 4.5 saniye icy yazısı (biraz daha hızlı)
       }
     } else if (fadeDirection === "out") {
       // Metni soldur
@@ -154,22 +155,34 @@ function AnimatedTitle() {
           setAnimationState("main");
         }
         setFadeDirection("in");
-      }, displayText.length * 120 + 300); // Tüm harflerin solması için yeterli süre
+      }, displayText.length * 100 + 300); // Tüm harflerin solması için yeterli süre (biraz daha hızlı)
     }
     
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  // IceLater mi kontrolü
-  const isIceLaterChar = (char: string, index: number, text: string) => {
-    if (text === "IceLater Full-Stack Developer" && index >= 0 && index <= 7) {
-      return true;
-    } else if (text === "Hello, I'm IceLater" && index >= 10 && index <= 17) {
-      return true;
-    } else if (text === "Sometimes Icy" && index >= 10 && index <= 12) {
-      return true;
+  // IceLater ve r harfi kontrolü
+  const getCharColor = (char: string, index: number, text: string) => {
+    if (text === "IceLater Full-Stack Developer") {
+      // IceLater'daki r harfi beyaz, diğer harfler mavi
+      if (index === 7) {
+        return "white";
+      } else if (index >= 0 && index <= 6) {
+        return "#3b82f6";
+      }
+    } else if (text === "Hello, I'm IceLater") {
+      // IceLater'daki r harfi beyaz, diğer harfler mavi
+      if (index === 17) {
+        return "white";
+      } else if (index >= 10 && index <= 16) {
+        return "#3b82f6";
+      }
+    } else if (text === "Sometimes Icy") {
+      if (index >= 10 && index <= 12) {
+        return "#3b82f6";
+      }
     }
-    return false;
+    return "white";
   };
   
   return (
@@ -180,7 +193,7 @@ function AnimatedTitle() {
           style={{ 
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: isIceLaterChar(char, index, displayText) ? "#3b82f6" : "white"
+            color: getCharColor(char, index, displayText)
           }}
         >
           {char}
@@ -191,8 +204,40 @@ function AnimatedTitle() {
 }
 
 function App() {
+  // Sayfa yükleme durumu için
+  const [isLoading, setIsLoading] = useState(true);
+  const [inView, setInView] = useState('home');
+  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
+    
+    // Scrollbar rengini değiştirmek için stil ekleme
+    const style = document.createElement('style');
+    style.innerHTML = `
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111827;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #2563eb;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Sayfa yükleme durumunu simüle et
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
 
   // Idle kontrolü: 30 saniye hareketsizlikte idle true olacak
@@ -209,9 +254,29 @@ function App() {
     const events = ['mousemove', 'mousedown', 'keydown', 'touchstart'];
     events.forEach((event) => window.addEventListener(event, resetIdleTimer));
     resetIdleTimer();
+    
+    // IntersectionObserver ile kullanıcının hangi bölümde olduğunu izle
+    const sectionIds = ['home', 'about', 'projects', 'contact'];
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setInView(entry.target.id);
+        }
+      });
+    }, { threshold: 0.5 });
+    
+    sectionIds.forEach((id) => {
+      const section = document.getElementById(id);
+      if (section) observer.observe(section);
+    });
+    
     return () => {
       events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+      sectionIds.forEach((id) => {
+        const section = document.getElementById(id);
+        if (section) observer.unobserve(section);
+      });
     };
   }, [resetIdleTimer]);
 
@@ -236,6 +301,28 @@ function App() {
       aboutSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
+
+  // Scroll-to-section fonksiyonu (otomatik kaydırma özelliği)
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const viewportHeight = window.innerHeight;
+      const aboutSection = document.getElementById('about');
+      
+      if (aboutSection) {
+        const aboutPosition = aboutSection.getBoundingClientRect().top + scrollY;
+        const threshold = viewportHeight / 2;
+        
+        // Eğer about bölümünün yarısına yaklaştıysak otomatik olarak o bölüme geçiş yapacak
+        if (Math.abs(scrollY - aboutPosition) < threshold && scrollY < aboutPosition) {
+          aboutSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="bg-gray-950 text-white min-h-screen relative">

@@ -170,7 +170,7 @@ function AnimatedTitle() {
       }
     } else if (text === "Hello, I'm IceLater") {
       // "IceLater" tamamen mavi (10-17 indeksleri)
-      if (index >= 10 && index <= 17) {
+      if (index >= 10 && index <= 18) {
         return "#3b82f6";
       }
     } else if (text === "Sometimes Icy") {

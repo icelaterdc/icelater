@@ -11,13 +11,13 @@ import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
 import GameModal from './components/GameModal';
 
-// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmıyor)
+// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: biraz daha büyük ve daha soluk
+  // Sis efekti: boyut artırıldı, daha soluk ve kademeli fade-out (kenarlara doğru azalan parlaklık)
   const mistStyle = {
-    background: 'radial-gradient(circle, rgba(0,123,255,0.3) 0%, rgba(0,123,255,0) 80%)',
+    background: 'radial-gradient(circle, rgba(0,123,255,0.15) 0%, rgba(0,123,255,0.05) 50%, rgba(0,123,255,0) 100%)',
   };
 
   useEffect(() => {
@@ -42,15 +42,14 @@ function InteractiveEffects() {
 
   return (
     <>
-      {/* Neon fare takipçisi (iz bırakmadan, sadece imleç etrafında) */}
       <div
         style={{
           position: 'fixed',
           left: mousePos.x,
           top: mousePos.y,
           transform: 'translate(-50%, -50%)',
-          width: '50px', // boyut arttırıldı
-          height: '50px',
+          width: '70px', // önceki 30/50px'e göre daha büyük
+          height: '70px',
           borderRadius: '50%',
           pointerEvents: 'none',
           ...mistStyle,
@@ -61,18 +60,13 @@ function InteractiveEffects() {
 }
 
 function App() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
-    stiffness: 100,
-    damping: 30,
-    restDelta: 0.001,
-  });
+  // Progress bar kaldırıldı.
 
   useEffect(() => {
     document.title = "IceLater | Full-Stack Developer";
   }, []);
 
-  // Idle (hareketsizlik) kontrolü: 30 saniye etkileşim olmazsa idle true olacak
+  // Idle kontrolü: 30 saniye hareketsizlikte idle true olacak
   const [idle, setIdle] = useState(false);
   const idleTimerRef = React.useRef<number | null>(null);
 
@@ -105,20 +99,16 @@ function App() {
   };
 
   return (
-    <div className="bg-gray-900 text-white min-h-screen relative">
-      {/* Arka plan ve fare/touch efektleri */}
+    <div className="bg-gray-950 text-white min-h-screen relative">
+      {/* Arka plan ve fare/touch efekti */}
       <InteractiveEffects />
-      <motion.div
-        className="fixed top-0 left-0 right-0 h-1 bg-blue-600 origin-left z-50"
-        style={{ scaleX }}
-      />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
       <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/20 to-gray-900"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/40 to-gray-950"></div>
         </div>
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
           <div className="flex flex-col items-center text-center mb-12">
@@ -126,6 +116,8 @@ function App() {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
+              // Neon glow eklenerek başlığa hafif neon etkisi verildi
+              style={{ textShadow: '0 0 8px rgba(59,130,246,0.7)' }}
               className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
             >
               <span className="text-blue-500">IceLater</span> | Full-Stack Developer
@@ -165,14 +157,14 @@ function App() {
       </section>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-900">
+      <section id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <AboutSection />
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 bg-gray-900/50">
+      <section id="projects" className="py-20 bg-gray-950/50">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -185,7 +177,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-gray-900">
+      <section id="contact" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
@@ -193,7 +185,7 @@ function App() {
 
       <Footer />
 
-      {/* Idle durumunda, ekranın sol alt köşesinde wait image (üstte, sabit overlay) */}
+      {/* Idle durumunda, ekranın sol alt köşesinde wait image (sabit overlay) */}
       {idle && !gameModalOpen && (
         <div
           onClick={handleWaitImageClick}
@@ -214,7 +206,7 @@ function App() {
         </div>
       )}
 
-      {/* Game Modal: Resme tıklanınca açılır */}
+      {/* Game Modal */}
       {gameModalOpen && <GameModal onClose={closeGameModal} />}
 
       <style>{`

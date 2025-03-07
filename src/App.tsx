@@ -161,20 +161,16 @@ function AnimatedTitle() {
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  // IceLater ve r harfi kontrolü
+  // IceLater kontrolü - tamamı mavi olacak, hiçbir harf beyaz olmayacak
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
-      // IceLater'daki r harfi beyaz, diğer harfler mavi
-      if (index === 7) {
-        return "white";
-      } else if (index >= 0 && index <= 6) {
+      // IceLater tamamen mavi
+      if (index >= 0 && index <= 7) {
         return "#3b82f6";
       }
     } else if (text === "Hello, I'm IceLater") {
-      // IceLater'daki r harfi beyaz, diğer harfler mavi
-      if (index === 17) {
-        return "white";
-      } else if (index >= 10 && index <= 16) {
+      // IceLater tamamen mavi
+      if (index >= 10 && index <= 17) {
         return "#3b82f6";
       }
     } else if (text === "Sometimes Icy") {
@@ -206,7 +202,6 @@ function AnimatedTitle() {
 function App() {
   // Sayfa yükleme durumu için
   const [isLoading, setIsLoading] = useState(true);
-  const [inView, setInView] = useState('home');
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -255,28 +250,9 @@ function App() {
     events.forEach((event) => window.addEventListener(event, resetIdleTimer));
     resetIdleTimer();
     
-    // IntersectionObserver ile kullanıcının hangi bölümde olduğunu izle
-    const sectionIds = ['home', 'about', 'projects', 'contact'];
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setInView(entry.target.id);
-        }
-      });
-    }, { threshold: 0.5 });
-    
-    sectionIds.forEach((id) => {
-      const section = document.getElementById(id);
-      if (section) observer.observe(section);
-    });
-    
     return () => {
       events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      sectionIds.forEach((id) => {
-        const section = document.getElementById(id);
-        if (section) observer.unobserve(section);
-      });
     };
   }, [resetIdleTimer]);
 
@@ -292,32 +268,49 @@ function App() {
     resetIdleTimer();
   };
 
-  // Sadece scroll down butonu için smooth scroll özelliği
+  // Scroll down butonu için smooth scroll özelliği
   const handleScrollToAbout = (e) => {
     e.preventDefault();
     const aboutSection = document.getElementById('about');
     if (aboutSection) {
-      // Smooth scroll sadece buraya özel uygulanır
       aboutSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
 
-  // Scroll-to-section fonksiyonu (otomatik kaydırma özelliği)
+  // Güvenli kaydırma için - tek yönlü kullanıma izin verir ve istenmeyen geri kaydırmayı engeller
   useEffect(() => {
+    let lastScrollTop = 0;
+    let isScrollingToSection = false;
+    const scrollThreshold = 200; // Boşluğu kontrol etmek için eşik değeri (pixeller)
+    
     const handleScroll = () => {
-      const scrollY = window.scrollY;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
       const viewportHeight = window.innerHeight;
       const aboutSection = document.getElementById('about');
+      const homeSection = document.getElementById('home');
       
-      if (aboutSection) {
-        const aboutPosition = aboutSection.getBoundingClientRect().top + scrollY;
-        const threshold = viewportHeight / 2;
-        
-        // Eğer about bölümünün yarısına yaklaştıysak otomatik olarak o bölüme geçiş yapacak
-        if (Math.abs(scrollY - aboutPosition) < threshold && scrollY < aboutPosition) {
+      if (!aboutSection || !homeSection || isScrollingToSection) return;
+      
+      const aboutPosition = aboutSection.getBoundingClientRect().top + scrollTop;
+      const homeBottom = homeSection.getBoundingClientRect().bottom + scrollTop;
+      
+      // Boşluk kontrolü - eğer kullanıcı home ve about bölümleri arasındaki boşlukta ise
+      if (scrollTop > homeBottom - scrollThreshold && scrollTop < aboutPosition - viewportHeight/2) {
+        // Eğer kullanıcı aşağı yönde kaydırıyorsa about bölümüne git
+        if (scrollTop > lastScrollTop) {
+          isScrollingToSection = true;
           aboutSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
+        } 
+        // Eğer kullanıcı yukarı yönde kaydırıyorsa home bölümüne git
+        else {
+          isScrollingToSection = true;
+          homeSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
         }
       }
+      
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Negatif kaydırma için fix
     };
 
     window.addEventListener('scroll', handleScroll);

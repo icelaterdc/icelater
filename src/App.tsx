@@ -169,7 +169,7 @@ function AnimatedTitle() {
         return "#3b82f6";
       }
     } else if (text === "Hello, I'm IceLater") {
-      // IceLater tamamen mavi
+      // IceLater tamamen mavi - tüm harfler (r dahil) mavi olacak
       if (index >= 10 && index <= 17) {
         return "#3b82f6";
       }
@@ -200,6 +200,9 @@ function AnimatedTitle() {
 }
 
 function App() {
+  // Sayfa yükleme durumu için
+  const [isLoading, setIsLoading] = useState(true);
+  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     
@@ -224,7 +227,7 @@ function App() {
     
     // Sayfa yükleme durumunu simüle et
     setTimeout(() => {
-      // isLoading durumunu burada değiştirebilirsiniz (örneğin false yapabilirsiniz)
+      setIsLoading(false);
     }, 500);
     
     return () => {
@@ -274,26 +277,45 @@ function App() {
     }
   };
 
-  // Yalnızca "Scroll Down" butonunda tekerlek (wheel) ile kaydırma işlemi için;
-  // eğer kullanıcı bu elementin üzerinde tekerlek hareketi yaparsa,
-  // deltaY > 0 ise About bölümüne, deltaY < 0 ise Home bölümüne kaydır.
-  const handleWheelOnScrollDown = (e: React.WheelEvent) => {
-    e.preventDefault();
-    if (e.deltaY > 0) {
+  // Güvenli kaydırma için - tek yönlü kullanıma izin verir ve istenmeyen geri kaydırmayı engeller
+  useEffect(() => {
+    let lastScrollTop = 0;
+    let isScrollingToSection = false;
+    const scrollThreshold = 200; // Boşluğu kontrol etmek için eşik değeri (pixeller)
+    
+    const handleScroll = () => {
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const viewportHeight = window.innerHeight;
       const aboutSection = document.getElementById('about');
-      if (aboutSection) {
-        aboutSection.scrollIntoView({ behavior: 'smooth' });
-      }
-    } else if (e.deltaY < 0) {
       const homeSection = document.getElementById('home');
-      if (homeSection) {
-        homeSection.scrollIntoView({ behavior: 'smooth' });
+      
+      if (!aboutSection || !homeSection || isScrollingToSection) return;
+      
+      const aboutPosition = aboutSection.getBoundingClientRect().top + scrollTop;
+      const homeBottom = homeSection.getBoundingClientRect().bottom + scrollTop;
+      
+      // Boşluk kontrolü - eğer kullanıcı home ve about bölümleri arasındaki boşlukta ise
+      if (scrollTop > homeBottom - scrollThreshold && scrollTop < aboutPosition - viewportHeight/2) {
+        // Eğer kullanıcı aşağı yönde kaydırıyorsa about bölümüne git
+        if (scrollTop > lastScrollTop) {
+          isScrollingToSection = true;
+          aboutSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
+        } 
+        // Eğer kullanıcı yukarı yönde kaydırıyorsa home bölümüne git
+        else {
+          isScrollingToSection = true;
+          homeSection.scrollIntoView({ behavior: 'smooth' });
+          setTimeout(() => { isScrollingToSection = false; }, 1000); // Animasyon tamamlandıktan sonra kilidi kaldır
+        }
       }
-    }
-  };
+      
+      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop; // Negatif kaydırma için fix
+    };
 
-  // NOT: Global scroll ile ilgili otomatik kaydırma efektini kaldırdık;
-  // böylece sadece Scroll Down butonunda (onWheel) bu davranış geçerli olacak.
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   return (
     <div className="bg-gray-950 text-white min-h-screen relative">
@@ -343,7 +365,6 @@ function App() {
               href="#about"
               className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
               onClick={handleScrollToAbout}
-              onWheel={handleWheelOnScrollDown}
             >
               <span className="mb-2">Scroll Down</span>
               <ChevronDown className="animate-bounce" />
@@ -352,8 +373,11 @@ function App() {
         </div>
       </section>
 
+      {/* Boşluk Bölümü - Snap Scrolling için */}
+      <div className="h-screen/2"></div>
+
       {/* About Section */}
-      <section id="about" className="py-20" style={{ background: '#0d0d0d' }}>
+      <section id="about" className="py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
@@ -423,6 +447,11 @@ function App() {
           scroll-snap-type: none !important;
           scroll-snap-align: none !important;
           overscroll-behavior: auto !important;
+        }
+
+        /* Ekran yüksekliğinin yarısı kadar boşluk */
+        .h-screen/2 {
+          height: 50vh;
         }
         
         @keyframes slideUp {

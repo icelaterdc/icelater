@@ -1,5 +1,6 @@
+// App.tsx
 import React, { useEffect, useState, useCallback } from 'react';
-import { motion, useScroll, useSpring } from 'framer-motion';
+import { motion } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -7,32 +8,125 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import { ChevronDown } from 'lucide-react';
 import GameModal from './components/GameModal';
+import { ChevronDown } from 'lucide-react';
 
-// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
+/* 
+  AnimatedHeroText: 
+  Bu bileşen, aşağıdaki sırayla animasyon uygular:
+  1. "IceLater Full-Stack Developer" (başlangıçta 5 saniye sabit, 
+     'IceLater' kısmı her zaman mavi),
+  2. ardından harfler rastgele sırayla (karma şekilde) solup
+  3. "Hello, I'm IceLater" harfleri rastgele sırayla belirir (3 saniye),
+  4. sonra yine harfler rastgele solup,
+  5. "Sometimes Icy" harfleri rastgele sırayla belirir (3 saniye) ve
+  6. sonrasında tekrar ana metinle döngü başa döner.
+*/
+const AnimatedHeroText: React.FC = () => {
+  const texts = [
+    "IceLater Full-Stack Developer",
+    "Hello, I'm IceLater",
+    "Sometimes Icy"
+  ];
+  const displayDurations = [5000, 3000, 3000]; // ms
+  const fadeDuration = 1000; // ms (fade-out ve fade-in süresi)
+  const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [phase, setPhase] = useState<"display" | "fadeOut" | "fadeIn">("display");
+  const [letterDelays, setLetterDelays] = useState<number[]>([]);
+
+  const currentText = texts[currentTextIndex];
+
+  // Geçiş başladığında, her harf için rastgele delay oluştur.
+  useEffect(() => {
+    const delays = currentText.split("").map(() => Math.random() * 0.5);
+    setLetterDelays(delays);
+  }, [currentText]);
+
+  // Fazlara göre zamanlayıcı ayarla.
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+    if (phase === "display") {
+      timer = setTimeout(() => setPhase("fadeOut"), displayDurations[currentTextIndex]);
+    } else if (phase === "fadeOut") {
+      timer = setTimeout(() => {
+        setCurrentTextIndex((prev) => (prev + 1) % texts.length);
+        setPhase("fadeIn");
+      }, fadeDuration);
+    } else if (phase === "fadeIn") {
+      timer = setTimeout(() => setPhase("display"), fadeDuration);
+    }
+    return () => clearTimeout(timer);
+  }, [phase, currentTextIndex, texts, displayDurations, fadeDuration]);
+
+  // Harf animasyon varyantları:
+  const letterVariants = {
+    initial: (custom: number) =>
+      phase === "fadeIn" ? { opacity: 0, y: 20 } : { opacity: 1, y: 0 },
+    animate: (custom: number) =>
+      phase === "fadeIn"
+        ? { opacity: 1, y: 0 }
+        : phase === "fadeOut"
+        ? { opacity: 0, y: -20 }
+        : { opacity: 1, y: 0 },
+  };
+
+  return (
+    <motion.h1
+      className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4"
+      style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center' }}
+    >
+      {currentText.split("").map((char, index) => {
+        // "IceLater" kısmı her zaman mavi olsun.
+        let isIceLater = false;
+        const pos = currentText.indexOf("IceLater");
+        if (pos !== -1 && index >= pos && index < pos + "IceLater".length) {
+          isIceLater = true;
+        }
+        return (
+          <motion.span
+            key={index}
+            custom={letterDelays[index] || 0}
+            variants={letterVariants}
+            initial="initial"
+            animate="animate"
+            transition={{ delay: letterDelays[index] || 0, duration: 0.5 }}
+            style={{
+              color: isIceLater ? "#3b82f6" : "inherit",
+              display: 'inline-block',
+              marginRight: '2px'
+            }}
+          >
+            {char}
+          </motion.span>
+        );
+      })}
+    </motion.h1>
+  );
+};
+
+/*
+  InteractiveEffects:
+  İmlecin etrafında neon ışığın altından hafifçe yayılan sis efekti.
+  - Boyut: 75px
+  - Kenarlarda kademeli azalma (daha organik neon ışık efekti)
+*/
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
-    background: 'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
-    filter: 'blur(8px)',
-    borderRadius: '70%',
+    background: 'radial-gradient(circle at 50% 70%, rgba(0,123,255,0.25) 0%, rgba(0,123,255,0.15) 60%, rgba(0,123,255,0) 100%)'
   };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
-
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
       }
     };
-
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
     return () => {
@@ -42,175 +136,28 @@ function InteractiveEffects() {
   }, []);
 
   return (
-    <>
-      <div
-        style={{
-          position: 'fixed',
-          left: mousePos.x,
-          top: mousePos.y,
-          transform: 'translate(-50%, -50%)',
-          width: '85px',
-          height: '85px',
-          pointerEvents: 'none',
-          ...mistStyle,
-        }}
-      />
-    </>
-  );
-}
-
-// Hareketli yazı bileşeni
-function AnimatedTitle() {
-  const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
-  const [animationState, setAnimationState] = useState("main");
-  const [fadeDirection, setFadeDirection] = useState("in");
-  const [visibleChars, setVisibleChars] = useState<number[]>([]);
-  
-  // Harflerin rastgele belirip soldurulmasını sağlayan fonksiyon
-  const animateText = (text, isAppearing) => {
-    if (isAppearing) {
-      setVisibleChars([]);
-      const allIndices = [...Array(text.length).keys()];
-      
-      if (text === "IceLater Full-Stack Developer") {
-        const iceIndices = allIndices.slice(0, 8); // "IceLater"
-        const restIndices = allIndices.slice(8);   // " Full-Stack Developer"
-        
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 150);
-        
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 450);
-      } else {
-        const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
-        randomOrder.forEach((index, i) => {
-          setTimeout(() => {
-            setVisibleChars(prev => [...prev, index]);
-          }, 150 + i * 150);
-        });
-      }
-    } else {
-      const allIndices = [...Array(text.length).keys()];
-      setVisibleChars(allIndices);
-      const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
-      randomOrder.forEach((index, i) => {
-        setTimeout(() => {
-          setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 100);
-      });
-    }
-  };
-  
-  useEffect(() => {
-    let timer;
-    
-    if (fadeDirection === "in") {
-      if (animationState === "main") {
-        setDisplayText("IceLater Full-Stack Developer");
-        animateText("IceLater Full-Stack Developer", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 7000);
-      } else if (animationState === "hello") {
-        setDisplayText("Hello, I'm IceLater");
-        animateText("Hello, I'm IceLater", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 4500);
-      } else if (animationState === "icy") {
-        setDisplayText("Sometimes Icy");
-        animateText("Sometimes Icy", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 4500);
-      }
-    } else if (fadeDirection === "out") {
-      animateText(displayText, false);
-      timer = setTimeout(() => {
-        if (animationState === "main") {
-          setAnimationState("hello");
-        } else if (animationState === "hello") {
-          setAnimationState("icy");
-        } else {
-          setAnimationState("main");
-        }
-        setFadeDirection("in");
-      }, displayText.length * 100 + 300);
-    }
-    
-    return () => clearTimeout(timer);
-  }, [animationState, fadeDirection]);
-  
-  // "IceLater" kelimesinin istenen kısmını mavi renge boyar
-  const getCharColor = (char: string, index: number, text: string) => {
-    if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) {
-        return "#3b82f6";
-      }
-    } else if (text === "Hello, I'm IceLater") {
-      // "Hello, I'm " kısmından sonra gelen "IceLater" kelimesi: indeks 11'den 18'e kadar
-      if (index >= 11 && index <= 18) {
-        return "#3b82f6";
-      }
-    } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) {
-        return "#3b82f6";
-      }
-    }
-    return "white";
-  };
-  
-  return (
-    <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
-      {displayText.split("").map((char, index) => (
-        <span 
-          key={index} 
-          style={{ 
-            opacity: visibleChars.includes(index) ? 1 : 0,
-            transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText)
-          }}
-        >
-          {char}
-        </span>
-      ))}
-    </h1>
+    <div
+      style={{
+        position: 'fixed',
+        left: mousePos.x,
+        top: mousePos.y,
+        transform: 'translate(-50%, -50%)',
+        width: '75px',
+        height: '75px',
+        borderRadius: '50%',
+        pointerEvents: 'none',
+        ...mistStyle
+      }}
+    />
   );
 }
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    const style = document.createElement('style');
-    style.innerHTML = `
-      ::-webkit-scrollbar {
-        width: 10px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #111827;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #3b82f6;
-        border-radius: 5px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #2563eb;
-      }
-    `;
-    document.head.appendChild(style);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => {
-      document.head.removeChild(style);
-    };
   }, []);
 
-  // Idle kontrolü: 30 saniye hareketsizlikte idle true olacak
+  // Idle kontrolü: 30 saniye hareketsizlikte idle true
   const [idle, setIdle] = useState(false);
   const idleTimerRef = React.useRef<number | null>(null);
 
@@ -224,7 +171,6 @@ function App() {
     const events = ['mousemove', 'mousedown', 'keydown', 'touchstart'];
     events.forEach((event) => window.addEventListener(event, resetIdleTimer));
     resetIdleTimer();
-    
     return () => {
       events.forEach((event) => window.removeEventListener(event, resetIdleTimer));
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -243,45 +189,36 @@ function App() {
     resetIdleTimer();
   };
 
-  // Scroll down butonu için smooth scroll özelliği
-  const handleScrollToAbout = (e) => {
-    e.preventDefault();
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      aboutSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  // Sadece DiscordCard ile AboutSection arasındaki boşluk için otomatik kaydırma (scroll snap)
+  React.useEffect(() => {
+    const isScrollingRef = React.useRef(false);
+    const lastScrollRef = React.useRef(0);
 
-  // Güvenli kaydırma: Eğer kullanıcı Discord kartı ile About kısmı arasındaki boşlukta kalırsa
-  useEffect(() => {
-    let lastScrollTop = 0;
-    let isScrollingToSection = false;
-    const scrollThreshold = 200;
-    
     const handleScroll = () => {
-      const scrollTop = window.scrollY || document.documentElement.scrollTop;
-      const viewportHeight = window.innerHeight;
+      if (isScrollingRef.current) return;
+      const gap = document.getElementById('autoScrollGap');
       const aboutSection = document.getElementById('about');
       const homeSection = document.getElementById('home');
-      
-      if (!aboutSection || !homeSection || isScrollingToSection) return;
-      
-      const aboutPosition = aboutSection.getBoundingClientRect().top + scrollTop;
-      const homeBottom = homeSection.getBoundingClientRect().bottom + scrollTop;
-      
-      if (scrollTop > homeBottom - scrollThreshold && scrollTop < aboutPosition - viewportHeight/2) {
-        if (scrollTop > lastScrollTop) {
-          isScrollingToSection = true;
+      if (!gap || !aboutSection || !homeSection) return;
+
+      const gapTop = gap.offsetTop;
+      const gapBottom = gapTop + gap.offsetHeight;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+
+      if (scrollTop >= gapTop && scrollTop <= gapBottom) {
+        if (scrollTop > lastScrollRef.current) {
+          // Aşağı kaydırıyorsa About bölümüne geç
+          isScrollingRef.current = true;
           aboutSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000);
+          setTimeout(() => { isScrollingRef.current = false; }, 1000);
         } else {
-          isScrollingToSection = true;
+          // Yukarı kaydırıyorsa Home bölümüne geç
+          isScrollingRef.current = true;
           homeSection.scrollIntoView({ behavior: 'smooth' });
-          setTimeout(() => { isScrollingToSection = false; }, 1000);
+          setTimeout(() => { isScrollingRef.current = false; }, 1000);
         }
       }
-      
-      lastScrollTop = scrollTop <= 0 ? 0 : scrollTop;
+      lastScrollRef.current = scrollTop;
     };
 
     window.addEventListener('scroll', handleScroll);
@@ -289,43 +226,20 @@ function App() {
   }, []);
 
   return (
-    <div className="bg-gray-950 text-white min-h-screen relative">
+    <div className="min-h-screen relative" style={{ background: '#0d0d0d', color: '#ffffff' }}>
       {/* Arka plan ve fare/touch efekti */}
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Hero Section */}
-      <section id="home" className="min-h-screen flex items-center justify-center relative pt-20">
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
+      <section
+        id="home"
+        className="min-h-screen flex items-center justify-center relative pt-20 text-center"
+        style={{ background: 'linear-gradient(to bottom, rgba(96,165,250,0.4), #0d0d0d)' }}
+      >
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
+          <AnimatedHeroText />
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -335,28 +249,41 @@ function App() {
             <a
               href="#about"
               className="flex flex-col items-center text-gray-400 hover:text-white transition-colors"
-              onClick={handleScrollToAbout}
             >
               <span className="mb-2">Scroll Down</span>
               <ChevronDown className="animate-bounce" />
             </a>
           </motion.div>
+          {/* DiscordCard yerleştirilmiş */}
+          <div className="mt-12">
+            <DiscordCard />
+          </div>
         </div>
       </section>
 
-      {/* Spacer gap between Home and About Sections */}
-      <div style={{ height: '100px' }}></div>
+      {/* Sadece bu bölüm için: DiscordCard ile AboutSection arasına 100px’lik boşluk */}
+      <div id="autoScrollGap" style={{ height: '100px' }}></div>
 
       {/* About Section */}
-      <section id="about" className="py-20 bg-gray-950">
+      <section id="about" className="py-20" style={{ background: '#0d0d0d' }}>
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <h2
+            style={{
+              fontFamily: "'Permanent Marker', cursive",
+              fontSize: '3rem',
+              marginBottom: '1rem',
+              textAlign: 'center',
+              color: '#ffffff'
+            }}
+          >
+            Who am I ?
+          </h2>
           <AboutSection />
         </div>
       </section>
 
       {/* Projects Section */}
-      <section id="projects" className="py-20 bg-gray-950/50">
+      <section id="projects" className="py-20" style={{ background: '#141414' }}>
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
@@ -369,7 +296,7 @@ function App() {
       </section>
 
       {/* Contact Section */}
-      <section id="contact" className="py-20 bg-gray-950">
+      <section id="contact" className="py-20" style={{ background: '#0d0d0d' }}>
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
@@ -377,7 +304,7 @@ function App() {
 
       <Footer />
 
-      {/* Idle durumunda, ekranın sol alt köşesinde wait image (sabit overlay) */}
+      {/* Idle durumunda sol alt köşede wait image */}
       {idle && !gameModalOpen && (
         <div
           onClick={handleWaitImageClick}
@@ -402,29 +329,10 @@ function App() {
       {gameModalOpen && <GameModal onClose={closeGameModal} />}
 
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-        
-        .font-permanent-marker {
-          font-family: 'Permanent Marker', cursive;
-        }
-        
-        /* Sayfa kaydırma davranışını normale döndür (anlık geçişler) */
-        html {
-          scroll-behavior: auto !important;
-        }
-        
-        /* Scroll snap ve otomatik kayan özelliğini kaldır */
-        body, section {
-          scroll-snap-type: none !important;
-          scroll-snap-align: none !important;
-          overscroll-behavior: auto !important;
-        }
-        
         @keyframes slideUp {
           from { transform: translateY(100%); opacity: 0; }
           to { transform: translateY(0); opacity: 1; }
         }
-        
         @keyframes slideDown {
           from { transform: translateY(0); opacity: 1; }
           to { transform: translateY(100%); opacity: 0; }

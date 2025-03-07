@@ -172,9 +172,9 @@ function AnimatedTitle() {
       // IceLater tamamen mavi (10-17 indeksleri)
       if (index >= 10 && index <= 17) {
         // "r" mavi, "o" beyaz olacak şekilde
-        if (index === 15) { // r harfi
+        if (index === 1) { // r harfi
           return "#3b82f6";
-        } else if (index === 12) { // o harfi
+        } else if (index === 2) { // o harfi
           return "white";
         } else {
           return "#3b82f6";

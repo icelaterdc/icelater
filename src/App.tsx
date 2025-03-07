@@ -9,7 +9,6 @@ import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import { ChevronDown } from 'lucide-react';
 
-// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -20,15 +19,10 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-
+    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
     const handleTouchMove = (e) => {
       const touch = e.touches[0];
-      if (touch) {
-        setMousePos({ x: touch.clientX, y: touch.clientY });
-      }
+      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -40,30 +34,27 @@ function InteractiveEffects() {
   }, []);
 
   return (
-    <>
-      <div
-        style={{
-          position: 'fixed',
-          left: mousePos.x,
-          top: mousePos.y,
-          transform: 'translate(-50%, -50%)',
-          width: '85px',
-          height: '85px',
-          pointerEvents: 'none',
-          ...mistStyle,
-        }}
-      />
-    </>
+    <div
+      style={{
+        position: 'fixed',
+        left: mousePos.x,
+        top: mousePos.y,
+        transform: 'translate(-50%, -50%)',
+        width: '85px',
+        height: '85px',
+        pointerEvents: 'none',
+        ...mistStyle,
+      }}
+    />
   );
 }
 
-// Hareketli yazı bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
-  
+
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
@@ -71,18 +62,12 @@ function AnimatedTitle() {
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 150);
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 450);
+        setTimeout(() => setVisibleChars(prev => [...prev, ...iceIndices]), 150);
+        setTimeout(() => setVisibleChars(prev => [...prev, ...restIndices]), 450);
       } else {
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
-          setTimeout(() => {
-            setVisibleChars(prev => [...prev, index]);
-          }, 150 + i * 150);
+          setTimeout(() => setVisibleChars(prev => [...prev, index]), 150 + i * 150);
         });
       }
     } else {
@@ -90,13 +75,11 @@ function AnimatedTitle() {
       setVisibleChars(allIndices);
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
-        setTimeout(() => {
-          setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 100);
+        setTimeout(() => setVisibleChars(prev => prev.filter(idx => idx !== index)), i * 100);
       });
     }
   };
-  
+
   useEffect(() => {
     let timer;
     if (fadeDirection === "in") {
@@ -124,23 +107,23 @@ function AnimatedTitle() {
     }
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-  
+
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer" && index >= 0 && index <= 7) return "#3b82f6";
     if (text === "Hello, I'm IceLater" && index >= 10 && index <= 18) return "#3b82f6";
     if (text === "Sometimes Icy" && index >= 10 && index <= 12) return "#3b82f6";
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
-        <span 
-          key={index} 
-          style={{ 
+        <span
+          key={index}
+          style={{
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText)
+            color: getCharColor(char, index, displayText),
           }}
         >
           {char}
@@ -152,7 +135,7 @@ function AnimatedTitle() {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     const style = document.createElement('style');
@@ -257,6 +240,7 @@ function App() {
             let lastScrollTop = 0;
             let isScrollingToSection = false;
             const sections = ['home', 'about', 'projects', 'contact'];
+            let currentSection = 'home';
 
             // Hangi bölümün viewport'ta en çok yer kapladığını bul
             function getCurrentSection() {
@@ -276,7 +260,7 @@ function App() {
               return current;
             }
 
-            // Kaydırma işleyici fonksiyonu
+            // Kaydırma işleyici
             function handleScrollBetweenSections() {
               const currentScroll = window.scrollY || document.documentElement.scrollTop;
               const direction = currentScroll > lastScrollTop ? 'down' : 'up';
@@ -288,7 +272,10 @@ function App() {
               const aboutSection = document.getElementById('about');
               if (!homeSection || !aboutSection) return;
 
-              const currentSection = getCurrentSection();
+              const updatedCurrentSection = getCurrentSection();
+              if (updatedCurrentSection !== currentSection) {
+                currentSection = updatedCurrentSection;
+              }
 
               // Home'dan About'a geçiş
               if (direction === 'down' && currentSection === 'home') {
@@ -310,7 +297,7 @@ function App() {
                   setTimeout(() => isScrollingToSection = false, 1000);
                 }
               }
-              // Diğer durumlarda hiçbir şey yapma
+              // Diğer durumlarda hiçbir şey yapma (normal kaydırma)
             }
 
             // Dokunma olayları için
@@ -333,7 +320,10 @@ function App() {
               const aboutSection = document.getElementById('about');
               if (!homeSection || !aboutSection) return;
 
-              const currentSection = getCurrentSection();
+              const updatedCurrentSection = getCurrentSection();
+              if (updatedCurrentSection !== currentSection) {
+                currentSection = updatedCurrentSection;
+              }
 
               // Home'dan About'a geçiş
               if (direction === 'down' && currentSection === 'home') {

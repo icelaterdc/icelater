@@ -14,10 +14,10 @@ function InteractiveEffects() {
 
   // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
-    // Daha yumuşak geçişli ve ortası parlak olan gradyan, kenarları pürüzlü olacak şekilde
-    background: 'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
+    background:
+      'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
-    borderRadius: '70%', // Daha pürüzlü kenarlar için
+    borderRadius: '70%',
   };
 
   useEffect(() => {
@@ -41,20 +41,18 @@ function InteractiveEffects() {
   }, []);
 
   return (
-    <>
-      <div
-        style={{
-          position: 'fixed',
-          left: mousePos.x,
-          top: mousePos.y,
-          transform: 'translate(-50%, -50%)',
-          width: '85px', // Biraz daha büyük yapıldı
-          height: '85px', // Biraz daha büyük yapıldı
-          pointerEvents: 'none',
-          ...mistStyle,
-        }}
-      />
-    </>
+    <div
+      style={{
+        position: 'fixed',
+        left: mousePos.x,
+        top: mousePos.y,
+        transform: 'translate(-50%, -50%)',
+        width: '85px',
+        height: '85px',
+        pointerEvents: 'none',
+        ...mistStyle,
+      }}
+    />
   );
 }
 
@@ -65,52 +63,39 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
   
-  // Bir metni rastgele şekilde harflerini belirtecek/solduracak fonksiyon
+  // Metni harf harf belirletip solduran fonksiyon
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
-      // Belirme animasyonu için tüm karakterleri önce gizle
       setVisibleChars([]);
-      
-      // Bir dizinin tüm indekslerini al
       const allIndices = [...Array(text.length).keys()];
       
-      // Ana yazı için özel düzenleme (tüm karakterlerin aynı anda belirmesi için)
       if (text === "IceLater Full-Stack Developer") {
-        // "IceLater" ve kalan kısmı için ayrı indeks grupları
-        const iceIndices = allIndices.slice(0, 8); // "IceLater" için
-        const restIndices = allIndices.slice(8);   // " Full-Stack Developer" için
+        const iceIndices = allIndices.slice(0, 8);
+        const restIndices = allIndices.slice(8);
         
-        // Tüm IceLater harflerini aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 150); // Biraz daha hızlı
+        }, 150);
         
-        // Full-Stack Developer kısmını da aynı anda göster
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 450); // Biraz daha hızlı
+        }, 450);
       } else {
-        // Diğer metinler için rastgele sırayla harfleri belirt
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
-        
-        // Çok yavaş şekilde harfleri belirt
         randomOrder.forEach((index, i) => {
           setTimeout(() => {
             setVisibleChars(prev => [...prev, index]);
-          }, 150 + i * 150); // Biraz daha hızlı geçişler
+          }, 150 + i * 150);
         });
       }
     } else {
-      // Soldurma animasyonu için tüm karakterleri göster
       const allIndices = [...Array(text.length).keys()];
       setVisibleChars(allIndices);
-      
-      // Rastgele sırayla harfleri soldur
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
         setTimeout(() => {
           setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 100); // Biraz daha hızlı solma
+        }, i * 100);
       });
     }
   };
@@ -119,31 +104,27 @@ function AnimatedTitle() {
     let timer;
     
     if (fadeDirection === "in") {
-      // Metni göster
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
         animateText("IceLater Full-Stack Developer", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 7000); // 7 saniye ana yazı (biraz daha hızlı)
+        }, 7000);
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         animateText("Hello, I'm IceLater", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 4500); // 4.5 saniye hello yazısı (biraz daha hızlı)
+        }, 4500);
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         animateText("Sometimes Icy", true);
         timer = setTimeout(() => {
           setFadeDirection("out");
-        }, 4500); // 4.5 saniye icy yazısı (biraz daha hızlı)
+        }, 4500);
       }
     } else if (fadeDirection === "out") {
-      // Metni soldur
       animateText(displayText, false);
-      
-      // Soldurma tamamlandıktan sonra bir sonraki duruma geç
       timer = setTimeout(() => {
         if (animationState === "main") {
           setAnimationState("hello");
@@ -153,26 +134,22 @@ function AnimatedTitle() {
           setAnimationState("main");
         }
         setFadeDirection("in");
-      }, displayText.length * 100 + 300); // Tüm harflerin solması için yeterli süre (biraz daha hızlı)
+      }, displayText.length * 100 + 300);
     }
     
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  // IceLater kontrolü
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
-      // IceLater tamamen mavi (0-7 indeksleri)
       if (index >= 0 && index <= 7) {
         return "#3b82f6";
       }
     } else if (text === "Hello, I'm IceLater") {
-      // "IceLater" tamamen mavi (10-17 indeksleri)
       if (index >= 10 && index <= 18) {
         return "#3b82f6";
       }
     } else if (text === "Sometimes Icy") {
-      // Icy tamamen mavi (10-12 indeksleri)
       if (index >= 10 && index <= 12) {
         return "#3b82f6";
       }
@@ -198,7 +175,7 @@ function AnimatedTitle() {
   );
 }
 
-// Bileşenlerin görünürlüğünü kontrol eden özel hook
+// Bileşen görünürlüğünü kontrol eden özel hook
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -211,9 +188,7 @@ function useElementVisibility(threshold = 0.1) {
           setIsVisible(true);
         }
       },
-      {
-        threshold
-      }
+      { threshold }
     );
 
     if (currentRef) {
@@ -231,11 +206,9 @@ function useElementVisibility(threshold = 0.1) {
 }
 
 function App() {
-  // Sayfa yükleme durumu için
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
   
-  // Kaydırma durumunu takip et
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
@@ -247,8 +220,6 @@ function App() {
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    
-    // Scrollbar rengini değiştirmek için stil ekleme
     const style = document.createElement('style');
     style.innerHTML = `
       ::-webkit-scrollbar {
@@ -267,7 +238,6 @@ function App() {
     `;
     document.head.appendChild(style);
     
-    // Sayfa yükleme durumunu simüle et
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -277,51 +247,36 @@ function App() {
     };
   }, []);
 
-  // Bölüm referansları
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
   
-  // Bileşenlerin görünürlüğünü izle
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
-  // Kaydırma pozisyonuna göre opaklık hesapla
   const calculateHomeOpacity = () => {
     if (!homeRef.current) return 1;
-    
     const homeRect = homeRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    
-    // Home bölümünün ekrandan çıkma oranını hesapla
     const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
-    
-    // Home alanı ekrandan çıkarken kademeli olarak sönükleş
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
-    
     const aboutRect = aboutRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    
-    // About bölümünün ekrana girme oranını hesapla
     const visibleTop = Math.max(0, viewport - aboutRect.top);
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
-    
-    // About alanı ekrana girerken kademeli olarak belir
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
-  // Home ve About bölümlerinin opaklığını hesapla
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
   return (
     <div className="bg-gray-950 text-white min-h-screen relative">
-      {/* Arka plan ve fare/touch efekti */}
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
@@ -432,17 +387,12 @@ function App() {
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-        
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        
-        /* Normal scroll behavior */
         html {
           scroll-behavior: auto;
         }
-        
-        /* Prevent any scroll animations */
         * {
           scroll-snap-align: none;
           scroll-snap-stop: normal;

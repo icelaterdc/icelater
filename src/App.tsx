@@ -168,7 +168,7 @@ function AnimatedTitle() {
   );
 }
 
-// Bileşen görünürlüğünü kontrol eden özel hook
+// Özel hook: Belirli elementin görünürlüğünü kontrol eder
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -223,96 +223,101 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
+  // Home bölümünün opaklığını hesaplama: Eğer home görünürse opaklık 1,
+  // scroll ile yukarı çıkıldığında home kısmi gizleniyor.
   const calculateHomeOpacity = () => {
     if (!homeRef.current) return 1;
-    const homeRect = homeRef.current.getBoundingClientRect();
+    const rect = homeRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
-    return Math.max(0, Math.min(1, visiblePortion * 1.5));
+    // Eğer home'in top değeri negatifse (yukarı kaydırılmışsa) opaklığı azalt
+    let opacity = rect.top < 0 ? 1 + rect.top / viewport : 1;
+    return Math.max(0, Math.min(1, opacity));
   };
-  
+
+  // About bölümünün opaklığını hesaplama: Yukarı kaydırıldığında fade-in etkisi
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
-    const aboutRect = aboutRef.current.getBoundingClientRect();
+    const rect = aboutRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visibleTop = Math.max(0, viewport - aboutRect.top);
-    const visiblePortion = Math.min(viewport, visibleTop) / viewport;
-    return Math.max(0, Math.min(1, visiblePortion * 1.5));
+    let opacity = rect.top < 0 ? 1 : 1 - rect.top / viewport;
+    return Math.max(0, Math.min(1, opacity));
   };
-  
+
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
   return (
-    <div className="snap-container bg-gray-950 text-white">
+    <div className="bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri – snap etkin */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="snap min-h-screen flex items-center justify-center relative pt-20"
-        style={{ 
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease"
-        }}
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+      {/* Sadece Home ve About bölümlerini içeren snap container */}
+      <div className="snap-container">
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="snap min-h-screen flex items-center justify-center relative pt-20"
+          style={{ 
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease"
+          }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="snap py-20 bg-gray-950"
-        style={{ 
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="snap py-20 bg-gray-950"
+          style={{ 
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
-      {/* Projects ve Contact bölümleri – normal kaydırma */}
+      {/* Diğer bölümler: Snap özelliği aktif değil */}
       <section 
         id="projects" 
         ref={projectsRef}
-        className="no-snap py-20 bg-gray-950/50"
+        className="py-20 bg-gray-950/50"
       >
         <div 
           ref={projectsContentRef}
@@ -335,7 +340,7 @@ function App() {
       <section 
         id="contact" 
         ref={contactRef}
-        className="no-snap py-20 bg-gray-950"
+        className="py-20 bg-gray-950"
       >
         <div 
           ref={contactContentRef}
@@ -352,14 +357,14 @@ function App() {
       <Footer />
 
       <style>{`
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-.font-permanent-marker {
-  font-family: 'Permanent Marker', cursive;
-}
-html {
-  scroll-behavior: auto;
-}
-`}</style>
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        .font-permanent-marker {
+          font-family: 'Permanent Marker', cursive;
+        }
+        html {
+          scroll-behavior: auto;
+        }
+      `}</style>
     </div>
   );
 }

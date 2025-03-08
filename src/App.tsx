@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef, useLayoutEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
@@ -19,10 +19,14 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
     const handleTouchMove = (e) => {
       const touch = e.touches[0];
-      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
+      if (touch) {
+        setMousePos({ x: touch.clientX, y: touch.clientY });
+      }
     };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -59,15 +63,22 @@ function AnimatedTitle() {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
+      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
-        setTimeout(() => setVisibleChars(prev => [...prev, ...iceIndices]), 150);
-        setTimeout(() => setVisibleChars(prev => [...prev, ...restIndices]), 450);
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...iceIndices]);
+        }, 150);
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...restIndices]);
+        }, 450);
       } else {
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
-          setTimeout(() => setVisibleChars(prev => [...prev, index]), 150 + i * 150);
+          setTimeout(() => {
+            setVisibleChars(prev => [...prev, index]);
+          }, 150 + i * 150);
         });
       }
     } else {
@@ -75,7 +86,9 @@ function AnimatedTitle() {
       setVisibleChars(allIndices);
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
-        setTimeout(() => setVisibleChars(prev => prev.filter(idx => idx !== index)), i * 100);
+        setTimeout(() => {
+          setVisibleChars(prev => prev.filter(idx => idx !== index));
+        }, i * 100);
       });
     }
   };
@@ -99,19 +112,27 @@ function AnimatedTitle() {
     } else if (fadeDirection === "out") {
       animateText(displayText, false);
       timer = setTimeout(() => {
-        if (animationState === "main") setAnimationState("hello");
-        else if (animationState === "hello") setAnimationState("icy");
-        else setAnimationState("main");
+        if (animationState === "main") {
+          setAnimationState("hello");
+        } else if (animationState === "hello") {
+          setAnimationState("icy");
+        } else {
+          setAnimationState("main");
+        }
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
     return () => clearTimeout(timer);
-  }, [animationState, fadeDirection, displayText]);
+  }, [animationState, fadeDirection]);
   
   const getCharColor = (char, index, text) => {
-    if (text === "IceLater Full-Stack Developer" && index <= 7) return "#3b82f6";
-    if (text === "Hello, I'm IceLater" && index >= 10 && index <= 18) return "#3b82f6";
-    if (text === "Sometimes Icy" && index >= 10 && index <= 12) return "#3b82f6";
+    if (text === "IceLater Full-Stack Developer") {
+      if (index >= 0 && index <= 7) return "#3b82f6";
+    } else if (text === "Hello, I'm IceLater") {
+      if (index >= 10 && index <= 18) return "#3b82f6";
+    } else if (text === "Sometimes Icy") {
+      if (index >= 10 && index <= 12) return "#3b82f6";
+    }
     return "white";
   };
   
@@ -119,8 +140,8 @@ function AnimatedTitle() {
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
         <span 
-          key={index}
-          style={{
+          key={index} 
+          style={{ 
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
             color: getCharColor(char, index, displayText)
@@ -133,122 +154,141 @@ function AnimatedTitle() {
   );
 }
 
+// Özel Hook: Belirli elementin görünürlüğünü kontrol eder
+function useElementVisibility(threshold = 0.1) {
+  const ref = useRef(null);
+  const [isVisible, setIsVisible] = useState(false);
+  useEffect(() => {
+    const currentRef = ref.current;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold }
+    );
+    if (currentRef) observer.observe(currentRef);
+    return () => {
+      if (currentRef) observer.unobserve(currentRef);
+    };
+  }, [threshold]);
+  return [ref, isVisible];
+}
+
 function App() {
+  const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-  const crossfadeContainerRef = useRef(null);
-  const [containerOffset, setContainerOffset] = useState(0);
   
-  // Scroll event dinleme
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
-  // Crossfade container'ın offsetTop'unu al
-  useLayoutEffect(() => {
-    if (crossfadeContainerRef.current) {
-      setContainerOffset(crossfadeContainerRef.current.offsetTop);
-    }
-  }, []);
-  
-  // Crossfade için scroll değerini normalize et (0 - 1 arası)
-  const relativeScroll = scrollY - containerOffset;
-  const ratio = Math.min(Math.max(relativeScroll / window.innerHeight, 0), 1);
-  
-  // Scroll durduğunda snap efektini tetikleme (yalnızca crossfade bölgesinde)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (relativeScroll >= 0 && relativeScroll < window.innerHeight) {
-        if (ratio < 0.5) {
-          window.scrollTo({ top: containerOffset, behavior: "smooth" });
-        } else {
-          window.scrollTo({ top: containerOffset + window.innerHeight, behavior: "smooth" });
-        }
-      }
-    }, 150);
-    return () => clearTimeout(timer);
-  }, [relativeScroll, ratio, containerOffset]);
+    document.title = "IceLater Full-Stack Developer";
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
+  const projectsRef = useRef(null);
+  const contactRef = useRef(null);
   
+  const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
+  const [contactContentRef, contactVisible] = useElementVisibility(0.1);
+
+  // Home bölümünün opaklığı: home scroll ile yukarı kaydığında opaklık yavaşça azalır.
+  const calculateHomeOpacity = () => {
+    if (!homeRef.current) return 1;
+    const rect = homeRef.current.getBoundingClientRect();
+    const viewport = window.innerHeight;
+    let opacity = rect.top < 0 ? 1 + rect.top / viewport : 1;
+    return Math.max(0, Math.min(1, opacity));
+  };
+
+  // About bölümünün opaklığı: scroll ile yaklaşınca yavaşça görünür hale gelir.
+  const calculateAboutOpacity = () => {
+    if (!aboutRef.current) return 0;
+    const rect = aboutRef.current.getBoundingClientRect();
+    const viewport = window.innerHeight;
+    let opacity = rect.top < 0 ? 1 : 1 - rect.top / viewport;
+    return Math.max(0, Math.min(1, opacity));
+  };
+
+  const homeOpacity = calculateHomeOpacity();
+  const aboutOpacity = calculateAboutOpacity();
+
   return (
     <div className="bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
-      
-      {/* Crossfade Container: Height = 200vh */}
-      <div ref={crossfadeContainerRef} style={{ height: "200vh", position: "relative" }}>
-        {/* Sticky wrapper: viewport boyunca sabit */}
-        <div style={{ position: "sticky", top: 0, height: "100vh" }}>
-          {/* Home Bölümü (arka plana yerleştirilmiş, opaklığı 1→0 arası değişiyor) */}
-          <section
-            id="home"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              opacity: 1 - ratio,
-              transition: "opacity 0.3s ease"
-            }}
-          >
-            <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-            </div>
-            <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-              <div className="flex flex-col items-center text-center mb-12">
-                <motion.div
-                  initial={{ opacity: 0, y: -20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5 }}
-                >
-                  <AnimatedTitle />
-                </motion.div>
-                <motion.p
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.2 }}
-                  className="text-xl text-gray-300 max-w-2xl"
-                >
-                  Building modern web applications with passion and precision.
-                  Transforming ideas into elegant, functional digital experiences.
-                </motion.p>
-              </div>
-              <motion.div
-                initial={{ opacity: 0, y: 30 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
-              >
-                <DiscordCard />
+
+      {/* Home ve About bölümlerini kapsayan scroll snap container */}
+      <div className="snap-container">
+        {/* Home Bölümü */}
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="snap min-h-screen flex items-center justify-center relative pt-20"
+          style={{ opacity: homeOpacity, transition: "opacity 0.5s ease" }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}>
+                <AnimatedTitle />
               </motion.div>
+              <motion.p initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="text-xl text-gray-300 max-w-2xl">
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
             </div>
-          </section>
-          
-          {/* About Bölümü (arka plana yerleştirilmiş, opaklığı 0→1 arası değişiyor) */}
-          <section
-            id="about"
-            style={{
-              position: "absolute",
-              top: 0,
-              left: 0,
-              right: 0,
-              bottom: 0,
-              opacity: ratio,
-              transition: "opacity 0.3s ease"
-            }}
-          >
-            <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-              <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-              <AboutSection />
-            </div>
-          </section>
-        </div>
+            <motion.div initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}>
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
+
+        {/* About Bölümü */}
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="snap py-20 bg-gray-950"
+          style={{ 
+            opacity: aboutOpacity, 
+            transition: "opacity 0.5s ease", 
+            position: "relative", 
+            zIndex: aboutOpacity > 0.5 ? 10 : 5 
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
       </div>
-      
+
       {/* Projects Bölümü */}
-      <section id="projects" className="py-20 bg-gray-950/50">
-        <div className="container mx-auto px-4 md:px-6">
+      <section 
+        id="projects" 
+        ref={projectsRef}
+        className="py-20 bg-gray-950/50"
+      >
+        <div 
+          ref={projectsContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+        >
           <div className="mb-12">
             <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
             <p className="text-gray-300">
@@ -258,20 +298,28 @@ function App() {
           <GitHubRepos />
         </div>
       </section>
-      
+
       {/* Contact Bölümü */}
-      <section id="contact" className="py-20 bg-gray-950">
-        <div className="container mx-auto px-4 md:px-6">
+      <section 
+        id="contact" 
+        ref={contactRef}
+        className="py-20 bg-gray-950"
+      >
+        <div 
+          ref={contactContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+        >
           <ContactSection />
         </div>
       </section>
-      
+
       <Footer />
-      
+
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        html { scroll-behavior: smooth; }
+        html { scroll-behavior: auto; }
       `}</style>
     </div>
   );

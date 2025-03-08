@@ -361,12 +361,16 @@ const App: React.FC = () => {
           font-family: 'Permanent Marker', cursive;
         }
         html {
-          scroll-behavior: auto;
-          scroll-snap-type: y mandatory;
+          scroll-behavior: smooth;
+          scroll-snap-type: y proximity;
         }
-        /* Sadece Home ve About bölümlerine snap uygulanacak */
+        /* Sadece #home ve #about için snap noktası */
         #home, #about {
           scroll-snap-align: start;
+        }
+        /* Diğer bölümlerde snap devre dışı */
+        #projects, #contact, footer {
+          scroll-snap-align: none;
         }
       `}</style>
     </div>

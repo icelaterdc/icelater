@@ -1,7 +1,3 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
 :root {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -13,17 +9,10 @@
 
 html {
   scroll-behavior: smooth;
-  /* Global snap devre dışı bırakıldı, snap sadece belirli container üzerinde uygulanacak */
 }
 
 body {
   font-family: 'Inter', sans-serif;
-  /* Çok katmanlı arka plan:
-     1. Üst: Üst merkezde mavi ışık, kenarlara doğru transparanlaşıyor.
-     2. Orta: Ortada neon etkili parlak ışık, yandan transparanlaşıyor.
-     3. Alt: Altta mavi ışık kaynağı, yukarıya doğru opaklık azalıyor.
-     4. Temel: Üstten alta mavi tonundan siyaha geçiş.
-  */
   background: 
     radial-gradient(circle at top center, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0) 70%),
     radial-gradient(circle at center, rgba(0,255,255,0.7) 0%, rgba(0,255,255,0) 60%),
@@ -34,17 +23,17 @@ body {
   line-height: 1.6;
 }
 
-/* Sadece Home ve About bölümlerini kapsayan container için snap ayarları */
+/* Home ve About için snap container */
 .home-about-container {
   scroll-snap-type: y mandatory;
-  overflow-y: auto;
   height: 100vh;
+  overflow-y: auto;
 }
 
-/* Container içindeki her bölümde snap'in katılığı */
 .home-about-container section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
+  height: 100vh;
 }
 
 /* Animations */
@@ -64,7 +53,6 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
-/* Gradient text */
 .gradient-text {
   background-clip: text;
   -webkit-background-clip: text;

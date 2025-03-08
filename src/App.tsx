@@ -8,12 +8,11 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
-function InteractiveEffects() {
+/* InteractiveEffects: İmleç etrafında sis efekti */
+const InteractiveEffects: React.FC = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
-  const mistStyle = {
+  const mistStyle: React.CSSProperties = {
     background:
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
@@ -21,11 +20,11 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
+    const handleMouseMove = (e: MouseEvent) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
 
-    const handleTouchMove = (e) => {
+    const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
@@ -54,29 +53,26 @@ function InteractiveEffects() {
       }}
     />
   );
-}
+};
 
-// Hareketli yazı bileşeni
-function AnimatedTitle() {
+/* AnimatedTitle: Hareketli yazı bileşeni */
+const AnimatedTitle: React.FC = () => {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
-  const [animationState, setAnimationState] = useState("main");
-  const [fadeDirection, setFadeDirection] = useState("in");
-  const [visibleChars, setVisibleChars] = useState([]);
-  
-  // Metni harf harf belirletip solduran fonksiyon
-  const animateText = (text, isAppearing) => {
+  const [animationState, setAnimationState] = useState<"main" | "hello" | "icy">("main");
+  const [fadeDirection, setFadeDirection] = useState<"in" | "out">("in");
+  const [visibleChars, setVisibleChars] = useState<number[]>([]);
+
+  // Harf harf belirleme ve silme fonksiyonu
+  const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
-        
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...iceIndices]);
         }, 150);
-        
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...restIndices]);
         }, 450);
@@ -99,10 +95,9 @@ function AnimatedTitle() {
       });
     }
   };
-  
+
   useEffect(() => {
-    let timer;
-    
+    let timer: NodeJS.Timeout;
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
@@ -136,11 +131,10 @@ function AnimatedTitle() {
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
-    
     return () => clearTimeout(timer);
-  }, [animationState, fadeDirection]);
-  
-  const getCharColor = (char, index, text) => {
+  }, [animationState, fadeDirection, displayText]);
+
+  const getCharColor = (index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) {
         return "#3b82f6";
@@ -156,7 +150,7 @@ function AnimatedTitle() {
     }
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
@@ -165,7 +159,7 @@ function AnimatedTitle() {
           style={{ 
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText)
+            color: getCharColor(index, displayText)
           }}
         >
           {char}
@@ -173,11 +167,11 @@ function AnimatedTitle() {
       ))}
     </h1>
   );
-}
+};
 
-// Bileşen görünürlüğünü kontrol eden özel hook
-function useElementVisibility(threshold = 0.1) {
-  const ref = useRef(null);
+/* useElementVisibility: Bileşen görünürlüğünü kontrol eden özel hook */
+const useElementVisibility = (threshold = 0.1): [React.RefObject<HTMLDivElement>, boolean] => {
+  const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -203,55 +197,34 @@ function useElementVisibility(threshold = 0.1) {
   }, [threshold]);
 
   return [ref, isVisible];
-}
+};
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    const style = document.createElement('style');
-    style.innerHTML = `
-      ::-webkit-scrollbar {
-        width: 10px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #111827;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #3b82f6;
-        border-radius: 5px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #2563eb;
-      }
-    `;
-    document.head.appendChild(style);
-    
+    // Scroll bar özelleştirme kodları kaldırıldı.
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
   }, []);
 
-  const homeRef = useRef(null);
-  const aboutRef = useRef(null);
-  const projectsRef = useRef(null);
-  const contactRef = useRef(null);
-  
+  const homeRef = useRef<HTMLDivElement>(null);
+  const aboutRef = useRef<HTMLDivElement>(null);
+  const projectsRef = useRef<HTMLDivElement>(null);
+  const contactRef = useRef<HTMLDivElement>(null);
+
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
@@ -262,7 +235,7 @@ function App() {
     const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-  
+
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
     const aboutRect = aboutRef.current.getBoundingClientRect();
@@ -271,7 +244,7 @@ function App() {
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-  
+
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
@@ -281,65 +254,71 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Hero Section */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20"
-        style={{ 
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease"
-        }}
+      {/* Scroll snapping kapsayıcısı: Sadece Home ve About bölümleri için */}
+      <div
+        className="snap-container"
+        style={{ scrollSnapType: "y mandatory", overflowY: "auto", height: "100vh" }}
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+        {/* Hero (Home) Section */}
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="min-h-screen flex items-center justify-center relative pt-20"
+          style={{ 
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease"
+          }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      {/* About Section */}
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="py-20 bg-gray-950"
-        style={{ 
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        {/* About Section */}
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="py-20 bg-gray-950"
+          style={{ 
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
       {/* Projects Section */}
       <section 
@@ -386,8 +365,7 @@ function App() {
       <Footer />
 
       <style>{`
-        
-@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }

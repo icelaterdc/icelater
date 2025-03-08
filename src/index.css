@@ -26,15 +26,3 @@ body {
   color: var(--text);
   line-height: 1.6;
 }
-
-/* Sadece Home ve About bölümleri için snap container */
-.snap-container {
-  scroll-snap-type: y mandatory;
-  overflow-y: auto;
-  height: 100vh;
-}
-
-.snap {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
-}

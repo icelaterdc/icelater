@@ -8,6 +8,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
+// InteractiveEffects: imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -19,15 +20,10 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      setMousePos({ x: e.clientX, y: e.clientY });
-    };
-
+    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
     const handleTouchMove = (e) => {
       const touch = e.touches[0];
-      if (touch) {
-        setMousePos({ x: touch.clientX, y: touch.clientY });
-      }
+      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -54,6 +50,7 @@ function InteractiveEffects() {
   );
 }
 
+// Hareketli yazı bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -64,24 +61,15 @@ function AnimatedTitle() {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
-        
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...iceIndices]);
-        }, 150);
-        
-        setTimeout(() => {
-          setVisibleChars(prev => [...prev, ...restIndices]);
-        }, 450);
+        setTimeout(() => setVisibleChars(prev => [...prev, ...iceIndices]), 150);
+        setTimeout(() => setVisibleChars(prev => [...prev, ...restIndices]), 450);
       } else {
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
-          setTimeout(() => {
-            setVisibleChars(prev => [...prev, index]);
-          }, 150 + i * 150);
+          setTimeout(() => setVisibleChars(prev => [...prev, index]), 150 + i * 150);
         });
       }
     } else {
@@ -89,66 +77,46 @@ function AnimatedTitle() {
       setVisibleChars(allIndices);
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
-        setTimeout(() => {
-          setVisibleChars(prev => prev.filter(idx => idx !== index));
-        }, i * 100);
+        setTimeout(() => setVisibleChars(prev => prev.filter(idx => idx !== index)), i * 100);
       });
     }
   };
   
   useEffect(() => {
     let timer;
-    
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
         animateText("IceLater Full-Stack Developer", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 7000);
+        timer = setTimeout(() => setFadeDirection("out"), 7000);
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         animateText("Hello, I'm IceLater", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 4500);
+        timer = setTimeout(() => setFadeDirection("out"), 4500);
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         animateText("Sometimes Icy", true);
-        timer = setTimeout(() => {
-          setFadeDirection("out");
-        }, 4500);
+        timer = setTimeout(() => setFadeDirection("out"), 4500);
       }
     } else if (fadeDirection === "out") {
       animateText(displayText, false);
       timer = setTimeout(() => {
-        if (animationState === "main") {
-          setAnimationState("hello");
-        } else if (animationState === "hello") {
-          setAnimationState("icy");
-        } else {
-          setAnimationState("main");
-        }
+        if (animationState === "main") setAnimationState("hello");
+        else if (animationState === "hello") setAnimationState("icy");
+        else setAnimationState("main");
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
-    
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) {
-        return "#3b82f6";
-      }
+      if (index >= 0 && index <= 7) return "#3b82f6";
     } else if (text === "Hello, I'm IceLater") {
-      if (index >= 10 && index <= 18) {
-        return "#3b82f6";
-      }
+      if (index >= 10 && index <= 18) return "#3b82f6";
     } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) {
-        return "#3b82f6";
-      }
+      if (index >= 10 && index <= 12) return "#3b82f6";
     }
     return "white";
   };
@@ -171,6 +139,7 @@ function AnimatedTitle() {
   );
 }
 
+// Bileşen görünürlüğünü kontrol eden özel hook
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -179,22 +148,12 @@ function useElementVisibility(threshold = 0.1) {
     const currentRef = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) {
-          setIsVisible(true);
-        }
+        if (entry.isIntersecting) setIsVisible(true);
       },
       { threshold }
     );
-
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
-
-    return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
-    };
+    if (currentRef) observer.observe(currentRef);
+    return () => currentRef && observer.unobserve(currentRef);
   }, [threshold]);
 
   return [ref, isVisible];
@@ -205,21 +164,11 @@ function App() {
   const [scrollY, setScrollY] = useState(0);
   
   useEffect(() => {
-    const handleScroll = () => {
-      setScrollY(window.scrollY);
-    };
-    
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    document.title = "IceLater Full-Stack Developer";
+    // Custom scrollbar stillilleri kaldırıldı; tarayıcının varsayılanı kullanılacak.
+    setTimeout(() => setIsLoading(false), 500);
   }, []);
   
-  useEffect(() => {
-    document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-  }, []);
-
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
@@ -254,15 +203,16 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
+      {/* Home ve About bölümlerini kapsayan scroll snap konteyneri */}
       <div className="home-about-container">
+        {/* Hero Section (Home) */}
         <section 
           id="home" 
           ref={homeRef}
-          className="flex items-center justify-center relative pt-20"
+          className="min-h-screen flex items-center justify-center relative pt-20"
           style={{ 
             opacity: homeOpacity,
-            transition: "opacity 0.5s ease",
-            height: "100vh"
+            transition: "opacity 0.5s ease"
           }}
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -270,45 +220,37 @@ function App() {
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
+              <motion.div initial={{ opacity: 0, y: -20 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.5 }}>
                 <AnimatedTitle />
               </motion.div>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
+              <motion.p initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="text-xl text-gray-300 max-w-2xl">
                 Building modern web applications with passion and precision.
                 Transforming ideas into elegant, functional digital experiences.
               </motion.p>
             </div>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
+            <motion.div initial={{ opacity: 0, y: 30 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.5, delay: 0.4 }}>
               <DiscordCard />
             </motion.div>
           </div>
         </section>
 
+        {/* About Section */}
         <section 
           id="about" 
           ref={aboutRef}
-          className="bg-gray-950"
+          className="py-20 bg-gray-950"
           style={{ 
             opacity: aboutOpacity,
             transition: "opacity 0.5s ease",
             position: "relative",
-            zIndex: aboutOpacity > 0.5 ? 10 : 5,
-            height: "100vh",
-            display: "flex",
-            alignItems: "center"
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
           }}
         >
           <div className="container mx-auto px-4 md:px-6">
@@ -318,6 +260,7 @@ function App() {
         </section>
       </div>
 
+      {/* Projects Section */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -341,6 +284,7 @@ function App() {
         </div>
       </section>
 
+      {/* Contact Section */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -365,15 +309,17 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
+        /* Home ve About kapsayıcısı için scroll snap ayarları */
         .home-about-container {
           scroll-snap-type: y mandatory;
-          height: 100vh;
           overflow-y: auto;
+          height: 100vh;
         }
         .home-about-container section {
           scroll-snap-align: start;
           scroll-snap-stop: always;
         }
+        /* Varsayılan scrollbar kullanılacak, ekstra stillendirme kaldırıldı */
       `}</style>
     </div>
   );

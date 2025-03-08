@@ -1,3 +1,7 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 :root {
   --primary: #3b82f6;
   --primary-dark: #2563eb;
@@ -9,6 +13,7 @@
 
 html {
   scroll-behavior: smooth;
+  /* Global snap devre dışı bırakıldı, snap sadece belirli container'da uygulanacak */
 }
 
 body {
@@ -23,17 +28,35 @@ body {
   line-height: 1.6;
 }
 
-/* Home ve About için snap container */
+/* Sadece Home ve About bölümlerini kapsayan container için snap ayarları */
 .home-about-container {
   scroll-snap-type: y mandatory;
-  height: 100vh;
   overflow-y: auto;
+  height: 100vh;
 }
 
+/* Container içindeki her bölümde snap'in katılığı */
 .home-about-container section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-  height: 100vh;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--background);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--primary);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
 }
 
 /* Animations */
@@ -53,6 +76,7 @@ body {
   animation: float 3s ease-in-out infinite;
 }
 
+/* Gradient text */
 .gradient-text {
   background-clip: text;
   -webkit-background-clip: text;

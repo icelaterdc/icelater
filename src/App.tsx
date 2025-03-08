@@ -220,31 +220,10 @@ function App() {
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    const style = document.createElement('style');
-    style.innerHTML = `
-      ::-webkit-scrollbar {
-        width: 10px;
-      }
-      ::-webkit-scrollbar-track {
-        background: #111827;
-      }
-      ::-webkit-scrollbar-thumb {
-        background: #3b82f6;
-        border-radius: 5px;
-      }
-      ::-webkit-scrollbar-thumb:hover {
-        background: #2563eb;
-      }
-    `;
-    document.head.appendChild(style);
     
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
   }, []);
 
   const homeRef = useRef(null);

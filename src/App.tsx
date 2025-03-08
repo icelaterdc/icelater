@@ -17,7 +17,7 @@ function InteractiveEffects() {
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
     borderRadius: '70%',
-    zIndex: 1000, // Sis bulutu her zaman üstte kalır
+    zIndex: 1000, // Her zaman üstte
   };
 
   useEffect(() => {
@@ -261,11 +261,11 @@ function App() {
       <section 
         id="home" 
         ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20"
+        className="min-h-screen flex items-center justify-center relative pt-20 mb-4" // Çok az uzaklaştırma
         style={{ 
           opacity: homeOpacity,
           transition: "opacity 0.5s ease",
-          scrollSnapAlign: 'start' // Scroll snapping için
+          scrollSnapAlign: 'start' // Scroll snapping
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -309,7 +309,7 @@ function App() {
           transition: "opacity 0.5s ease",
           position: "relative",
           zIndex: aboutOpacity > 0.5 ? 10 : 5, // Sis bulutundan düşük
-          scrollSnapAlign: 'start' // Scroll snapping için
+          scrollSnapAlign: 'start' // Scroll snapping
         }}
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -321,8 +321,8 @@ function App() {
       <section 
         id="projects" 
         ref={projectsRef}
-        className="py-20 bg-gray-950/50"
-        style={{ scrollSnapAlign: 'none' }} // Projects snapping yapmaz
+        className="py-8 bg-gray-950/50" // Boşluk azaltıldı
+        style={{ scrollSnapAlign: 'none' }} // Snapping yok
       >
         <div 
           ref={projectsContentRef}
@@ -345,8 +345,8 @@ function App() {
       <section 
         id="contact" 
         ref={contactRef}
-        className="py-20 bg-gray-950"
-        style={{ scrollSnapAlign: 'none' }} // Contact snapping yapmaz
+        className="py-8 bg-gray-950" // Boşluk azaltıldı
+        style={{ scrollSnapAlign: 'none' }} // Snapping yok
       >
         <div 
           ref={contactContentRef}
@@ -367,8 +367,13 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
+        html {
+          scroll-behavior: smooth; /* Yumuşak kaydırma */
+        }
         body {
           scroll-snap-type: y mandatory; /* Scroll snapping etkin */
+          margin: 0; /* Varsayılan boşlukları kaldır */
+          padding: 0;
         }
       `}</style>
     </div>

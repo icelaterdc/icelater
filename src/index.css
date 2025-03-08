@@ -13,7 +13,7 @@
 
 html {
   scroll-behavior: smooth;
-  /* Scroll snap özellikleri kaldırıldı */
+  /* Artık scroll snap HTML seviyesinde uygulanmıyor */
 }
 
 body {
@@ -34,15 +34,20 @@ body {
   line-height: 1.6;
 }
 
-/* Scroll snap özellikleri kaldırıldı */
-/*
-section {
-  scroll-snap-align: start;
-  scroll-snap-stop: always;
+/* Sadece Home ve About bölümlerini kapsayacak container */
+.home-about-container {
+  scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  height: 100vh;
 }
-*/
 
-/* Custom scrollbar - Scrollbar thumb mavi */
+/* Bu container içindeki bölümler için scroll snap ayarları */
+.home-about-container section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Custom scrollbar - Scrollbar thumb mavi tonlarda */
 ::-webkit-scrollbar {
   width: 10px;
 }

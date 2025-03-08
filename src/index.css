@@ -25,17 +25,31 @@ body {
   background-blend-mode: screen, screen, screen, normal;
   color: var(--text);
   line-height: 1.6;
+  overflow: hidden; /* Prevent body from scrolling */
 }
 
-/* Main ve About bölümleri için snap kapsayıcısı */
+.main-container {
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: none; /* Hide scroll bar in Firefox */
+}
+
+.main-container::-webkit-scrollbar {
+  display: none; /* Hide scroll bar in Webkit browsers */
+}
+
+/* Snap container for home and about sections */
 .snap-container {
   scroll-snap-type: y mandatory;
-  overflow-y: auto;
-  height: 100vh;
 }
 
-/* Sadece bu bölümlerde snap etkin olacak */
-.snap-container section {
+.snap-container #home,
+.snap-container #about {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
+}
+
+/* Ensure other sections do not snap */
+#projects,
+#contact {
+  scroll-snap-align: none;
 }

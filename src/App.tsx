@@ -251,86 +251,71 @@ const App: React.FC = () => {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Landing Container: Sadece Home ve About arasında snapping –
-          bu alan sabit 100vh boyutunda olup, içindeki iki bölüm scroll snapping ile çalışır */}
-      <div
-        className="landing-container"
+      {/* Home Section */}
+      <section
+        id="home"
+        ref={homeRef}
+        className="min-h-screen flex items-center justify-center relative pt-20"
         style={{
-          height: '100vh',
-          overflowY: 'scroll',
-          scrollSnapType: 'y mandatory'
+          opacity: homeOpacity,
+          transition: "opacity 0.5s ease"
         }}
       >
-        {/* Home Section */}
-        <section 
-          id="home" 
-          ref={homeRef}
-          style={{ 
-            height: '100vh',
-            scrollSnapAlign: 'start',
-            opacity: homeOpacity,
-            transition: "opacity 0.5s ease"
-          }}
-          className="flex items-center justify-center relative pt-20"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              <DiscordCard />
-            </motion.div>
-          </div>
-        </section>
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <AnimatedTitle />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-xl text-gray-300 max-w-2xl"
+          >
+            Building modern web applications with passion and precision.
+            Transforming ideas into elegant, functional digital experiences.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        {/* About Section */}
-        <section 
-          id="about" 
-          ref={aboutRef}
-          style={{ 
-            height: '100vh',
-            scrollSnapAlign: 'start',
-            opacity: aboutOpacity,
-            transition: "opacity 0.5s ease",
-            position: "relative",
-            zIndex: aboutOpacity > 0.5 ? 10 : 5
-          }}
-          className="bg-gray-950"
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
+      {/* About Section */}
+      <section
+        id="about"
+        ref={aboutRef}
+        className="py-20 bg-gray-950"
+        style={{
+          opacity: aboutOpacity,
+          transition: "opacity 0.5s ease",
+          position: "relative",
+          zIndex: aboutOpacity > 0.5 ? 10 : 5
+        }}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
+          <AboutSection />
+        </div>
+      </section>
 
-      {/* Normal scroll ile devam eden diğer bölümler */}
-      <section 
-        id="projects" 
+      {/* Projects Section */}
+      <section
+        id="projects"
         ref={projectsRef}
         className="py-20 bg-gray-950/50"
       >
-        <div 
+        <div
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
@@ -348,12 +333,13 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      <section 
-        id="contact" 
+      {/* Contact Section */}
+      <section
+        id="contact"
         ref={contactRef}
         className="py-20 bg-gray-950"
       >
-        <div 
+        <div
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
@@ -372,13 +358,17 @@ const App: React.FC = () => {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        /* Landing container scrollbar gizlensin */
-        .landing-container::-webkit-scrollbar {
-          display: none;
+        html {
+          scroll-behavior: smooth;
+          scroll-snap-type: y proximity;
         }
-        .landing-container {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
+        /* Sadece Home ve About bölümleri için snap noktası */
+        #home, #about {
+          scroll-snap-align: start;
+        }
+        /* Diğer bölümlerde snapping devre dışı */
+        #projects, #contact, footer {
+          scroll-snap-align: none;
         }
       `}</style>
     </div>

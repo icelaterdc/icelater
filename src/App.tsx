@@ -8,10 +8,11 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-// İmleç etrafında sis efekti (iz bırakmadan)
+// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
     background:
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
@@ -20,10 +21,15 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
     const handleTouchMove = (e) => {
       const touch = e.touches[0];
-      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
+      if (touch) {
+        setMousePos({ x: touch.clientX, y: touch.clientY });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -57,19 +63,29 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
   
+  // Metni harf harf belirletip solduran fonksiyon
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
+      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
-        setTimeout(() => setVisibleChars(prev => [...prev, ...iceIndices]), 150);
-        setTimeout(() => setVisibleChars(prev => [...prev, ...restIndices]), 450);
+        
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...iceIndices]);
+        }, 150);
+        
+        setTimeout(() => {
+          setVisibleChars(prev => [...prev, ...restIndices]);
+        }, 450);
       } else {
         const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
-          setTimeout(() => setVisibleChars(prev => [...prev, index]), 150 + i * 150);
+          setTimeout(() => {
+            setVisibleChars(prev => [...prev, index]);
+          }, 150 + i * 150);
         });
       }
     } else {
@@ -77,46 +93,66 @@ function AnimatedTitle() {
       setVisibleChars(allIndices);
       const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
       randomOrder.forEach((index, i) => {
-        setTimeout(() => setVisibleChars(prev => prev.filter(idx => idx !== index)), i * 100);
+        setTimeout(() => {
+          setVisibleChars(prev => prev.filter(idx => idx !== index));
+        }, i * 100);
       });
     }
   };
   
   useEffect(() => {
     let timer;
+    
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
         animateText("IceLater Full-Stack Developer", true);
-        timer = setTimeout(() => setFadeDirection("out"), 7000);
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 7000);
       } else if (animationState === "hello") {
         setDisplayText("Hello, I'm IceLater");
         animateText("Hello, I'm IceLater", true);
-        timer = setTimeout(() => setFadeDirection("out"), 4500);
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 4500);
       } else if (animationState === "icy") {
         setDisplayText("Sometimes Icy");
         animateText("Sometimes Icy", true);
-        timer = setTimeout(() => setFadeDirection("out"), 4500);
+        timer = setTimeout(() => {
+          setFadeDirection("out");
+        }, 4500);
       }
     } else if (fadeDirection === "out") {
       animateText(displayText, false);
       timer = setTimeout(() => {
-        if (animationState === "main") setAnimationState("hello");
-        else if (animationState === "hello") setAnimationState("icy");
-        else setAnimationState("main");
+        if (animationState === "main") {
+          setAnimationState("hello");
+        } else if (animationState === "hello") {
+          setAnimationState("icy");
+        } else {
+          setAnimationState("main");
+        }
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
+    
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) return "#3b82f6";
+      if (index >= 0 && index <= 7) {
+        return "#3b82f6";
+      }
     } else if (text === "Hello, I'm IceLater") {
-      if (index >= 10 && index <= 18) return "#3b82f6";
+      if (index >= 10 && index <= 18) {
+        return "#3b82f6";
+      }
     } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) return "#3b82f6";
+      if (index >= 10 && index <= 12) {
+        return "#3b82f6";
+      }
     }
     return "white";
   };
@@ -148,12 +184,22 @@ function useElementVisibility(threshold = 0.1) {
     const currentRef = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        if (entry.isIntersecting) setIsVisible(true);
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+        }
       },
       { threshold }
     );
-    if (currentRef) observer.observe(currentRef);
-    return () => currentRef && observer.unobserve(currentRef);
+
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
+
+    return () => {
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
+    };
   }, [threshold]);
 
   return [ref, isVisible];
@@ -161,12 +207,46 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [scrollY, setScrollY] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => setIsLoading(false), 500);
+    const style = document.createElement('style');
+    style.innerHTML = `
+      ::-webkit-scrollbar {
+        width: 10px;
+      }
+      ::-webkit-scrollbar-track {
+        background: #111827;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: #3b82f6;
+        border-radius: 5px;
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: #2563eb;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    
+    return () => {
+      document.head.removeChild(style);
+    };
   }, []);
-  
+
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
@@ -175,20 +255,19 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
-  // Home ve About bölümleri için opacity hesaplamaları
   const calculateHomeOpacity = () => {
     if (!homeRef.current) return 1;
-    const rect = homeRef.current.getBoundingClientRect();
+    const homeRect = homeRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visiblePortion = Math.min(viewport, Math.max(0, rect.bottom)) / viewport;
+    const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
-    const rect = aboutRef.current.getBoundingClientRect();
+    const aboutRect = aboutRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visibleTop = Math.max(0, viewport - rect.top);
+    const visibleTop = Math.max(0, viewport - aboutRect.top);
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
@@ -197,13 +276,12 @@ function App() {
   const aboutOpacity = calculateAboutOpacity();
 
   return (
-    // En dış kapsayıcı: tüm sayfa tek scroll container
-    <div className="bg-gray-950 text-white relative">
+    <div className="bg-gray-950 text-white min-h-screen relative">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Bölümü (tam ekran, scroll snap için snap noktası) */}
+      {/* Hero Section */}
       <section 
         id="home" 
         ref={homeRef}
@@ -216,23 +294,25 @@ function App() {
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <AnimatedTitle />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl text-gray-300 max-w-2xl mx-auto"
-          >
-            Building modern web applications with passion and precision.
-            Transforming ideas into elegant, functional digital experiences.
-          </motion.p>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AnimatedTitle />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
+          </div>
           <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
@@ -243,11 +323,11 @@ function App() {
         </div>
       </section>
 
-      {/* About Bölümü (tam ekran, scroll snap için snap noktası) */}
+      {/* About Section */}
       <section 
         id="about" 
         ref={aboutRef}
-        className="min-h-screen py-20 bg-gray-950"
+        className="py-20 bg-gray-950"
         style={{ 
           opacity: aboutOpacity,
           transition: "opacity 0.5s ease",
@@ -256,14 +336,12 @@ function App() {
         }}
       >
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">
-            Who am I ?
-          </h2>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
           <AboutSection />
         </div>
       </section>
 
-      {/* Projects Bölümü (normal scroll, snap özelliği devre dışı bırakıldı) */}
+      {/* Projects Section */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -287,7 +365,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (normal scroll, snap özelliği devre dışı bırakıldı) */}
+      {/* Contact Section */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -307,22 +385,18 @@ function App() {
 
       <Footer />
 
-      {/* Genel scroll snap ayarları: html üzerinden tek scroll container kullanılıyor */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
         html {
-          scroll-snap-type: y mandatory;
+          scroll-behavior: auto;
         }
-        /* Sadece Home ve About bölümleri snap noktası */
-        #home, #about {
-          scroll-snap-align: start;
-        }
-        /* Diğer bölümlerde snap özelliği uygulanmasın */
-        #projects, #contact {
+        * {
           scroll-snap-align: none;
+          scroll-snap-stop: normal;
         }
       `}</style>
     </div>

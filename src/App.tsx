@@ -8,7 +8,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-// InteractiveEffects: imleç etrafında sis efekti (iz bırakmadan)
+// İmleç etrafında sis efekti (iz bırakmadan)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -161,11 +161,9 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollY, setScrollY] = useState(0);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    // Custom scrollbar stillilleri kaldırıldı; tarayıcının varsayılanı kullanılacak.
     setTimeout(() => setIsLoading(false), 500);
   }, []);
   
@@ -177,19 +175,20 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
+  // Home ve About bölümleri için opacity hesaplamaları
   const calculateHomeOpacity = () => {
     if (!homeRef.current) return 1;
-    const homeRect = homeRef.current.getBoundingClientRect();
+    const rect = homeRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
+    const visiblePortion = Math.min(viewport, Math.max(0, rect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
   
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
-    const aboutRect = aboutRef.current.getBoundingClientRect();
+    const rect = aboutRef.current.getBoundingClientRect();
     const viewport = window.innerHeight;
-    const visibleTop = Math.max(0, viewport - aboutRect.top);
+    const visibleTop = Math.max(0, viewport - rect.top);
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
@@ -198,69 +197,73 @@ function App() {
   const aboutOpacity = calculateAboutOpacity();
 
   return (
-    <div className="bg-gray-950 text-white min-h-screen relative">
+    // En dış kapsayıcı: tüm sayfa tek scroll container
+    <div className="bg-gray-950 text-white relative">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümlerini kapsayan scroll snap konteyneri */}
-      <div className="home-about-container">
-        {/* Hero Section (Home) */}
-        <section 
-          id="home" 
-          ref={homeRef}
-          className="min-h-screen flex items-center justify-center relative pt-20"
-          style={{ 
-            opacity: homeOpacity,
-            transition: "opacity 0.5s ease"
-          }}
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div initial={{ opacity: 0, y: -20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5 }}>
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="text-xl text-gray-300 max-w-2xl">
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
-            <motion.div initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}>
-              <DiscordCard />
-            </motion.div>
-          </div>
-        </section>
+      {/* Home Bölümü (tam ekran, scroll snap için snap noktası) */}
+      <section 
+        id="home" 
+        ref={homeRef}
+        className="min-h-screen flex items-center justify-center relative pt-20"
+        style={{ 
+          opacity: homeOpacity,
+          transition: "opacity 0.5s ease"
+        }}
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10 text-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <AnimatedTitle />
+          </motion.div>
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="text-xl text-gray-300 max-w-2xl mx-auto"
+          >
+            Building modern web applications with passion and precision.
+            Transforming ideas into elegant, functional digital experiences.
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        {/* About Section */}
-        <section 
-          id="about" 
-          ref={aboutRef}
-          className="py-20 bg-gray-950"
-          style={{ 
-            opacity: aboutOpacity,
-            transition: "opacity 0.5s ease",
-            position: "relative",
-            zIndex: aboutOpacity > 0.5 ? 10 : 5
-          }}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
+      {/* About Bölümü (tam ekran, scroll snap için snap noktası) */}
+      <section 
+        id="about" 
+        ref={aboutRef}
+        className="min-h-screen py-20 bg-gray-950"
+        style={{ 
+          opacity: aboutOpacity,
+          transition: "opacity 0.5s ease",
+          position: "relative",
+          zIndex: aboutOpacity > 0.5 ? 10 : 5
+        }}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
+          <AboutSection />
+        </div>
+      </section>
 
-      {/* Projects Section */}
+      {/* Projects Bölümü (normal scroll, snap özelliği devre dışı bırakıldı) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -284,7 +287,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Section */}
+      {/* Contact Bölümü (normal scroll, snap özelliği devre dışı bırakıldı) */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -304,22 +307,23 @@ function App() {
 
       <Footer />
 
+      {/* Genel scroll snap ayarları: html üzerinden tek scroll container kullanılıyor */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        /* Home ve About kapsayıcısı için scroll snap ayarları */
-        .home-about-container {
+        html {
           scroll-snap-type: y mandatory;
-          overflow-y: auto;
-          height: 100vh;
         }
-        .home-about-container section {
+        /* Sadece Home ve About bölümleri snap noktası */
+        #home, #about {
           scroll-snap-align: start;
-          scroll-snap-stop: always;
         }
-        /* Varsayılan scrollbar kullanılacak, ekstra stillendirme kaldırıldı */
+        /* Diğer bölümlerde snap özelliği uygulanmasın */
+        #projects, #contact {
+          scroll-snap-align: none;
+        }
       `}</style>
     </div>
   );

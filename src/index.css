@@ -13,7 +13,7 @@
 
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
+  /* Scroll snap özellikleri kaldırıldı */
 }
 
 body {
@@ -34,12 +34,15 @@ body {
   line-height: 1.6;
 }
 
+/* Scroll snap özellikleri kaldırıldı */
+/*
 section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
 }
+*/
 
-/* Custom scrollbar */
+/* Custom scrollbar - Scrollbar thumb mavi */
 ::-webkit-scrollbar {
   width: 10px;
 }
@@ -49,12 +52,12 @@ section {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #374151;
+  background: var(--primary);
   border-radius: 5px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #4b5563;
+  background: var(--primary-dark);
 }
 
 /* Animations */

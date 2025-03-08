@@ -41,24 +41,6 @@ body {
   scroll-snap-stop: always;
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar {
-  width: 10px;
-}
-
-::-webkit-scrollbar-track {
-  background: var(--background);
-}
-
-::-webkit-scrollbar-thumb {
-  background: var(--primary);
-  border-radius: 5px;
-}
-
-::-webkit-scrollbar-thumb:hover {
-  background: var(--primary-dark);
-}
-
 /* Animations */
 @keyframes float {
   0% {

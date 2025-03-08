@@ -8,11 +8,11 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-/* InteractiveEffects: İmleç etrafında sis efekti */
-const InteractiveEffects: React.FC = () => {
+// InteractiveEffects: Sadece imleç etrafında sis efekti (iz bırakmadan)
+function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  const mistStyle: React.CSSProperties = {
+  const mistStyle = {
     background:
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
@@ -20,11 +20,11 @@ const InteractiveEffects: React.FC = () => {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
 
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (e) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
@@ -53,25 +53,28 @@ const InteractiveEffects: React.FC = () => {
       }}
     />
   );
-};
+}
 
-/* AnimatedTitle: Hareketli yazı bileşeni */
-const AnimatedTitle: React.FC = () => {
+// Hareketli yazı bileşeni
+function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
-  const [animationState, setAnimationState] = useState<"main" | "hello" | "icy">("main");
-  const [fadeDirection, setFadeDirection] = useState<"in" | "out">("in");
-  const [visibleChars, setVisibleChars] = useState<number[]>([]);
-
-  const animateText = (text: string, isAppearing: boolean) => {
+  const [animationState, setAnimationState] = useState("main");
+  const [fadeDirection, setFadeDirection] = useState("in");
+  const [visibleChars, setVisibleChars] = useState([]);
+  
+  const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
+      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
+        
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...iceIndices]);
         }, 150);
+        
         setTimeout(() => {
           setVisibleChars(prev => [...prev, ...restIndices]);
         }, 450);
@@ -94,9 +97,10 @@ const AnimatedTitle: React.FC = () => {
       });
     }
   };
-
+  
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer;
+    
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
@@ -130,10 +134,11 @@ const AnimatedTitle: React.FC = () => {
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
+    
     return () => clearTimeout(timer);
-  }, [animationState, fadeDirection, displayText]);
-
-  const getCharColor = (index: number, text: string) => {
+  }, [animationState, fadeDirection]);
+  
+  const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) {
         return "#3b82f6";
@@ -149,7 +154,7 @@ const AnimatedTitle: React.FC = () => {
     }
     return "white";
   };
-
+  
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
@@ -158,7 +163,7 @@ const AnimatedTitle: React.FC = () => {
           style={{ 
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(index, displayText)
+            color: getCharColor(char, index, displayText)
           }}
         >
           {char}
@@ -166,11 +171,11 @@ const AnimatedTitle: React.FC = () => {
       ))}
     </h1>
   );
-};
+}
 
-/* useElementVisibility: Bileşen görünürlüğünü kontrol eden özel hook */
-const useElementVisibility = (threshold = 0.1): [React.RefObject<HTMLDivElement>, boolean] => {
-  const ref = useRef<HTMLDivElement>(null);
+// Bileşen görünürlüğünü kontrol eden özel hook
+function useElementVisibility(threshold = 0.1) {
+  const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
@@ -196,20 +201,21 @@ const useElementVisibility = (threshold = 0.1): [React.RefObject<HTMLDivElement>
   }, [threshold]);
 
   return [ref, isVisible];
-};
+}
 
-const App: React.FC = () => {
+function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-
+  
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
+  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => {
@@ -217,11 +223,11 @@ const App: React.FC = () => {
     }, 500);
   }, []);
 
-  const homeRef = useRef<HTMLDivElement>(null);
-  const aboutRef = useRef<HTMLDivElement>(null);
-  const projectsRef = useRef<HTMLDivElement>(null);
-  const contactRef = useRef<HTMLDivElement>(null);
-
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
+  const projectsRef = useRef(null);
+  const contactRef = useRef(null);
+  
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
@@ -232,7 +238,7 @@ const App: React.FC = () => {
     const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-
+  
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
     const aboutRect = aboutRef.current.getBoundingClientRect();
@@ -241,45 +247,50 @@ const App: React.FC = () => {
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-
+  
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
   return (
-    <div className="bg-gray-950 text-white relative">
+    <div className="bg-gray-950 text-white relative main-container">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Scroll snapping kapsayıcısı: Sadece Home ve About bölümleri */}
-      <div className="scroll-container">
-        {/* Home Section – sadeleştirilmiş tasarım, eski kodun havasını yansıtıyor */}
-        <section
-          id="home"
+      {/* Snap Container for Home and About */}
+      <div className="snap-container">
+        {/* Hero Section */}
+        <section 
+          id="home" 
           ref={homeRef}
           className="min-h-screen flex items-center justify-center relative pt-20"
-          style={{
+          style={{ 
             opacity: homeOpacity,
             transition: "opacity 0.5s ease"
           }}
         >
-          <div className="container mx-auto px-4 md:px-6 py-16 text-center relative">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl mx-auto"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
@@ -291,11 +302,11 @@ const App: React.FC = () => {
         </section>
 
         {/* About Section */}
-        <section
-          id="about"
+        <section 
+          id="about" 
           ref={aboutRef}
-          className="min-h-screen flex items-center justify-center bg-gray-950"
-          style={{
+          className="py-20 bg-gray-950 min-h-screen"
+          style={{ 
             opacity: aboutOpacity,
             transition: "opacity 0.5s ease",
             position: "relative",
@@ -303,19 +314,19 @@ const App: React.FC = () => {
           }}
         >
           <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
             <AboutSection />
           </div>
         </section>
       </div>
 
       {/* Projects Section */}
-      <section
-        id="projects"
+      <section 
+        id="projects" 
         ref={projectsRef}
         className="py-20 bg-gray-950/50"
       >
-        <div
+        <div 
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
@@ -334,12 +345,12 @@ const App: React.FC = () => {
       </section>
 
       {/* Contact Section */}
-      <section
-        id="contact"
+      <section 
+        id="contact" 
         ref={contactRef}
         className="py-20 bg-gray-950"
       >
-        <div
+        <div 
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
@@ -358,28 +369,12 @@ const App: React.FC = () => {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        /* Scroll snapping sadece Home ve About bölümleri için */
-        .scroll-container {
-          scroll-snap-type: y mandatory;
-          overflow-y: auto;
-          height: 100vh;
-        }
-        
-        .scroll-container section {
-          scroll-snap-align: start;
-        }
-        
-        /* Scrollbar tamamen kaldırıldı */
-        ::-webkit-scrollbar {
-          display: none;
-        }
         html {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
+          scroll-behavior: auto;
         }
       `}</style>
     </div>
   );
-};
+}
 
 export default App;

@@ -8,7 +8,6 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-// Sis bulutu efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -17,7 +16,6 @@ function InteractiveEffects() {
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
     borderRadius: '70%',
-    zIndex: 1000, // Her zaman üstte
   };
 
   useEffect(() => {
@@ -56,13 +54,12 @@ function InteractiveEffects() {
   );
 }
 
-// Animasyonlu başlık
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
-
+  
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
@@ -98,7 +95,7 @@ function AnimatedTitle() {
       });
     }
   };
-
+  
   useEffect(() => {
     let timer;
     
@@ -138,27 +135,33 @@ function AnimatedTitle() {
     
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-
+  
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) return "#3b82f6";
+      if (index >= 0 && index <= 7) {
+        return "#3b82f6";
+      }
     } else if (text === "Hello, I'm IceLater") {
-      if (index >= 10 && index <= 18) return "#3b82f6";
+      if (index >= 10 && index <= 18) {
+        return "#3b82f6";
+      }
     } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) return "#3b82f6";
+      if (index >= 10 && index <= 12) {
+        return "#3b82f6";
+      }
     }
     return "white";
   };
-
+  
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
-        <span
-          key={index}
-          style={{
+        <span 
+          key={index} 
+          style={{ 
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText),
+            color: getCharColor(char, index, displayText)
           }}
         >
           {char}
@@ -168,7 +171,6 @@ function AnimatedTitle() {
   );
 }
 
-// Element görünürlüğü için custom hook
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -184,10 +186,14 @@ function useElementVisibility(threshold = 0.1) {
       { threshold }
     );
 
-    if (currentRef) observer.observe(currentRef);
+    if (currentRef) {
+      observer.observe(currentRef);
+    }
 
     return () => {
-      if (currentRef) observer.unobserve(currentRef);
+      if (currentRef) {
+        observer.unobserve(currentRef);
+      }
     };
   }, [threshold]);
 
@@ -197,25 +203,28 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-
+  
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
+    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
+  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => setIsLoading(false), 500);
+    setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
   }, []);
 
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-
+  
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
@@ -226,7 +235,7 @@ function App() {
     const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-
+  
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
     const aboutRect = aboutRef.current.getBoundingClientRect();
@@ -235,7 +244,7 @@ function App() {
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-
+  
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
@@ -245,82 +254,81 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Hero (Home) Section */}
-      <section
-        id="home"
-        ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20 mb-4"
-        style={{
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease",
-          scrollSnapAlign: 'start',
-          scrollSnapStop: 'always',
-        }}
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+      <div className="home-about-container">
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="flex items-center justify-center relative pt-20"
+          style={{ 
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease",
+            height: "100vh"
+          }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      {/* About Section */}
-      <section
-        id="about"
-        ref={aboutRef}
-        className="min-h-screen py-20 bg-gray-950"
-        style={{
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5,
-          scrollSnapAlign: 'start',
-          scrollSnapStop: 'always',
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="bg-gray-950"
+          style={{ 
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5,
+            height: "100vh",
+            display: "flex",
+            alignItems: "center"
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
-      {/* Projects Section */}
-      <section
-        id="projects"
+      <section 
+        id="projects" 
         ref={projectsRef}
-        className="py-10 bg-gray-950/50"
+        className="py-20 bg-gray-950/50"
       >
-        <div
+        <div 
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: projectsVisible ? 1 : 0,
-            transition: "opacity 0.8s ease",
+            transition: "opacity 0.8s ease"
           }}
         >
           <div className="mb-12">
@@ -333,18 +341,17 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section
-        id="contact"
+      <section 
+        id="contact" 
         ref={contactRef}
-        className="py-10 bg-gray-950"
+        className="py-20 bg-gray-950"
       >
-        <div
+        <div 
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: contactVisible ? 1 : 0,
-            transition: "opacity 0.8s ease",
+            transition: "opacity 0.8s ease"
           }}
         >
           <ContactSection />
@@ -358,16 +365,14 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        html, body {
-          scroll-behavior: smooth;
+        .home-about-container {
           scroll-snap-type: y mandatory;
-          height: 100%;
+          height: 100vh;
           overflow-y: auto;
         }
-        /* Global scroll snap devre dışı bırakıldı, sadece section'lar için aktif */
-        * {
-          scroll-snap-align: none;
-          scroll-snap-stop: normal;
+        .home-about-container section {
+          scroll-snap-align: start;
+          scroll-snap-stop: always;
         }
       `}</style>
     </div>

@@ -251,63 +251,63 @@ const App: React.FC = () => {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Section */}
-      <section
-        id="home"
-        ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20"
-        style={{
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease"
-        }}
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            <AnimatedTitle />
-          </motion.div>
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="text-xl text-gray-300 max-w-2xl"
-          >
-            Building modern web applications with passion and precision.
-            Transforming ideas into elegant, functional digital experiences.
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+      {/* Scroll snapping kapsayıcısı: Sadece Home ve About bölümleri */}
+      <div className="scroll-container">
+        {/* Home Section – sadeleştirilmiş tasarım, eski kodun havasını yansıtıyor */}
+        <section
+          id="home"
+          ref={homeRef}
+          className="min-h-screen flex items-center justify-center relative pt-20"
+          style={{
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease"
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6 py-16 text-center relative">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+            >
+              <AnimatedTitle />
+            </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl mx-auto"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      {/* About Section */}
-      <section
-        id="about"
-        ref={aboutRef}
-        className="py-20 bg-gray-950"
-        style={{
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        {/* About Section */}
+        <section
+          id="about"
+          ref={aboutRef}
+          className="min-h-screen flex items-center justify-center bg-gray-950"
+          style={{
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
       {/* Projects Section */}
       <section
@@ -358,17 +358,24 @@ const App: React.FC = () => {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        html {
-          scroll-behavior: smooth;
-          scroll-snap-type: y proximity;
+        /* Scroll snapping sadece Home ve About bölümleri için */
+        .scroll-container {
+          scroll-snap-type: y mandatory;
+          overflow-y: auto;
+          height: 100vh;
         }
-        /* Sadece Home ve About bölümleri için snap noktası */
-        #home, #about {
+        
+        .scroll-container section {
           scroll-snap-align: start;
         }
-        /* Diğer bölümlerde snapping devre dışı */
-        #projects, #contact, footer {
-          scroll-snap-align: none;
+        
+        /* Scrollbar tamamen kaldırıldı */
+        ::-webkit-scrollbar {
+          display: none;
+        }
+        html {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
         }
       `}</style>
     </div>

@@ -12,7 +12,6 @@ import AudioPlayer from './components/AudioPlayer';
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
-  // Sis efekti: Daha yumuşak geçişli ve ortası daha parlak
   const mistStyle = {
     background:
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
@@ -63,7 +62,6 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
   
-  // Metni harf harf belirletip solduran fonksiyon
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
@@ -220,7 +218,6 @@ function App() {
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -260,25 +257,15 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri için scroll snapping container */}
-      <div
-        className="home-about-container"
-        style={{
-          height: '100vh',
-          overflowY: 'auto',
-          scrollSnapType: 'y mandatory'
-        }}
-      >
-        {/* Hero (Home) Section */}
+      {/* Scroll Snap Container for Home and About */}
+      <div className="home-about-container">
         <section 
           id="home" 
           ref={homeRef}
           className="min-h-screen flex items-center justify-center relative pt-20"
           style={{ 
             opacity: homeOpacity,
-            transition: "opacity 0.5s ease",
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always'
+            transition: "opacity 0.5s ease"
           }}
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -313,18 +300,15 @@ function App() {
           </div>
         </section>
 
-        {/* About Section */}
         <section 
           id="about" 
           ref={aboutRef}
-          className="py-20 bg-gray-950"
+          className="min-h-screen bg-gray-950"
           style={{ 
             opacity: aboutOpacity,
             transition: "opacity 0.5s ease",
             position: "relative",
-            zIndex: aboutOpacity > 0.5 ? 10 : 5,
-            scrollSnapAlign: 'start',
-            scrollSnapStop: 'always'
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
           }}
         >
           <div className="container mx-auto px-4 md:px-6">
@@ -386,7 +370,6 @@ function App() {
         html {
           scroll-behavior: auto;
         }
-        /* Global scroll snap devre dışı bırakıldı */
         * {
           scroll-snap-align: none;
           scroll-snap-stop: normal;

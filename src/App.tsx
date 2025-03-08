@@ -246,26 +246,37 @@ const App: React.FC = () => {
   const aboutOpacity = calculateAboutOpacity();
 
   return (
-    <div className="bg-gray-950 text-white min-h-screen relative">
+    <div className="bg-gray-950 text-white relative">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Section */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20"
-        style={{ 
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease"
+      {/* Landing Container: Sadece Home ve About arasında snapping –
+          bu alan sabit 100vh boyutunda olup, içindeki iki bölüm scroll snapping ile çalışır */}
+      <div
+        className="landing-container"
+        style={{
+          height: '100vh',
+          overflowY: 'scroll',
+          scrollSnapType: 'y mandatory'
         }}
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
+        {/* Home Section */}
+        <section 
+          id="home" 
+          ref={homeRef}
+          style={{ 
+            height: '100vh',
+            scrollSnapAlign: 'start',
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease"
+          }}
+          className="flex items-center justify-center relative pt-20"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -282,36 +293,38 @@ const App: React.FC = () => {
               Building modern web applications with passion and precision.
               Transforming ideas into elegant, functional digital experiences.
             </motion.p>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+        </section>
 
-      {/* About Section */}
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="py-20 bg-gray-950"
-        style={{ 
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        {/* About Section */}
+        <section 
+          id="about" 
+          ref={aboutRef}
+          style={{ 
+            height: '100vh',
+            scrollSnapAlign: 'start',
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5
+          }}
+          className="bg-gray-950"
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
-      {/* Projects Section */}
+      {/* Normal scroll ile devam eden diğer bölümler */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -335,7 +348,6 @@ const App: React.FC = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -360,17 +372,13 @@ const App: React.FC = () => {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        html {
-          scroll-behavior: smooth;
-          scroll-snap-type: y proximity;
+        /* Landing container scrollbar gizlensin */
+        .landing-container::-webkit-scrollbar {
+          display: none;
         }
-        /* Sadece #home ve #about için snap noktası */
-        #home, #about {
-          scroll-snap-align: start;
-        }
-        /* Diğer bölümlerde snap devre dışı */
-        #projects, #contact, footer {
-          scroll-snap-align: none;
+        .landing-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
       `}</style>
     </div>

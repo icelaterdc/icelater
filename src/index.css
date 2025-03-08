@@ -27,21 +27,14 @@ body {
   line-height: 1.6;
 }
 
-/* Tam sayfa için tek scroll konteyneri */
+/* Sadece Home ve About bölümleri için snap container */
 .snap-container {
   scroll-snap-type: y mandatory;
   overflow-y: auto;
   height: 100vh;
 }
 
-/* Sadece snap özelliği istenen bölümler */
 .snap {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-}
-
-/* Normal kaydırma için snap devre dışı */
-.no-snap {
-  scroll-snap-align: none;
-  scroll-snap-stop: normal;
 }

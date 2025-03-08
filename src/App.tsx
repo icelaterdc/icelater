@@ -1,3 +1,10 @@
+  }
+      `}</style>
+    </div>
+  );
+}
+
+export default App;
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
@@ -281,65 +288,79 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Hero Section */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20"
-        style={{ 
-          opacity: homeOpacity,
-          transition: "opacity 0.5s ease"
+      {/* Home ve About bölümleri için scroll snapping container */}
+      <div
+        className="home-about-container"
+        style={{
+          height: '100vh',
+          overflowY: 'auto',
+          scrollSnapType: 'y mandatory'
         }}
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+        {/* Hero (Home) Section */}
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="min-h-screen flex items-center justify-center relative pt-20"
+          style={{ 
+            opacity: homeOpacity,
+            transition: "opacity 0.5s ease",
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always'
+          }}
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      {/* About Section */}
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="py-20 bg-gray-950"
-        style={{ 
-          opacity: aboutOpacity,
-          transition: "opacity 0.5s ease",
-          position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5
-        }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        {/* About Section */}
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="py-20 bg-gray-950"
+          style={{ 
+            opacity: aboutOpacity,
+            transition: "opacity 0.5s ease",
+            position: "relative",
+            zIndex: aboutOpacity > 0.5 ? 10 : 5,
+            scrollSnapAlign: 'start',
+            scrollSnapStop: 'always'
+          }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
       {/* Projects Section */}
       <section 
@@ -393,6 +414,7 @@ function App() {
         html {
           scroll-behavior: auto;
         }
+        /* Global scroll snap devre dışı bırakıldı */
         * {
           scroll-snap-align: none;
           scroll-snap-stop: normal;

@@ -62,7 +62,7 @@ function AnimatedTitle() {
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
-  
+
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
@@ -98,7 +98,7 @@ function AnimatedTitle() {
       });
     }
   };
-  
+
   useEffect(() => {
     let timer;
     
@@ -138,33 +138,27 @@ function AnimatedTitle() {
     
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-  
+
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) {
-        return "#3b82f6";
-      }
+      if (index >= 0 && index <= 7) return "#3b82f6";
     } else if (text === "Hello, I'm IceLater") {
-      if (index >= 10 && index <= 18) {
-        return "#3b82f6";
-      }
+      if (index >= 10 && index <= 18) return "#3b82f6";
     } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) {
-        return "#3b82f6";
-      }
+      if (index >= 10 && index <= 12) return "#3b82f6";
     }
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
-        <span 
-          key={index} 
-          style={{ 
+        <span
+          key={index}
+          style={{
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText)
+            color: getCharColor(char, index, displayText),
           }}
         >
           {char}
@@ -190,14 +184,10 @@ function useElementVisibility(threshold = 0.1) {
       { threshold }
     );
 
-    if (currentRef) {
-      observer.observe(currentRef);
-    }
+    if (currentRef) observer.observe(currentRef);
 
     return () => {
-      if (currentRef) {
-        observer.unobserve(currentRef);
-      }
+      if (currentRef) observer.unobserve(currentRef);
     };
   }, [threshold]);
 
@@ -207,28 +197,25 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-  
+
   useEffect(() => {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-    
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
+    setTimeout(() => setIsLoading(false), 500);
   }, []);
 
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-  
+
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
@@ -239,7 +226,7 @@ function App() {
     const visiblePortion = Math.min(viewport, Math.max(0, homeRect.bottom)) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-  
+
   const calculateAboutOpacity = () => {
     if (!aboutRef.current) return 0;
     const aboutRect = aboutRef.current.getBoundingClientRect();
@@ -248,7 +235,7 @@ function App() {
     const visiblePortion = Math.min(viewport, visibleTop) / viewport;
     return Math.max(0, Math.min(1, visiblePortion * 1.5));
   };
-  
+
   const homeOpacity = calculateHomeOpacity();
   const aboutOpacity = calculateAboutOpacity();
 
@@ -258,14 +245,16 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      <section 
-        id="home" 
+      {/* Hero (Home) Section */}
+      <section
+        id="home"
         ref={homeRef}
-        className="min-h-screen flex items-center justify-center relative pt-20 mb-4" // Çok az uzaklaştırma
-        style={{ 
+        className="min-h-screen flex items-center justify-center relative pt-20 mb-4"
+        style={{
           opacity: homeOpacity,
           transition: "opacity 0.5s ease",
-          scrollSnapAlign: 'start' // Scroll snapping
+          scrollSnapAlign: 'start',
+          scrollSnapStop: 'always',
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -300,16 +289,18 @@ function App() {
         </div>
       </section>
 
-      <section 
-        id="about" 
+      {/* About Section */}
+      <section
+        id="about"
         ref={aboutRef}
-        className="min-h-screen bg-gray-950"
-        style={{ 
+        className="min-h-screen py-20 bg-gray-950"
+        style={{
           opacity: aboutOpacity,
           transition: "opacity 0.5s ease",
           position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5, // Sis bulutundan düşük
-          scrollSnapAlign: 'start' // Scroll snapping
+          zIndex: aboutOpacity > 0.5 ? 10 : 5,
+          scrollSnapAlign: 'start',
+          scrollSnapStop: 'always',
         }}
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -318,18 +309,18 @@ function App() {
         </div>
       </section>
 
-      <section 
-        id="projects" 
+      {/* Projects Section */}
+      <section
+        id="projects"
         ref={projectsRef}
-        className="py-8 bg-gray-950/50" // Boşluk azaltıldı
-        style={{ scrollSnapAlign: 'none' }} // Snapping yok
+        className="py-10 bg-gray-950/50"
       >
-        <div 
+        <div
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: projectsVisible ? 1 : 0,
-            transition: "opacity 0.8s ease"
+            transition: "opacity 0.8s ease",
           }}
         >
           <div className="mb-12">
@@ -342,18 +333,18 @@ function App() {
         </div>
       </section>
 
-      <section 
-        id="contact" 
+      {/* Contact Section */}
+      <section
+        id="contact"
         ref={contactRef}
-        className="py-8 bg-gray-950" // Boşluk azaltıldı
-        style={{ scrollSnapAlign: 'none' }} // Snapping yok
+        className="py-10 bg-gray-950"
       >
-        <div 
+        <div
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{
             opacity: contactVisible ? 1 : 0,
-            transition: "opacity 0.8s ease"
+            transition: "opacity 0.8s ease",
           }}
         >
           <ContactSection />
@@ -367,13 +358,16 @@ function App() {
         .font-permanent-marker {
           font-family: 'Permanent Marker', cursive;
         }
-        html {
-          scroll-behavior: smooth; /* Yumuşak kaydırma */
+        html, body {
+          scroll-behavior: smooth;
+          scroll-snap-type: y mandatory;
+          height: 100%;
+          overflow-y: auto;
         }
-        body {
-          scroll-snap-type: y mandatory; /* Scroll snapping etkin */
-          margin: 0; /* Varsayılan boşlukları kaldır */
-          padding: 0;
+        /* Global scroll snap devre dışı bırakıldı, sadece section'lar için aktif */
+        * {
+          scroll-snap-align: none;
+          scroll-snap-stop: normal;
         }
       `}</style>
     </div>

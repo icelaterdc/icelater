@@ -62,7 +62,6 @@ const AnimatedTitle: React.FC = () => {
   const [fadeDirection, setFadeDirection] = useState<"in" | "out">("in");
   const [visibleChars, setVisibleChars] = useState<number[]>([]);
 
-  // Harf harf belirleme ve silme fonksiyonu
   const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
@@ -199,7 +198,7 @@ const useElementVisibility = (threshold = 0.1): [React.RefObject<HTMLDivElement>
   return [ref, isVisible];
 };
 
-function App() {
+const App: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
 
@@ -207,14 +206,12 @@ function App() {
     const handleScroll = () => {
       setScrollY(window.scrollY);
     };
-
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    // Scroll bar özelleştirme kodları kaldırıldı.
     setTimeout(() => {
       setIsLoading(false);
     }, 500);
@@ -254,71 +251,65 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Scroll snapping kapsayıcısı: Sadece Home ve About bölümleri için */}
-      <div
-        className="snap-container"
-        style={{ scrollSnapType: "y mandatory", overflowY: "auto", height: "100vh" }}
+      {/* Home Section */}
+      <section 
+        id="home" 
+        ref={homeRef}
+        className="min-h-screen flex items-center justify-center relative pt-20"
+        style={{ 
+          opacity: homeOpacity,
+          transition: "opacity 0.5s ease"
+        }}
       >
-        {/* Hero (Home) Section */}
-        <section 
-          id="home" 
-          ref={homeRef}
-          className="min-h-screen flex items-center justify-center relative pt-20"
-          style={{ 
-            opacity: homeOpacity,
-            transition: "opacity 0.5s ease"
-          }}
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5 }}
             >
-              <DiscordCard />
+              <AnimatedTitle />
             </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
           </div>
-        </section>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        {/* About Section */}
-        <section 
-          id="about" 
-          ref={aboutRef}
-          className="py-20 bg-gray-950"
-          style={{ 
-            opacity: aboutOpacity,
-            transition: "opacity 0.5s ease",
-            position: "relative",
-            zIndex: aboutOpacity > 0.5 ? 10 : 5
-          }}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
+      {/* About Section */}
+      <section 
+        id="about" 
+        ref={aboutRef}
+        className="py-20 bg-gray-950"
+        style={{ 
+          opacity: aboutOpacity,
+          transition: "opacity 0.5s ease",
+          position: "relative",
+          zIndex: aboutOpacity > 0.5 ? 10 : 5
+        }}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
+          <AboutSection />
+        </div>
+      </section>
 
       {/* Projects Section */}
       <section 
@@ -371,14 +362,15 @@ function App() {
         }
         html {
           scroll-behavior: auto;
+          scroll-snap-type: y mandatory;
         }
-        * {
-          scroll-snap-align: none;
-          scroll-snap-stop: normal;
+        /* Sadece Home ve About bölümlerine snap uygulanacak */
+        #home, #about {
+          scroll-snap-align: start;
         }
       `}</style>
     </div>
   );
-}
+};
 
 export default App;

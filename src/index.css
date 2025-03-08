@@ -25,31 +25,23 @@ body {
   background-blend-mode: screen, screen, screen, normal;
   color: var(--text);
   line-height: 1.6;
-  overflow: hidden; /* Prevent body from scrolling */
 }
 
-.main-container {
-  height: 100vh;
-  overflow-y: auto;
-  scrollbar-width: none; /* Hide scroll bar in Firefox */
-}
-
-.main-container::-webkit-scrollbar {
-  display: none; /* Hide scroll bar in Webkit browsers */
-}
-
-/* Snap container for home and about sections */
+/* Tam sayfa için tek scroll konteyneri */
 .snap-container {
   scroll-snap-type: y mandatory;
+  overflow-y: auto;
+  height: 100vh;
 }
 
-.snap-container #home,
-.snap-container #about {
+/* Sadece snap özelliği istenen bölümler */
+.snap {
   scroll-snap-align: start;
+  scroll-snap-stop: always;
 }
 
-/* Ensure other sections do not snap */
-#projects,
-#contact {
+/* Normal kaydırma için snap devre dışı */
+.no-snap {
   scroll-snap-align: none;
+  scroll-snap-stop: normal;
 }

@@ -13,7 +13,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Global snap devre dışı bırakıldı, snap sadece belirli container'da uygulanacak */
 }
 
 body {
@@ -28,40 +27,15 @@ body {
   line-height: 1.6;
 }
 
-/* Sadece Home ve About bölümlerini kapsayan container için snap ayarları */
-.home-about-container {
+/* Main ve About bölümleri için snap kapsayıcısı */
+.snap-container {
   scroll-snap-type: y mandatory;
   overflow-y: auto;
   height: 100vh;
 }
 
-/* Container içindeki her bölümde snap'in katılığı */
-.home-about-container section {
+/* Sadece bu bölümlerde snap etkin olacak */
+.snap-container section {
   scroll-snap-align: start;
   scroll-snap-stop: always;
-}
-
-/* Animations */
-@keyframes float {
-  0% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-  100% {
-    transform: translateY(0px);
-  }
-}
-
-.animate-float {
-  animation: float 3s ease-in-out infinite;
-}
-
-/* Gradient text */
-.gradient-text {
-  background-clip: text;
-  -webkit-background-clip: text;
-  color: transparent;
-  background-image: linear-gradient(to right, var(--primary), #60a5fa);
 }

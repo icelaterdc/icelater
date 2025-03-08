@@ -8,7 +8,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-// Sis efekti (imleç etrafında iz bırakmadan)
+// Sis bulutu efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
@@ -17,6 +17,7 @@ function InteractiveEffects() {
       'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
     filter: 'blur(8px)',
     borderRadius: '70%',
+    zIndex: 1000, // Sis bulutu her zaman üstte kalır
   };
 
   useEffect(() => {
@@ -55,7 +56,7 @@ function InteractiveEffects() {
   );
 }
 
-// Hareketli başlık bileşeni
+// Animasyonlu başlık
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -173,7 +174,7 @@ function AnimatedTitle() {
   );
 }
 
-// Görünürlük kontrolü için özel hook
+// Element görünürlüğü için custom hook
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -264,7 +265,7 @@ function App() {
         style={{ 
           opacity: homeOpacity,
           transition: "opacity 0.5s ease",
-          scrollSnapAlign: 'start'
+          scrollSnapAlign: 'start' // Scroll snapping için
         }}
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -307,8 +308,8 @@ function App() {
           opacity: aboutOpacity,
           transition: "opacity 0.5s ease",
           position: "relative",
-          zIndex: aboutOpacity > 0.5 ? 10 : 5,
-          scrollSnapAlign: 'start'
+          zIndex: aboutOpacity > 0.5 ? 10 : 5, // Sis bulutundan düşük
+          scrollSnapAlign: 'start' // Scroll snapping için
         }}
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -321,7 +322,7 @@ function App() {
         id="projects" 
         ref={projectsRef}
         className="py-20 bg-gray-950/50"
-        style={{ scrollSnapAlign: 'none' }}
+        style={{ scrollSnapAlign: 'none' }} // Projects snapping yapmaz
       >
         <div 
           ref={projectsContentRef}
@@ -345,7 +346,7 @@ function App() {
         id="contact" 
         ref={contactRef}
         className="py-20 bg-gray-950"
-        style={{ scrollSnapAlign: 'none' }}
+        style={{ scrollSnapAlign: 'none' }} // Contact snapping yapmaz
       >
         <div 
           ref={contactContentRef}
@@ -367,10 +368,7 @@ function App() {
           font-family: 'Permanent Marker', cursive;
         }
         body {
-          scroll-snap-type: y mandatory;
-        }
-        section {
-          scroll-snap-align: none;
+          scroll-snap-type: y mandatory; /* Scroll snapping etkin */
         }
       `}</style>
     </div>

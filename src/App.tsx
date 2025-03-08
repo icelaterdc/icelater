@@ -1,10 +1,3 @@
-  }
-      `}</style>
-    </div>
-  );
-}
-
-export default App;
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';

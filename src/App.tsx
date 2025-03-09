@@ -94,7 +94,7 @@ function AnimatedTitle() {
   };
   
   useEffect(() => {
-    let timer: any;
+    let timer;
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
@@ -125,7 +125,7 @@ function AnimatedTitle() {
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  const getCharColor = (char: string, index: number, text: string) => {
+  const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) return "#3b82f6";
     } else if (text === "Hello, I'm IceLater") {
@@ -177,11 +177,6 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   
-  useEffect(() => {
-    document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
-
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
@@ -190,36 +185,72 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
-  // Sadece Home ve About bölümleri arasında gezinirken snap davranışını kontrol etmek için
+  // Scroll Snap Kontrolü
   useEffect(() => {
+    let lastScrollY = window.scrollY;
+    let isScrolling = false;
+
     const handleScroll = () => {
-      const scrollY = window.scrollY;
-      const aboutTop = aboutRef.current?.offsetTop || 0;
-      
-      // Sadece belirli bir aralıkta scroll snap davranışını etkinleştirme
-      if (scrollY <= aboutTop + 100) {
-        document.documentElement.style.scrollSnapType = "y proximity";
+      if (isScrolling) return;
+
+      const currentScrollY = window.scrollY;
+      const homeTop = homeRef.current.offsetTop;
+      const aboutTop = aboutRef.current.offsetTop;
+      const windowHeight = window.innerHeight;
+
+      // Scroll yönünü belirle
+      const scrollingDown = currentScrollY > lastScrollY;
+
+      // Home ve About arasında snap davranışı
+      if (scrollingDown) {
+        // Home'dan aşağı kayarken
+        if (currentScrollY > homeTop && currentScrollY < aboutTop) {
+          // Yarısına gelindiğinde about'a snap et
+          if (currentScrollY > homeTop + windowHeight / 2) {
+            isScrolling = true;
+            window.scrollTo({ top: aboutTop, behavior: 'smooth' });
+            setTimeout(() => {
+              isScrolling = false;
+            }, 500); // Smooth animasyon süresi kadar bekle
+          }
+        }
       } else {
-        document.documentElement.style.scrollSnapType = "none";
+        // About'tan yukarı kayarken
+        if (currentScrollY < aboutTop && currentScrollY > homeTop) {
+          // Yarısına gelindiğinde home'a snap et
+          if (currentScrollY < aboutTop - windowHeight / 2) {
+            isScrolling = true;
+            window.scrollTo({ top: homeTop, behavior: 'smooth' });
+            setTimeout(() => {
+              isScrolling = false;
+            }, 500);
+          }
+        }
       }
+
+      lastScrollY = currentScrollY;
     };
-    
+
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
+  useEffect(() => {
+    document.title = "IceLater Full-Stack Developer";
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
   return (
-    // Tek ve ana scroll container
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Section - Snap bölümü */}
+      {/* Home Bölümü */}
       <section 
         id="home" 
         ref={homeRef}
-        className="snap-section flex items-center justify-center relative pt-20"
+        className="min-h-screen flex items-center justify-center relative pt-20"
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
@@ -253,11 +284,11 @@ function App() {
         </div>
       </section>
 
-      {/* About Section - Snap bölümü */}
+      {/* About Bölümü */}
       <section 
         id="about" 
         ref={aboutRef}
-        className="snap-section py-20 bg-gray-950"
+        className="min-h-screen py-20 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -266,11 +297,11 @@ function App() {
         </div>
       </section>
 
-      {/* Projects Section - Normal bölüm */}
+      {/* Projects Bölümü */}
       <section 
         id="projects" 
         ref={projectsRef}
-        className="normal-section py-20 bg-gray-950/50"
+        className="py-20 bg-gray-950/50"
       >
         <div 
           ref={projectsContentRef}
@@ -287,11 +318,11 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Section - Normal bölüm */}
+      {/* Contact Bölümü */}
       <section 
         id="contact" 
         ref={contactRef}
-        className="normal-section py-20 bg-gray-950"
+        className="py-20 bg-gray-950"
       >
         <div 
           ref={contactContentRef}
@@ -307,6 +338,7 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );

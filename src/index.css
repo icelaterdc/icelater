@@ -12,7 +12,7 @@ body {
   overflow-x: hidden;
 }
 
-/* Tek scroll container – tüm sayfa */
+/* Sayfanın tamamı */
 .page-container {
   height: 100vh;
   overflow-y: auto;
@@ -24,18 +24,18 @@ body {
   display: none;
 }
 
-/* Snap davranışını aktif etmek için kullanılacak sınıf */
+/* Snap Aktif Olduğunda */
 .snap-active {
   scroll-snap-type: y mandatory;
 }
 
-/* Snap uygulanacak bölümler (Home ve About) */
+/* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
   height: 100vh; /* Tam ekran */
 }
 
-/* Diğer bölümlerde snap özelliği uygulanmayacak */
+/* Snap olmayan bölümler */
 .non-snap {
   scroll-snap-align: none;
 }

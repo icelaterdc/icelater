@@ -250,10 +250,11 @@ function App() {
 
       {/* Normal scroll alanı: GitHub Projects, Contact ve Footer */}
       <div className="normal-container">
+        {/* Üst padding azaltıldı */}
         <section 
           id="projects" 
           ref={projectsRef}
-          className="py-4 bg-gray-950/50"  {/* Üst padding azaltıldı */}
+          className="py-4 bg-gray-950/50"
         >
           <div 
             ref={projectsContentRef}

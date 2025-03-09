@@ -29,7 +29,7 @@ body {
   scroll-snap-type: y mandatory;
 }
 
-/* Home ve About bölümleri için snap noktası */
+/* Snap uygulanacak bölümler (Home ve About) */
 .snap {
   scroll-snap-align: start;
   height: 100vh; /* Tam ekran */

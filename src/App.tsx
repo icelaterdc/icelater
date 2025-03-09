@@ -24,9 +24,7 @@ function InteractiveEffects() {
     };
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
-      if (touch) {
-        setMousePos({ x: touch.clientX, y: touch.clientY });
-      }
+      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -58,12 +56,11 @@ function AnimatedTitle() {
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState<number[]>([]);
-  
+
   const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
@@ -92,7 +89,7 @@ function AnimatedTitle() {
       });
     }
   };
-  
+
   useEffect(() => {
     let timer: any;
     if (fadeDirection === "in") {
@@ -112,36 +109,31 @@ function AnimatedTitle() {
     } else if (fadeDirection === "out") {
       animateText(displayText, false);
       timer = setTimeout(() => {
-        if (animationState === "main") {
-          setAnimationState("hello");
-        } else if (animationState === "hello") {
-          setAnimationState("icy");
-        } else {
-          setAnimationState("main");
-        }
+        if (animationState === "main") setAnimationState("hello");
+        else if (animationState === "hello") setAnimationState("icy");
+        else setAnimationState("main");
         setFadeDirection("in");
       }, displayText.length * 100 + 300);
     }
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-  
+
   const getCharColor = (char: string, index: number, text: string) => {
-    if (text === "IceLater Full-Stack Developer") {
-      if (index >= 0 && index <= 7) return "#3b82f6";
-    } else if (text === "Hello, I'm IceLater") {
-      if (index >= 10 && index <= 18) return "#3b82f6";
-    } else if (text === "Sometimes Icy") {
-      if (index >= 10 && index <= 12) return "#3b82f6";
-    }
+    if (text === "IceLater Full-Stack Developer" && index >= 0 && index <= 7)
+      return "#3b82f6";
+    if (text === "Hello, I'm IceLater" && index >= 10 && index <= 18)
+      return "#3b82f6";
+    if (text === "Sometimes Icy" && index >= 10 && index <= 12)
+      return "#3b82f6";
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
-        <span 
-          key={index} 
-          style={{ 
+        <span
+          key={index}
+          style={{
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
             color: getCharColor(char, index, displayText)
@@ -154,7 +146,6 @@ function AnimatedTitle() {
   );
 }
 
-// Özel Hook: Belirli elementin görünürlüğünü kontrol eder
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -176,15 +167,11 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const isSnapping = useRef(false);
-  const SNAP_THRESHOLD = 30; // deltaY değeri 30'dan küçükse "hafif" hareket
-  const POSITION_THRESHOLD = 50; // hangi konumda snap tetikleneceği
-
   const homeRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
   const projectsRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
-  
+
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
@@ -193,76 +180,32 @@ function App() {
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Window üzerinden wheel event ile küçük scroll hareketlerini algılayıp snap yapıyoruz.
-  useEffect(() => {
-    const handleWheel = (e: WheelEvent) => {
-      if (isSnapping.current) return;
-      const homeEl = homeRef.current;
-      const aboutEl = aboutRef.current;
-      if (!homeEl || !aboutEl) return;
-      
-      const homeTop = homeEl.offsetTop;
-      const aboutTop = aboutEl.offsetTop;
-      const currentScroll = window.scrollY;
-
-      // Home'deyken (sayfa en üstü yakınında) küçük bir aşağı kaydırma varsa About'a snap
-      if (
-        currentScroll <= homeTop + POSITION_THRESHOLD &&
-        e.deltaY > 0 &&
-        e.deltaY < SNAP_THRESHOLD
-      ) {
-        e.preventDefault();
-        isSnapping.current = true;
-        window.scrollTo({ top: aboutTop, behavior: 'smooth' });
-        setTimeout(() => { isSnapping.current = false; }, 600);
-        return;
-      }
-      
-      // About'dayken küçük bir yukarı kaydırma varsa Home'a snap
-      if (
-        currentScroll >= aboutTop - POSITION_THRESHOLD &&
-        e.deltaY < 0 &&
-        Math.abs(e.deltaY) < SNAP_THRESHOLD
-      ) {
-        e.preventDefault();
-        isSnapping.current = true;
-        window.scrollTo({ top: homeTop, behavior: 'smooth' });
-        setTimeout(() => { isSnapping.current = false; }, 600);
-        return;
-      }
-      // Diğer durumlarda doğal scroll devam ediyor.
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, []);
-
   return (
-    <div className="page-container bg-gray-950 text-white" style={{ overflowY: 'scroll' }}>
+    <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Bölümü */}
-      <section 
-        id="home" 
+      {/* Home Bölümü - CSS scroll snap uygulanacak */}
+      <section
+        id="home"
         ref={homeRef}
+        className="snap flex items-center justify-center relative pt-20"
         style={{ height: '100vh' }}
-        className="flex items-center justify-center relative pt-20"
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
           <div className="flex flex-col items-center text-center mb-12">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <AnimatedTitle />
             </motion.div>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -272,7 +215,7 @@ function App() {
               Transforming ideas into elegant, functional digital experiences.
             </motion.p>
           </div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
@@ -282,26 +225,26 @@ function App() {
         </div>
       </section>
 
-      {/* About Bölümü */}
-      <section 
-        id="about" 
+      {/* About Bölümü - CSS scroll snap uygulanacak */}
+      <section
+        id="about"
         ref={aboutRef}
+        className="snap py-20 bg-gray-950"
         style={{ height: '100vh' }}
-        className="py-20 bg-gray-950"
       >
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
           <AboutSection />
         </div>
       </section>
 
-      {/* Projects Bölümü (Doğal scroll) */}
-      <section 
-        id="projects" 
+      {/* Projects Bölümü - Snap uygulanmasın, doğal scroll */}
+      <section
+        id="projects"
         ref={projectsRef}
-        className="py-20 bg-gray-950/50"
+        className="no-snap py-20 bg-gray-950/50"
       >
-        <div 
+        <div
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
@@ -316,13 +259,13 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (Doğal scroll) */}
-      <section 
-        id="contact" 
+      {/* Contact Bölümü - Snap uygulanmasın, doğal scroll */}
+      <section
+        id="contact"
         ref={contactRef}
-        className="py-20 bg-gray-950"
+        className="no-snap py-20 bg-gray-950"
       >
-        <div 
+        <div
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
@@ -336,19 +279,24 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        html, body {
+        html {
+          scroll-behavior: smooth;
+          scroll-snap-type: y mandatory;
+        }
+        body, html {
           margin: 0;
           padding: 0;
           overflow-x: hidden;
+          height: 100%;
         }
-        /* Scrollbar'ı tamamen gizleme */
-        .page-container {
-          scrollbar-width: none; /* Firefox */
+        /* Global scrollbar gizleme */
+        body::-webkit-scrollbar {
+          display: none;
         }
-        .page-container::-webkit-scrollbar {
-          display: none; /* Chrome, Safari, Opera */
+        body {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
         }
-        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );

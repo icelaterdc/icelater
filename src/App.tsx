@@ -176,12 +176,7 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    const handleScroll = () => {};
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  const snapContainerRef = useRef(null);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -197,19 +192,18 @@ function App() {
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    // Tüm sayfa için tek scroll container (body scroll'u)
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri için ayrı bir snap container */}
-      <div className="snap-container">
-        {/* Home bölümü */}
+      {/* Home ve About bölümleri için kendi Scroll Container'ı */}
+      <div className="snap-container" ref={snapContainerRef}>
+        {/* Home Section */}
         <section 
           id="home" 
           ref={homeRef}
-          className="snap min-h-screen flex items-center justify-center relative pt-20"
+          className="snap flex items-center justify-center relative pt-20"
         >
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
@@ -243,7 +237,7 @@ function App() {
           </div>
         </section>
 
-        {/* About bölümü */}
+        {/* About Section */}
         <section 
           id="about" 
           ref={aboutRef}
@@ -257,48 +251,50 @@ function App() {
         </section>
       </div>
 
-      {/* Projects Bölümü (snap containern dışında) */}
-      <section 
-        id="projects" 
-        ref={projectsRef}
-        className="py-20 bg-gray-950/50"
-      >
-        <div 
-          ref={projectsContentRef}
-          className="container mx-auto px-4 md:px-6"
-          style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+      {/* Diğer bölümler için normal scroll akışı */}
+      <div className="main-content">
+        {/* Projects Section */}
+        <section 
+          id="projects" 
+          ref={projectsRef}
+          className="py-20 bg-gray-950/50"
         >
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-            <p className="text-gray-300">
-              Explore my latest repositories and contributions on GitHub.
-            </p>
+          <div 
+            ref={projectsContentRef}
+            className="container mx-auto px-4 md:px-6"
+            style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          >
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+              <p className="text-gray-300">
+                Explore my latest repositories and contributions on GitHub.
+              </p>
+            </div>
+            <GitHubRepos />
           </div>
-          <GitHubRepos />
-        </div>
-      </section>
+        </section>
 
-      {/* Contact Bölümü (snap container dışında) */}
-      <section 
-        id="contact" 
-        ref={contactRef}
-        className="py-20 bg-gray-950"
-      >
-        <div 
-          ref={contactContentRef}
-          className="container mx-auto px-4 md:px-6"
-          style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+        {/* Contact Section */}
+        <section 
+          id="contact" 
+          ref={contactRef}
+          className="py-20 bg-gray-950"
         >
-          <ContactSection />
-        </div>
-      </section>
+          <div 
+            ref={contactContentRef}
+            className="container mx-auto px-4 md:px-6"
+            style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          >
+            <ContactSection />
+          </div>
+        </section>
 
-      <Footer />
+        <Footer />
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );

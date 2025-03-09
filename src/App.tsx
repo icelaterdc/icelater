@@ -196,18 +196,57 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
+  // Home ve About bölümlerini kapsayan scroll container için ref
+  const snapContainerRef = useRef<HTMLDivElement>(null);
+  // Snap işlemini engellemek için bayrak
+  const isSnapping = useRef(false);
+  // Ayarlanabilir eşik değerleri
+  const SNAP_THRESHOLD = 30; // küçük kaydırma hareketi için eşik (deltaY)
+  const POSITION_THRESHOLD = 50; // hangi konumda snap tetikleneceği
+
+  useEffect(() => {
+    const container = snapContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      // Eğer daha önce snap yapılıyorsa çıkalım
+      if (isSnapping.current) return;
+      const scrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+      // Home bölümündeysek (scrollTop yaklaşık 0) ve aşağı doğru hafif kaydırma varsa:
+      if (scrollTop < POSITION_THRESHOLD && e.deltaY > 0 && e.deltaY < SNAP_THRESHOLD) {
+        isSnapping.current = true;
+        container.scrollTo({ top: containerHeight, behavior: "smooth" });
+        setTimeout(() => { isSnapping.current = false; }, 600);
+      }
+      // About bölümündeysek (scrollTop neredeyse containerHeight) ve yukarı doğru hafif kaydırma varsa:
+      else if (scrollTop > containerHeight - POSITION_THRESHOLD && e.deltaY < 0 && Math.abs(e.deltaY) < SNAP_THRESHOLD) {
+        isSnapping.current = true;
+        container.scrollTo({ top: 0, behavior: "smooth" });
+        setTimeout(() => { isSnapping.current = false; }, 600);
+      }
+      // Diğer durumlarda snap davranışını tetiklemeden normal kaydırmaya izin veriyoruz.
+    };
+
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => {
+      container.removeEventListener('wheel', handleWheel);
+    };
+  }, []);
+
   return (
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Sadece Home ve About bölümlerine scroll snap uygulanacak */}
-      <div className="snap-y snap-mandatory">
+      {/* Home ve About bölümleri için oluşturduğumuz, kendi scroll konteynerimiz */}
+      <div ref={snapContainerRef} style={{ height: "100vh", overflowY: "auto" }}>
         <section 
           id="home" 
           ref={homeRef}
-          className="min-h-screen flex items-center justify-center relative pt-20 snap-start"
+          style={{ height: "100vh" }}
+          className="flex items-center justify-center relative pt-20"
         >
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
@@ -244,8 +283,10 @@ function App() {
         <section 
           id="about" 
           ref={aboutRef}
-          className="py-20 bg-gray-950 snap-start"
-          style={{ position: "relative", zIndex: 5 }}
+          style={{ height: "100vh" }}
+          className="py-20 bg-gray-950"
+          // Z-index ayarı ile arka plan düzenlemesi yapılabilir
+          style={{ position: "relative", zIndex: 5, height: "100vh" }}
         >
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
@@ -254,7 +295,7 @@ function App() {
         </section>
       </div>
 
-      {/* Projects Bölümü (snap uygulanmayacak) */}
+      {/* Projects Bölümü (snap uygulanmayacak, normal scroll) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -275,7 +316,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap uygulanmayacak) */}
+      {/* Contact Bölümü (snap uygulanmayacak, normal scroll) */}
       <section 
         id="contact" 
         ref={contactRef}

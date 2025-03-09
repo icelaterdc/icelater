@@ -32,7 +32,7 @@ body {
 /* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
-  height: 120vh; /* Tam ekran */
+  height: 95vh; /* Tam ekran */
 }
 
 /* Snap olmayan bölümler */

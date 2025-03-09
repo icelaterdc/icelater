@@ -6,23 +6,23 @@
 .page-container {
   overflow-y: auto;
   scroll-behavior: smooth;
-  /* Eğer body yüksekliği kullanılıyorsa height: 100vh ekleyebilirsiniz */
 }
 
-/* Snap uygulanacak bölümler */
+/* Snap-wrapper: Sadece Home ve About bölümlerini içerir
+   Toplamda 2 tam ekran (100vh + 100vh = 200vh) olacak şekilde ayarlandı */
+.snap-wrapper {
+  height: 200vh;
+  scroll-snap-type: y mandatory;
+}
+
+/* Snap yapılacak bölümler */
 .snap {
   scroll-snap-align: start;
 }
 
-/* Snap uygulanmayacak bölümler */
-.no-snap {
-  scroll-snap-align: none;
-}
-
-/* Eğer sayfa genelinde snap kullanılacaksa (yalnızca Home ve About için snap etkin olsun) */
-/* Aşağıdaki kuralı sadece .page-container üzerinde uygulamış olursunuz */
-.page-container {
-  scroll-snap-type: y mandatory;
+/* Snap uygulanmayacak bölümleri içeren wrapper */
+.no-snap-wrapper {
+  scroll-snap-type: none;
 }
 
 /* Ek ayarlar */

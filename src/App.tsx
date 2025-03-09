@@ -58,12 +58,11 @@ function AnimatedTitle() {
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
-  
+
   const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
@@ -92,7 +91,7 @@ function AnimatedTitle() {
       });
     }
   };
-  
+
   useEffect(() => {
     let timer;
     if (fadeDirection === "in") {
@@ -124,7 +123,7 @@ function AnimatedTitle() {
     }
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-  
+
   const getCharColor = (char, index, text) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) return "#3b82f6";
@@ -135,7 +134,7 @@ function AnimatedTitle() {
     }
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
@@ -177,13 +176,13 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [scrollY, setScrollY] = useState(0);
-  
+
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY);
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
@@ -193,30 +192,9 @@ function App() {
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-  
+
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
-
-  // Home bölümünün opaklığı: home scroll ile yukarı kaydığında opaklık yavaşça azalır.
-  const calculateHomeOpacity = () => {
-    if (!homeRef.current) return 1;
-    const rect = homeRef.current.getBoundingClientRect();
-    const viewport = window.innerHeight;
-    let opacity = rect.top < 0 ? 1 + rect.top / viewport : 1;
-    return Math.max(0, Math.min(1, opacity));
-  };
-
-  // About bölümünün opaklığı: scroll ile yaklaşınca yavaşça görünür hale gelir.
-  const calculateAboutOpacity = () => {
-    if (!aboutRef.current) return 0;
-    const rect = aboutRef.current.getBoundingClientRect();
-    const viewport = window.innerHeight;
-    let opacity = rect.top < 0 ? 1 : 1 - rect.top / viewport;
-    return Math.max(0, Math.min(1, opacity));
-  };
-
-  const homeOpacity = calculateHomeOpacity();
-  const aboutOpacity = calculateAboutOpacity();
 
   return (
     <div className="bg-gray-950 text-white">
@@ -224,36 +202,42 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümlerini kapsayan scroll snap container */}
+      {/* Home ve About bölümlerini kapsayan snap-container */}
       <div className="snap-container">
         {/* Home Bölümü */}
         <section 
           id="home" 
           ref={homeRef}
           className="snap min-h-screen flex items-center justify-center relative pt-20"
-          style={{ opacity: homeOpacity, transition: "opacity 0.5s ease" }}
+          // Dinamik opacity kaldırıldı, böylece tam görünür (opacity: 1) ve snap aktif olsun.
         >
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
-              <motion.div initial={{ opacity: 0, y: -20 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ duration: 0.5 }}>
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
                 <AnimatedTitle />
               </motion.div>
-              <motion.p initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.2 }}
-                        className="text-xl text-gray-300 max-w-2xl">
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
                 Building modern web applications with passion and precision.
                 Transforming ideas into elegant, functional digital experiences.
               </motion.p>
             </div>
-            <motion.div initial={{ opacity: 0, y: 30 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ duration: 0.5, delay: 0.4 }}>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
               <DiscordCard />
             </motion.div>
           </div>
@@ -264,12 +248,8 @@ function App() {
           id="about" 
           ref={aboutRef}
           className="snap py-20 bg-gray-950"
-          style={{ 
-            opacity: aboutOpacity, 
-            transition: "opacity 0.5s ease", 
-            position: "relative", 
-            zIndex: aboutOpacity > 0.5 ? 10 : 5 
-          }}
+          // Dinamik opacity kaldırıldı, böylece About bölümü de tam görünür ve snap ile çalışır.
+          style={{ position: "relative", zIndex: 5 }}
         >
           <div className="container mx-auto px-4 md:px-6">
             <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>

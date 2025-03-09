@@ -59,7 +59,7 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
   
-  const animateText = (text, isAppearing) => {
+  const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
@@ -94,7 +94,7 @@ function AnimatedTitle() {
   };
   
   useEffect(() => {
-    let timer;
+    let timer: any;
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
@@ -125,7 +125,7 @@ function AnimatedTitle() {
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
   
-  const getCharColor = (char, index, text) => {
+  const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) return "#3b82f6";
     } else if (text === "Hello, I'm IceLater") {
@@ -178,6 +178,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   
   useEffect(() => {
+    // Boş scroll listener (gerekirse ekleyin)
     const handleScroll = () => {};
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
@@ -197,14 +198,14 @@ function App() {
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    // Tüm sayfayı kapsayan tek scroll konteyneri
-    <div className="page-container bg-gray-950 text-white">
+    // Tüm sayfa body'si tek scroll container (tarayıcı scrollbar'ı)
+    <>
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümlerini içeren snap-wrapper (toplam 200vh) */}
-      <div className="snap-wrapper">
+      {/* Home ve About bölümleri için ayrı bir snap container */}
+      <div className="snap-container">
         {/* Home Bölümü */}
         <section 
           id="home" 
@@ -257,53 +258,63 @@ function App() {
         </section>
       </div>
 
-      {/* Projects ve Contact bölümleri ayrı wrapper’da – snap uygulanmaz */}
-      <div className="no-snap-wrapper">
-        {/* Projects Bölümü */}
-        <section 
-          id="projects" 
-          ref={projectsRef}
-          className="py-20 bg-gray-950/50"
+      {/* Projects Bölümü (snap uygulanmayacak) */}
+      <section 
+        id="projects" 
+        ref={projectsRef}
+        className="py-20 bg-gray-950/50 no-snap"
+      >
+        <div 
+          ref={projectsContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
-          <div 
-            ref={projectsContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
-          >
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-              <p className="text-gray-300">
-                Explore my latest repositories and contributions on GitHub.
-              </p>
-            </div>
-            <GitHubRepos />
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+            <p className="text-gray-300">
+              Explore my latest repositories and contributions on GitHub.
+            </p>
           </div>
-        </section>
+          <GitHubRepos />
+        </div>
+      </section>
 
-        {/* Contact Bölümü */}
-        <section 
-          id="contact" 
-          ref={contactRef}
-          className="py-20 bg-gray-950"
+      {/* Contact Bölümü (snap uygulanmayacak) */}
+      <section 
+        id="contact" 
+        ref={contactRef}
+        className="py-20 bg-gray-950 no-snap"
+      >
+        <div 
+          ref={contactContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
-          <div 
-            ref={contactContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
-          >
-            <ContactSection />
-          </div>
-        </section>
-      </div>
+          <ContactSection />
+        </div>
+      </section>
 
       <Footer />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        html { scroll-behavior: smooth; }
+        /* Snap container sadece Home ve About bölümleri için */
+        .snap-container {
+          height: 100vh;
+          overflow-y: scroll;
+          scroll-snap-type: y mandatory;
+        }
+        /* Snap yapılacak bölümler */
+        .snap {
+          scroll-snap-align: start;
+        }
+        /* Snap uygulanmayacak bölümler */
+        .no-snap {
+          scroll-snap-align: none;
+        }
       `}</style>
-    </div>
+    </>
   );
 }
 

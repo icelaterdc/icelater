@@ -12,6 +12,7 @@ html {
   scrollbar-width: none;  /* Firefox için */
   scroll-behavior: smooth;
   height: 100%;
+  scroll-snap-type: y proximity; /* Bütün sayfada proximity snaptype kullanarak daha doğal bir geçiş sağlıyoruz */
 }
 
 body {
@@ -21,28 +22,21 @@ body {
   overflow-x: hidden;
 }
 
-/* Scroll snapping için özel container */
-.snap-container {
-  height: 100vh;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  scroll-snap-type: y mandatory;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.snap-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* Snap bölümleri */
-.snap {
+/* Home ve About Me için özel snap özellikleri */
+.snap-section {
   scroll-snap-align: start;
   min-height: 100vh;
+}
+
+/* Diğer bölümler snap özelliği olmadan normal akışta olacak */
+.normal-section {
+  scroll-snap-align: none;
 }
 
 /* Page container ayarları */
 .page-container {
   width: 100%;
   height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 }

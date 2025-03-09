@@ -14,7 +14,7 @@ body {
 
 /* Sayfanın tamamı */
 .page-container {
-  height: 80vh;
+  height: 100vh;
   overflow-y: auto;
   -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
   scrollbar-width: none; /* Firefox scrollbar gizleme */
@@ -32,7 +32,7 @@ body {
 /* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
-  height: 100vh; /* Tam ekran */
+  height: 80vh; /* Tam ekran */
 }
 
 /* Snap olmayan bölümler */

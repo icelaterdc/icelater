@@ -2,50 +2,40 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Ana sayfa scroll ayarları */
-html {
-  scroll-behavior: smooth;
-  /* Scroll bar gizleme */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE ve Edge */
-}
-
-html::-webkit-scrollbar {
-  display: none; /* Chrome, Safari ve Opera */
-}
-
-body {
+html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
   height: 100%;
+  overflow: hidden;
 }
 
-/* Snap Container: Yalnızca Home ve About için snapping */
+.app-root {
+  @apply h-full w-full;
+}
+
 .snap-container {
-  height: 200vh; /* Home ve About her biri min-h-screen, toplam 200vh */
-  overflow-y: scroll;
+  @apply h-screen w-full overflow-y-auto;
   scroll-snap-type: y mandatory;
-  /* Scroll bar gizleme */
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE ve Edge */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .snap-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari ve Opera */
+  display: none;
 }
 
-/* .page-container: Sayfanın tamamını kapsayan tek container */
-.page-container {
-  /* Bu container doğrudan body’nin içinde olduğundan,
-     body scroll barı kullanılır ve ekstra scroll bar oluşmaz */
-}
-
-/* Home ve About bölümleri için snap noktası */
 .snap {
+  @apply h-screen w-full;
   scroll-snap-align: start;
 }
 
-/* Diğer bölümlerde snap uygulanmasın */
-.no-snap {
-  scroll-snap-align: none;
+.content-container {
+  @apply h-screen w-full overflow-y-auto;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.content-container::-webkit-scrollbar {
+  display: none;
 }

@@ -2,7 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Body ve html temel ayarları */
+/* Temel ayarlar */
 html, body {
   margin: 0;
   padding: 0;
@@ -10,12 +10,12 @@ html, body {
   scroll-behavior: smooth;
 }
 
-/* .page-container: Tüm sayfayı kapsayan container (tek scrollbar) */
+/* .page-container: Tüm sayfayı kapsar, tarayıcı scrollbar'ı görünmez */
 .page-container {
-  /* body’nin scroll barı kullanılacak; ek bir container üzerinde overflow ayarı yok */
+  overflow: hidden;
 }
 
-/* .no-snap sınıfı, snap davranışını iptal etmek için */
+/* .no-snap: Snap uygulanmayacak bölümler */
 .no-snap {
   scroll-snap-align: none;
 }

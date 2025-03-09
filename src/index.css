@@ -2,27 +2,32 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --background: #111827;
-  --background-light: #1f2937;
-  --text: #f9fafb;
-  --text-secondary: #9ca3af;
-}
-
-html {
+/* Tüm sayfa için container */
+.page-container {
+  overflow-y: auto;
   scroll-behavior: smooth;
 }
 
-body {
-  font-family: 'Inter', sans-serif;
-  background: 
-    radial-gradient(circle at top center, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0) 70%),
-    radial-gradient(circle at center, rgba(0,255,255,0.7) 0%, rgba(0,255,255,0) 60%),
-    radial-gradient(circle at bottom center, rgba(59,130,246,0.9) 0%, rgba(59,130,246,0) 70%),
-    linear-gradient(to bottom, #3b82f6, #111827);
-  background-blend-mode: screen, screen, screen, normal;
-  color: var(--text);
-  line-height: 1.6;
+/* Home ve About bölümleri için snap-container */
+.snap-container {
+  height: 100vh;
+  overflow-y: scroll;
+  scroll-snap-type: y mandatory;
+}
+
+/* Snap yapılacak bölümler */
+.snap {
+  scroll-snap-align: start;
+}
+
+/* Snap yapılmayacak bölümler */
+.no-snap {
+  scroll-snap-align: none;
+}
+
+/* Ek stil örnekleri (varsa) */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
 }

@@ -176,7 +176,6 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const snapContainerRef = useRef(null);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -191,106 +190,119 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
+  // Sadece Home ve About bölümleri arasında gezinirken snap davranışını kontrol etmek için
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollY = window.scrollY;
+      const aboutTop = aboutRef.current?.offsetTop || 0;
+      
+      // Sadece belirli bir aralıkta scroll snap davranışını etkinleştirme
+      if (scrollY <= aboutTop + 100) {
+        document.documentElement.style.scrollSnapType = "y proximity";
+      } else {
+        document.documentElement.style.scrollSnapType = "none";
+      }
+    };
+    
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   return (
+    // Tek ve ana scroll container
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri için kendi Scroll Container'ı */}
-      <div className="snap-container" ref={snapContainerRef}>
-        {/* Home Section */}
-        <section 
-          id="home" 
-          ref={homeRef}
-          className="snap flex items-center justify-center relative pt-20"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
+      {/* Home Section - Snap bölümü */}
+      <section 
+        id="home" 
+        ref={homeRef}
+        className="snap-section flex items-center justify-center relative pt-20"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5 }}
             >
-              <DiscordCard />
+              <AnimatedTitle />
             </motion.div>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
           </div>
-        </section>
-
-        {/* About Section */}
-        <section 
-          id="about" 
-          ref={aboutRef}
-          className="snap py-20 bg-gray-950"
-          style={{ position: "relative", zIndex: 5 }}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
-
-      {/* Diğer bölümler için normal scroll akışı */}
-      <div className="main-content">
-        {/* Projects Section */}
-        <section 
-          id="projects" 
-          ref={projectsRef}
-          className="py-20 bg-gray-950/50"
-        >
-          <div 
-            ref={projectsContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
           >
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-              <p className="text-gray-300">
-                Explore my latest repositories and contributions on GitHub.
-              </p>
-            </div>
-            <GitHubRepos />
-          </div>
-        </section>
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        {/* Contact Section */}
-        <section 
-          id="contact" 
-          ref={contactRef}
-          className="py-20 bg-gray-950"
+      {/* About Section - Snap bölümü */}
+      <section 
+        id="about" 
+        ref={aboutRef}
+        className="snap-section py-20 bg-gray-950"
+        style={{ position: "relative", zIndex: 5 }}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <AboutSection />
+        </div>
+      </section>
+
+      {/* Projects Section - Normal bölüm */}
+      <section 
+        id="projects" 
+        ref={projectsRef}
+        className="normal-section py-20 bg-gray-950/50"
+      >
+        <div 
+          ref={projectsContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
-          <div 
-            ref={contactContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
-          >
-            <ContactSection />
+          <div className="mb-12">
+            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+            <p className="text-gray-300">
+              Explore my latest repositories and contributions on GitHub.
+            </p>
           </div>
-        </section>
+          <GitHubRepos />
+        </div>
+      </section>
 
-        <Footer />
-      </div>
+      {/* Contact Section - Normal bölüm */}
+      <section 
+        id="contact" 
+        ref={contactRef}
+        className="normal-section py-20 bg-gray-950"
+      >
+        <div 
+          ref={contactContentRef}
+          className="container mx-auto px-4 md:px-6"
+          style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+        >
+          <ContactSection />
+        </div>
+      </section>
+
+      <Footer />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');

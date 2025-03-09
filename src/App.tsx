@@ -176,17 +176,9 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  
-  useEffect(() => {
-    const handleScroll = () => {};
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-  
-  useEffect(() => {
-    document.title = "IceLater Full-Stack Developer";
-    setTimeout(() => setIsLoading(false), 500);
-  }, []);
+  const isSnapping = useRef(false);
+  const SNAP_THRESHOLD = 30; // deltaY değeri 30'dan küçükse "hafif" kabul edilir
+  const POSITION_THRESHOLD = 50; // hangi konumda snap tetikleneceği
 
   const homeRef = useRef<HTMLDivElement>(null);
   const aboutRef = useRef<HTMLDivElement>(null);
@@ -196,42 +188,53 @@ function App() {
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
-  // Home ve About bölümlerini kapsayan scroll container için ref
-  const snapContainerRef = useRef<HTMLDivElement>(null);
-  // Snap işlemini engellemek için bayrak
-  const isSnapping = useRef(false);
-  // Ayarlanabilir eşik değerleri
-  const SNAP_THRESHOLD = 30; // küçük kaydırma hareketi için eşik (deltaY)
-  const POSITION_THRESHOLD = 50; // hangi konumda snap tetikleneceği
-
   useEffect(() => {
-    const container = snapContainerRef.current;
-    if (!container) return;
+    document.title = "IceLater Full-Stack Developer";
+    setTimeout(() => setIsLoading(false), 500);
+  }, []);
 
+  // Window üzerinden wheel event ile yön ve deltaY kontrolü yapıyoruz.
+  useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
-      // Eğer daha önce snap yapılıyorsa çıkalım
       if (isSnapping.current) return;
-      const scrollTop = container.scrollTop;
-      const containerHeight = container.clientHeight;
-      // Home bölümündeysek (scrollTop yaklaşık 0) ve aşağı doğru hafif kaydırma varsa:
-      if (scrollTop < POSITION_THRESHOLD && e.deltaY > 0 && e.deltaY < SNAP_THRESHOLD) {
+      const homeEl = homeRef.current;
+      const aboutEl = aboutRef.current;
+      if (!homeEl || !aboutEl) return;
+      
+      const homeTop = homeEl.offsetTop;
+      const aboutTop = aboutEl.offsetTop;
+      const currentScroll = window.scrollY;
+
+      // Home'deyken (sayfa en üst yakınında) hafifçe aşağı kaydırma varsa About bölümüne snap yap.
+      if (
+        currentScroll <= homeTop + POSITION_THRESHOLD &&
+        e.deltaY > 0 &&
+        e.deltaY < SNAP_THRESHOLD
+      ) {
+        e.preventDefault();
         isSnapping.current = true;
-        container.scrollTo({ top: containerHeight, behavior: "smooth" });
+        window.scrollTo({ top: aboutTop, behavior: 'smooth' });
         setTimeout(() => { isSnapping.current = false; }, 600);
+        return;
       }
-      // About bölümündeysek (scrollTop neredeyse containerHeight) ve yukarı doğru hafif kaydırma varsa:
-      else if (scrollTop > containerHeight - POSITION_THRESHOLD && e.deltaY < 0 && Math.abs(e.deltaY) < SNAP_THRESHOLD) {
+      
+      // About'da hafifçe yukarı kaydırma varsa Home bölümüne snap yap.
+      if (
+        currentScroll >= aboutTop - POSITION_THRESHOLD &&
+        e.deltaY < 0 &&
+        Math.abs(e.deltaY) < SNAP_THRESHOLD
+      ) {
+        e.preventDefault();
         isSnapping.current = true;
-        container.scrollTo({ top: 0, behavior: "smooth" });
+        window.scrollTo({ top: homeTop, behavior: 'smooth' });
         setTimeout(() => { isSnapping.current = false; }, 600);
+        return;
       }
-      // Diğer durumlarda snap davranışını tetiklemeden normal kaydırmaya izin veriyoruz.
+      // Diğer durumlarda hiçbir müdahale etmiyoruz, doğal scroll çalışıyor.
     };
 
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    return () => {
-      container.removeEventListener('wheel', handleWheel);
-    };
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
   }, []);
 
   return (
@@ -240,62 +243,59 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri için oluşturduğumuz, kendi scroll konteynerimiz */}
-      <div ref={snapContainerRef} style={{ height: "100vh", overflowY: "auto" }}>
-        <section 
-          id="home" 
-          ref={homeRef}
-          style={{ height: "100vh" }}
-          className="flex items-center justify-center relative pt-20"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
+      {/* Home Bölümü */}
+      <section 
+        id="home" 
+        ref={homeRef}
+        style={{ height: "100vh" }}
+        className="flex items-center justify-center relative pt-20"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5 }}
             >
-              <DiscordCard />
+              <AnimatedTitle />
             </motion.div>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
           </div>
-        </section>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        <section 
-          id="about" 
-          ref={aboutRef}
-          style={{ height: "100vh" }}
-          className="py-20 bg-gray-950"
-          // Z-index ayarı ile arka plan düzenlemesi yapılabilir
-          style={{ position: "relative", zIndex: 5, height: "100vh" }}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
+      {/* About Bölümü */}
+      <section 
+        id="about" 
+        ref={aboutRef}
+        style={{ height: "100vh" }}
+        className="py-20 bg-gray-950"
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <AboutSection />
+        </div>
+      </section>
 
-      {/* Projects Bölümü (snap uygulanmayacak, normal scroll) */}
+      {/* Projects Bölümü (Normal Scroll) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -316,7 +316,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap uygulanmayacak, normal scroll) */}
+      {/* Contact Bölümü (Normal Scroll) */}
       <section 
         id="contact" 
         ref={contactRef}

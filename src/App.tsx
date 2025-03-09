@@ -19,10 +19,10 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (e) => {
       const touch = e.touches[0];
       if (touch) {
         setMousePos({ x: touch.clientX, y: touch.clientY });
@@ -57,7 +57,7 @@ function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
-  const [visibleChars, setVisibleChars] = useState<number[]>([]);
+  const [visibleChars, setVisibleChars] = useState([]);
   
   const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
@@ -123,7 +123,7 @@ function AnimatedTitle() {
       }, displayText.length * 100 + 300);
     }
     return () => clearTimeout(timer);
-  }, [animationState, fadeDirection, displayText]);
+  }, [animationState, fadeDirection]);
   
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
@@ -155,8 +155,8 @@ function AnimatedTitle() {
 }
 
 // Özel Hook: Belirli elementin görünürlüğünü kontrol eder
-function useElementVisibility(threshold = 0.1): [React.RefObject<HTMLDivElement>, boolean] {
-  const ref = useRef<HTMLDivElement>(null);
+function useElementVisibility(threshold = 0.1) {
+  const ref = useRef(null);
   const [isVisible, setIsVisible] = useState(false);
   useEffect(() => {
     const currentRef = ref.current;
@@ -176,94 +176,85 @@ function useElementVisibility(threshold = 0.1): [React.RefObject<HTMLDivElement>
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  // snapEnabled true iken scroll snap aktif, false olduğunda devre dışı kalır
-  const [snapEnabled, setSnapEnabled] = useState(true);
-
+  
+  useEffect(() => {
+    const handleScroll = () => {};
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+  
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll pozisyonuna göre snap'i aktif/pasif yapıyoruz
-  useEffect(() => {
-    const handleScroll = () => {
-      // Örneğin: scrollY değeri 1.9 ekran yüksekliğinden küçükse snap aktif
-      if (window.scrollY < window.innerHeight * 1.9) {
-        setSnapEnabled(true);
-      } else {
-        setSnapEnabled(false);
-      }
-    };
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const homeRef = useRef<HTMLElement>(null);
-  const aboutRef = useRef<HTMLElement>(null);
-  const projectsRef = useRef<HTMLElement>(null);
-  const contactRef = useRef<HTMLElement>(null);
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
+  const projectsRef = useRef(null);
+  const contactRef = useRef(null);
   
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    <div className={`page-container bg-gray-950 text-white ${snapEnabled ? 'snap-enabled' : ''}`}>
+    <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home Bölümü */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="snap min-h-screen flex items-center justify-center relative pt-20"
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div 
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+      {/* Snap Container: Home ve About bölümleri için */}
+      <div className="snap-container">
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="snap min-h-screen flex items-center justify-center relative pt-20"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </section>
 
-      {/* About Bölümü */}
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="snap py-20 bg-gray-950"
-        style={{ position: "relative", zIndex: 5 }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I?</h2>
-          <AboutSection />
-        </div>
-      </section>
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="snap min-h-screen py-20 bg-gray-950"
+          style={{ position: "relative", zIndex: 5 }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
 
-      {/* Projects Bölümü (snap devre dışı) */}
+      {/* Normal İçerik: Projects ve Contact bölümleri */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -284,7 +275,6 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap devre dışı) */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -304,6 +294,7 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+        html { scroll-behavior: smooth; }
       `}</style>
     </div>
   );

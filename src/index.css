@@ -19,25 +19,16 @@ body {
   overflow-y: scroll; /* Tek scrollbar burada */
   -ms-overflow-style: none; /* IE ve Edge için scrollbar gizleme */
   scrollbar-width: none; /* Firefox için scrollbar gizleme */
-}
-
-/* Webkit tarayıcılar (Chrome, Safari) için scrollbar gizleme */
-.page-container::-webkit-scrollbar {
-  display: none;
-}
-
-/* Snap Container: Home ve About için */
-.snap-container {
   scroll-snap-type: y mandatory;
 }
 
-/* Snap noktaları */
+/* Snap noktaları – home ve about için */
 .snap {
   scroll-snap-align: start;
   height: 100vh; /* Tam ekran yükseklik */
 }
 
-/* Normal Container: Snap uygulanmayacak */
+/* Normal container: Snap uygulanmayacak */
 .normal-container {
-  /* Hiçbir scroll snap özelliği yok, normal kaydırma */
+  scroll-snap-align: none;
 }

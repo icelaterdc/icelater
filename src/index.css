@@ -2,36 +2,35 @@
 @tailwind components;
 @tailwind utilities;
 
-/* html üzerinde snap type uygulanıyor; body'de normal scroll container */
 html {
   scroll-behavior: smooth;
-  scroll-snap-type: y mandatory;
 }
 
 body {
   margin: 0;
   padding: 0;
   height: 100%;
+  /* Scrollbar'ı gizle */
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
-/* .page-container: Sayfanın tamamını kapsayan tek container 
-   (body scroll barı kullanıldığı için ekstra scroll bar oluşmaz) */
-.page-container {}
+/* Webkit tarayıcılar için scrollbar gizleme */
+::-webkit-scrollbar {
+  display: none;
+}
 
-/* Home ve About bölümleri için snap noktası */
+/* page-container içine snap-enabled sınıfı eklendiğinde scroll snap aktif */
+.page-container.snap-enabled {
+  scroll-snap-type: y mandatory;
+}
+
+/* Snap uygulanacak bölümler */
 .snap {
   scroll-snap-align: start;
 }
 
-/* Diğer bölümlerde snap uygulanmasın */
+/* Snap uygulanmaması gereken bölümler */
 .no-snap {
   scroll-snap-align: none;
-}
-
-/* İsteğe bağlı: snap-container ve content-container için ek stiller */
-/* Eğer container'lar arasında net bir ayrım istiyorsanız, aşağıdaki gibi ekleyebilirsiniz */
-.snap-container,
-.content-container {
-  /* Container’lar tam genişlikte ve normal akışta yer alsın */
-  width: 100%;
 }

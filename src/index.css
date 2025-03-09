@@ -2,30 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Tüm sayfa için container */
+/* Tüm sayfayı kapsayan container – tek scrollbar */
 .page-container {
   overflow-y: auto;
   scroll-behavior: smooth;
+  /* Eğer body yüksekliği kullanılıyorsa height: 100vh ekleyebilirsiniz */
 }
 
-/* Home ve About bölümleri için snap-container */
-.snap-container {
-  height: 100vh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
-
-/* Snap yapılacak bölümler */
+/* Snap uygulanacak bölümler */
 .snap {
   scroll-snap-align: start;
 }
 
-/* Snap yapılmayacak bölümler */
+/* Snap uygulanmayacak bölümler */
 .no-snap {
   scroll-snap-align: none;
 }
 
-/* Ek stil örnekleri (varsa) */
+/* Eğer sayfa genelinde snap kullanılacaksa (yalnızca Home ve About için snap etkin olsun) */
+/* Aşağıdaki kuralı sadece .page-container üzerinde uygulamış olursunuz */
+.page-container {
+  scroll-snap-type: y mandatory;
+}
+
+/* Ek ayarlar */
 html, body {
   margin: 0;
   padding: 0;

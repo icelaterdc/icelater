@@ -203,91 +203,98 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri: snap uygulanacak */}
-      <section 
-        id="home" 
-        ref={homeRef}
-        className="snap min-h-screen flex items-center justify-center relative pt-20"
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
+      {/* Home ve About bölümlerini içeren snap-wrapper (toplam 200vh) */}
+      <div className="snap-wrapper">
+        {/* Home Bölümü */}
+        <section 
+          id="home" 
+          ref={homeRef}
+          className="snap min-h-screen flex items-center justify-center relative pt-20"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div 
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
             <motion.div 
-              initial={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
             >
-              <AnimatedTitle />
+              <DiscordCard />
             </motion.div>
-            <motion.p 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
           </div>
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
+        </section>
+
+        {/* About Bölümü */}
+        <section 
+          id="about" 
+          ref={aboutRef}
+          className="snap py-20 bg-gray-950"
+          style={{ position: "relative", zIndex: 5 }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+            <AboutSection />
+          </div>
+        </section>
+      </div>
+
+      {/* Projects ve Contact bölümleri ayrı wrapper’da – snap uygulanmaz */}
+      <div className="no-snap-wrapper">
+        {/* Projects Bölümü */}
+        <section 
+          id="projects" 
+          ref={projectsRef}
+          className="py-20 bg-gray-950/50"
+        >
+          <div 
+            ref={projectsContentRef}
+            className="container mx-auto px-4 md:px-6"
+            style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
           >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </section>
-
-      <section 
-        id="about" 
-        ref={aboutRef}
-        className="snap py-20 bg-gray-950"
-        style={{ position: "relative", zIndex: 5 }}
-      >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-          <AboutSection />
-        </div>
-      </section>
-
-      {/* Projects Bölümü: snap uygulanmayacak */}
-      <section 
-        id="projects" 
-        ref={projectsRef}
-        className="py-20 bg-gray-950/50 no-snap"
-      >
-        <div 
-          ref={projectsContentRef}
-          className="container mx-auto px-4 md:px-6"
-          style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
-        >
-          <div className="mb-12">
-            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-            <p className="text-gray-300">
-              Explore my latest repositories and contributions on GitHub.
-            </p>
+            <div className="mb-12">
+              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+              <p className="text-gray-300">
+                Explore my latest repositories and contributions on GitHub.
+              </p>
+            </div>
+            <GitHubRepos />
           </div>
-          <GitHubRepos />
-        </div>
-      </section>
+        </section>
 
-      {/* Contact Bölümü: snap uygulanmayacak */}
-      <section 
-        id="contact" 
-        ref={contactRef}
-        className="py-20 bg-gray-950 no-snap"
-      >
-        <div 
-          ref={contactContentRef}
-          className="container mx-auto px-4 md:px-6"
-          style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+        {/* Contact Bölümü */}
+        <section 
+          id="contact" 
+          ref={contactRef}
+          className="py-20 bg-gray-950"
         >
-          <ContactSection />
-        </div>
-      </section>
+          <div 
+            ref={contactContentRef}
+            className="container mx-auto px-4 md:px-6"
+            style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          >
+            <ContactSection />
+          </div>
+        </section>
+      </div>
 
       <Footer />
 

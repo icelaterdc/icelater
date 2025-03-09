@@ -2,31 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Sayfa genelinde tek scrollbar için body kullanılacak */
-html, body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
+/* html üzerinde snap type uygulanıyor; body de normal scroll container */
+html {
   scroll-behavior: smooth;
-}
-
-/* 
-  .snap-container sadece Home ve About bölümlerini kapsıyor.
-  Bu container’ın yüksekliği viewport (100vh) olduğu için içindeki
-  snap çocukları (Home ve About) scroll yapıldığında snap oluyor.
-*/
-.snap-container {
-  height: 100vh;
-  overflow-y: scroll;
   scroll-snap-type: y mandatory;
 }
 
-/* Home ve About bölümleri snap noktası olarak */
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+/* .page-container: Sayfanın tamamını kapsayan tek container */
+.page-container {
+  /* Bu container doğrudan body’nin içinde olduğundan,
+     body scroll barı kullanılır ve ekstra scroll bar oluşmaz */
+}
+
+/* Home ve About bölümleri için snap noktası */
 .snap {
   scroll-snap-align: start;
 }
 
-/* Diğer bölümler için snap özelliği uygulanmasın */
+/* Diğer bölümlerde snap uygulanmasın */
 .no-snap {
   scroll-snap-align: none;
 }

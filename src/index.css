@@ -13,22 +13,32 @@ body {
   overflow: hidden; /* Body'nin kendi scrollbar'ını gizler */
 }
 
-/* Sayfanın tamamını kapsayan ana container */
+/* Dış container – normal scroll */
 .page-container {
   height: 100vh;
-  overflow-y: scroll; /* Tek scrollbar burada */
+  overflow-y: auto;
   -ms-overflow-style: none; /* IE ve Edge için scrollbar gizleme */
   scrollbar-width: none; /* Firefox için scrollbar gizleme */
+}
+
+.page-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Home ve About için ayrılmış Snap Wrapper */
+.snap-wrapper {
+  height: 100vh;
+  overflow-y: scroll;
   scroll-snap-type: y mandatory;
 }
 
-/* Snap noktaları – home ve about için */
+/* Snap noktaları (Home ve About bölümleri) */
 .snap {
   scroll-snap-align: start;
-  height: 100vh; /* Tam ekran yükseklik */
+  height: 100vh;
 }
 
-/* Normal container: Snap uygulanmayacak */
+/* Normal içerik container'ı (snap özelliklerinden bağımsız) */
 .normal-container {
-  scroll-snap-align: none;
+  /* Burada snap özelliği yok */
 }

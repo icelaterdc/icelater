@@ -2,75 +2,41 @@
 @tailwind components;
 @tailwind utilities;
 
-html, body {
+html {
+  scroll-behavior: smooth;
+}
+
+body {
   margin: 0;
   padding: 0;
   height: 100%;
-  width: 100%;
-  overflow-x: hidden;
+  overflow: hidden; /* Body'nin kendi scrollbar'ını gizler */
 }
 
-/* Scroll Bar Gizleme */
-html, body {
-  scrollbar-width: none; /* Firefox için */
-  -ms-overflow-style: none; /* IE and Edge için */
+/* Sayfanın tamamını kapsayan ana container */
+.page-container {
+  height: 100vh;
+  overflow-y: scroll; /* Tek scrollbar burada */
+  -ms-overflow-style: none; /* IE ve Edge için scrollbar gizleme */
+  scrollbar-width: none; /* Firefox için scrollbar gizleme */
 }
 
-html::-webkit-scrollbar, body::-webkit-scrollbar {
-  display: none; /* Chrome, Safari ve Opera için */
+/* Webkit tarayıcılar (Chrome, Safari) için scrollbar gizleme */
+.page-container::-webkit-scrollbar {
+  display: none;
 }
 
-/* Sayfa Yapısı */
-.page-wrapper {
-  position: relative;
-  width: 100%;
-  height: 100%;
-  background-color: #0f172a; /* Koyu arkaplan */
-  color: white;
-}
-
-/* Snap Container Özellikleri */
+/* Snap Container: Home ve About için */
 .snap-container {
-  width: 100%;
-  height: auto;
-  /* Önemli - Snap container için scroll özellikleri */
   scroll-snap-type: y mandatory;
-  overflow: visible; /* Overflow visible olmalı ki geçiş düzgün olsun */
-  position: relative;
-  z-index: 10;
 }
 
-/* Snap noktaları (Home ve About) */
-.snap-section {
+/* Snap noktaları */
+.snap {
   scroll-snap-align: start;
-  scroll-snap-stop: always;
-  min-height: 100vh;
-  position: relative;
 }
 
-/* Normal Scroll Container */
-.normal-scroll-container {
-  width: 100%;
-  position: relative;
-  z-index: 9;
-  margin-top: -1px; /* Küçük bir örtüşme, kesişme çizgisini önlemek için */
-}
-
-/* İki container arasındaki geçişi gizlemek için gradient overlay */
-.normal-scroll-container::before {
-  content: '';
-  position: absolute;
-  top: -20px;
-  left: 0;
-  right: 0;
-  height: 20px;
-  background: linear-gradient(to bottom, transparent, #0f172a);
-  z-index: 10;
-}
-
-/* Mobil uyumluluk için */
-@media (max-width: 768px) {
-  .snap-section {
-    min-height: 100vh;
-  }
+/* Normal Container: Snap uygulanmayacak */
+.normal-container {
+  /* Normal kaydırma, snap yok */
 }

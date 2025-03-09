@@ -2,22 +2,20 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-behavior: smooth;
-}
-
-body {
+/* Body ve html temel ayarları */
+html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  -ms-overflow-style: none;  /* IE ve Edge */
-  scrollbar-width: none;  /* Firefox */
+  scroll-behavior: smooth;
 }
 
-body::-webkit-scrollbar {
-  display: none;  /* Chrome, Safari, Opera */
-}
-
+/* .page-container: Tüm sayfayı kapsayan container (tek scrollbar) */
 .page-container {
-  /* Tek scroll container olarak body’nin scroll’unu kullanır */
+  /* body’nin scroll barı kullanılacak; ek bir container üzerinde overflow ayarı yok */
+}
+
+/* .no-snap sınıfı, snap davranışını iptal etmek için */
+.no-snap {
+  scroll-snap-align: none;
 }

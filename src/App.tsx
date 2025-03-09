@@ -154,7 +154,7 @@ function AnimatedTitle() {
   );
 }
 
-// Özel Hook: Belirli elementin görünürlüğünü kontrol eder
+// Özel Hook: Belirli elementin görünürlüğünü kontrol eder (Projects ve Contact için)
 function useElementVisibility(threshold = 0.1) {
   const ref = useRef<HTMLDivElement>(null);
   const [isVisible, setIsVisible] = useState(false);
@@ -177,46 +177,51 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
+  const projectsRef = useRef(null);
+  const contactRef = useRef(null);
+
+  // activeSection; "home" veya "about" olarak belirliyoruz.
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Snap-active mantığını yalnızca sayfanın üst yarısı için uyguluyoruz.
+  // Snap-active mantığını yalnızca home ve about bölümleri için uyguluyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleScroll = () => {
+      // Home ve about bölümleri için snap değeri, scroll tamamlandıktan sonra güncellenecek.
       if (container.scrollTop < window.innerHeight * 0.5) {
-        container.classList.add("snap-active");
+        setActiveSection("home");
       } else {
-        container.classList.remove("snap-active");
+        setActiveSection("about");
       }
     };
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const homeRef = useRef(null);
-  const aboutRef = useRef(null);
-  const projectsRef = useRef(null);
-  const contactRef = useRef(null);
-
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    <div ref={containerRef} className="page-container bg-gray-950 text-white">
+    <div ref={containerRef} className="page-container bg-gray-950 text-white snap-active">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section
+      <motion.section
         id="home"
         ref={homeRef}
-        className="snap flex items-center justify-center relative pt-20"
+        className="snap-home-about flex items-center justify-center relative pt-20"
+        animate={{ opacity: activeSection === "home" ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
@@ -248,14 +253,16 @@ function App() {
             <DiscordCard />
           </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {/* About Bölümü */}
-      <section
+      <motion.section
         id="about"
         ref={aboutRef}
-        className="snap py-10 bg-gray-950"
+        className="snap-home-about py-10 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
+        animate={{ opacity: activeSection === "about" ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
       >
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-6">
@@ -263,7 +270,7 @@ function App() {
           </h2>
           <AboutSection />
         </div>
-      </section>
+      </motion.section>
 
       {/* GitHub Projects Bölümü */}
       <section

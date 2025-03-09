@@ -2,20 +2,30 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Temel ayarlar */
-html, body {
+/* html üzerinde snap type uygulanıyor; body de normal scroll container */
+html {
+  scroll-behavior: smooth;
+  scroll-snap-type: y mandatory;
+}
+
+body {
   margin: 0;
   padding: 0;
   height: 100%;
-  scroll-behavior: smooth;
 }
 
-/* .page-container: Tüm sayfayı kapsar, tarayıcı scrollbar'ı görünmez */
+/* .page-container: Sayfanın tamamını kapsayan tek container */
 .page-container {
-  overflow: hidden;
+  /* Bu container doğrudan body’nin içinde olduğundan,
+     body scroll barı kullanılır ve ekstra scroll bar oluşmaz */
 }
 
-/* .no-snap: Snap uygulanmayacak bölümler */
+/* Home ve About bölümleri için snap noktası */
+.snap {
+  scroll-snap-align: start;
+}
+
+/* Diğer bölümlerde snap uygulanmasın */
 .no-snap {
   scroll-snap-align: none;
 }

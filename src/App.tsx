@@ -176,29 +176,47 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  
+  const containerRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
+  // Scroll konumuna bağlı olarak snap davranışını aktif/pasif yapıyoruz
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const scrollTop = container.scrollTop;
+      // İlk 2 viewport (home ve about) için snap aktif, sonrası için devre dışı
+      if (scrollTop < window.innerHeight * 2) {
+        container.classList.add("snap-active");
+      } else {
+        container.classList.remove("snap-active");
+      }
+    };
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   const homeRef = useRef(null);
   const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-  
+
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    <div className="page-container bg-gray-950 text-white">
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section 
-        id="home" 
+      <section
+        id="home"
         ref={homeRef}
         className="snap flex items-center justify-center relative pt-20"
       >
@@ -207,14 +225,14 @@ function App() {
         </div>
         <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
           <div className="flex flex-col items-center text-center mb-12">
-            <motion.div 
+            <motion.div
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
               <AnimatedTitle />
             </motion.div>
-            <motion.p 
+            <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
@@ -224,7 +242,7 @@ function App() {
               Transforming ideas into elegant, functional digital experiences.
             </motion.p>
           </div>
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.4 }}
@@ -235,31 +253,35 @@ function App() {
       </section>
 
       {/* About Bölümü */}
-      <section 
-        id="about" 
+      <section
+        id="about"
         ref={aboutRef}
         className="snap py-20 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
           <AboutSection />
         </div>
       </section>
 
       {/* GitHub Projects Bölümü */}
-      <section 
-        id="projects" 
+      <section
+        id="projects"
         ref={projectsRef}
         className="non-snap py-4 bg-gray-950/50"
       >
-        <div 
+        <div
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
           <div className="mb-8">
-            <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+            <h2 className="text-2xl font-bold text-white mb-4">
+              My GitHub Projects
+            </h2>
             <p className="text-gray-300">
               Explore my latest repositories and contributions on GitHub.
             </p>
@@ -269,12 +291,12 @@ function App() {
       </section>
 
       {/* Contact Bölümü */}
-      <section 
-        id="contact" 
+      <section
+        id="contact"
         ref={contactRef}
         className="non-snap py-10 bg-gray-950"
       >
-        <div 
+        <div
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}

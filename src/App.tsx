@@ -59,7 +59,7 @@ function AnimatedTitle() {
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState([]);
   
-  const animateText = (text: string, isAppearing: boolean) => {
+  const animateText = (text, isAppearing) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
@@ -188,51 +188,43 @@ function App() {
   // Scroll Snap Kontrolü
   useEffect(() => {
     let lastScrollY = window.scrollY;
-    let isScrolling = false;
+    let timeoutId;
 
     const handleScroll = () => {
-      if (isScrolling) return;
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        const currentScrollY = window.scrollY;
+        const homeTop = homeRef.current.offsetTop;
+        const aboutTop = aboutRef.current.offsetTop;
+        const windowHeight = window.innerHeight;
 
-      const currentScrollY = window.scrollY;
-      const homeTop = homeRef.current.offsetTop;
-      const aboutTop = aboutRef.current.offsetTop;
-      const windowHeight = window.innerHeight;
+        // Scroll yönünü belirle
+        const scrollingDown = currentScrollY > lastScrollY;
 
-      // Scroll yönünü belirle
-      const scrollingDown = currentScrollY > lastScrollY;
-
-      // Home ve About arasında snap davranışı
-      if (scrollingDown) {
-        // Home'dan aşağı kayarken
-        if (currentScrollY > homeTop && currentScrollY < aboutTop) {
-          // Yarısına gelindiğinde about'a snap et
-          if (currentScrollY > homeTop + windowHeight / 2) {
-            isScrolling = true;
-            window.scrollTo({ top: aboutTop, behavior: 'smooth' });
-            setTimeout(() => {
-              isScrolling = false;
-            }, 500); // Smooth animasyon süresi kadar bekle
+        // Home ve About arasında snap davranışı
+        if (scrollingDown) {
+          if (currentScrollY > homeTop && currentScrollY < aboutTop) {
+            if (currentScrollY > aboutTop - windowHeight / 2) {
+              window.scrollTo({ top: aboutTop, behavior: 'smooth' });
+            }
+          }
+        } else {
+          if (currentScrollY < aboutTop && currentScrollY > homeTop) {
+            if (currentScrollY < homeTop + windowHeight / 2) {
+              window.scrollTo({ top: homeTop, behavior: 'smooth' });
+            }
           }
         }
-      } else {
-        // About'tan yukarı kayarken
-        if (currentScrollY < aboutTop && currentScrollY > homeTop) {
-          // Yarısına gelindiğinde home'a snap et
-          if (currentScrollY < aboutTop - windowHeight / 2) {
-            isScrolling = true;
-            window.scrollTo({ top: homeTop, behavior: 'smooth' });
-            setTimeout(() => {
-              isScrolling = false;
-            }, 500);
-          }
-        }
-      }
 
-      lastScrollY = currentScrollY;
+        lastScrollY = currentScrollY;
+      }, 100); // 100ms debounce
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      clearTimeout(timeoutId);
+    };
   }, []);
 
   useEffect(() => {
@@ -288,7 +280,7 @@ function App() {
       <section 
         id="about" 
         ref={aboutRef}
-        className="min-h-screen py-20 bg-gray-950"
+        className="py-20 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
         <div className="container mx-auto px-4 md:px-6">

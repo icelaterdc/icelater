@@ -19,12 +19,14 @@ function InteractiveEffects() {
   };
 
   useEffect(() => {
-    const handleMouseMove = (e: MouseEvent) => {
+    const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
     };
-    const handleTouchMove = (e: TouchEvent) => {
+    const handleTouchMove = (e) => {
       const touch = e.touches[0];
-      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
+      if (touch) {
+        setMousePos({ x: touch.clientX, y: touch.clientY });
+      }
     };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -55,12 +57,13 @@ function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
-  const [visibleChars, setVisibleChars] = useState<number[]>([]);
+  const [visibleChars, setVisibleChars] = useState([]);
   
   const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
+      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
@@ -91,7 +94,7 @@ function AnimatedTitle() {
   };
   
   useEffect(() => {
-    let timer: NodeJS.Timeout;
+    let timer: any;
     if (fadeDirection === "in") {
       if (animationState === "main") {
         setDisplayText("IceLater Full-Stack Developer");
@@ -173,114 +176,84 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  // snapIndex: 0 = Home, 1 = About; isAnimating kontrolü ufak scroll hareketlerine tepki vermemesi için
-  const [snapIndex, setSnapIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
-  const snapContainerRef = useRef<HTMLDivElement>(null);
+  
+  useEffect(() => {
+    const handleScroll = () => {};
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
-  
-  // Snap container üzerinde wheel event ile kontrol
-  useEffect(() => {
-    const container = snapContainerRef.current;
-    if (!container) return;
-    
-    const handleWheel = (e: WheelEvent) => {
-      if (isAnimating) return;
-      const threshold = 50;
-      if (e.deltaY > threshold && snapIndex === 0) {
-        setIsAnimating(true);
-        setSnapIndex(1);
-        setTimeout(() => setIsAnimating(false), 800);
-      } else if (e.deltaY < -threshold && snapIndex === 1) {
-        setIsAnimating(true);
-        setSnapIndex(0);
-        setTimeout(() => setIsAnimating(false), 800);
-      }
-    };
-    
-    container.addEventListener("wheel", handleWheel, { passive: true });
-    return () => container.removeEventListener("wheel", handleWheel);
-  }, [snapIndex, isAnimating]);
-  
-  // Diğer bölümler için referanslar
+
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
+  
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
-  
+
   return (
-    // Tüm sayfa için tek container, scrollbar tarayıcıya yansımaz
+    // Tüm sayfa için tek scroll container (body scroll'u)
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Snap Container: Home ve About bölümleri */}
-      <div
-        ref={snapContainerRef}
-        className="snap-container"
-        style={{ 
-          height: '100vh',
-          overflow: 'hidden',
-          transition: 'transform 0.8s ease',
-          transform: `translateY(-${snapIndex * 100}vh)`
-        }}
+      {/* Home ve About bölümleri: Tam ekran (min-h-screen) ve snap noktası olarak */}
+      <section 
+        id="home" 
+        ref={homeRef}
+        className="snap min-h-screen flex items-center justify-center relative pt-20"
       >
-        {/* Home Bölümü */}
-        <section 
-          id="home" 
-          className="min-h-screen flex items-center justify-center relative pt-20"
-        >
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-          </div>
-          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div 
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+          <div className="flex flex-col items-center text-center mb-12">
             <motion.div 
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5 }}
             >
-              <DiscordCard />
+              <AnimatedTitle />
             </motion.div>
+            <motion.p 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
           </div>
-        </section>
+          <motion.div 
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
+        </div>
+      </section>
 
-        {/* About Bölümü */}
-        <section 
-          id="about" 
-          className="py-20 bg-gray-950"
-          style={{ position: "relative", zIndex: 5 }}
-        >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
-            <AboutSection />
-          </div>
-        </section>
-      </div>
+      <section 
+        id="about" 
+        ref={aboutRef}
+        className="snap py-20 bg-gray-950"
+        style={{ position: "relative", zIndex: 5 }}
+      >
+        <div className="container mx-auto px-4 md:px-6">
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">Who am I ?</h2>
+          <AboutSection />
+        </div>
+      </section>
 
-      {/* Projects Bölümü (snap dışında) */}
+      {/* Projects Bölümü (snap uygulanmayacak) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -301,7 +274,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap dışında) */}
+      {/* Contact Bölümü (snap uygulanmayacak) */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -321,14 +294,6 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        /* Tarayıcı scrollbar'ını gizlemek için */
-        .snap-container::-webkit-scrollbar {
-          display: none;
-        }
-        .snap-container {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
         html { scroll-behavior: smooth; }
       `}</style>
     </div>

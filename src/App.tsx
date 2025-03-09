@@ -177,7 +177,7 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const isSnapping = useRef(false);
-  const SNAP_THRESHOLD = 30; // deltaY değeri 30'dan küçükse "hafif" kabul edilir
+  const SNAP_THRESHOLD = 30; // deltaY değeri 30'dan küçükse "hafif" hareket
   const POSITION_THRESHOLD = 50; // hangi konumda snap tetikleneceği
 
   const homeRef = useRef<HTMLDivElement>(null);
@@ -193,7 +193,7 @@ function App() {
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Window üzerinden wheel event ile yön ve deltaY kontrolü yapıyoruz.
+  // Window üzerinden wheel event ile küçük scroll hareketlerini algılayıp snap yapıyoruz.
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
       if (isSnapping.current) return;
@@ -205,7 +205,7 @@ function App() {
       const aboutTop = aboutEl.offsetTop;
       const currentScroll = window.scrollY;
 
-      // Home'deyken (sayfa en üst yakınında) hafifçe aşağı kaydırma varsa About bölümüne snap yap.
+      // Home'deyken (sayfa en üstü yakınında) küçük bir aşağı kaydırma varsa About'a snap
       if (
         currentScroll <= homeTop + POSITION_THRESHOLD &&
         e.deltaY > 0 &&
@@ -218,7 +218,7 @@ function App() {
         return;
       }
       
-      // About'da hafifçe yukarı kaydırma varsa Home bölümüne snap yap.
+      // About'dayken küçük bir yukarı kaydırma varsa Home'a snap
       if (
         currentScroll >= aboutTop - POSITION_THRESHOLD &&
         e.deltaY < 0 &&
@@ -230,7 +230,7 @@ function App() {
         setTimeout(() => { isSnapping.current = false; }, 600);
         return;
       }
-      // Diğer durumlarda hiçbir müdahale etmiyoruz, doğal scroll çalışıyor.
+      // Diğer durumlarda doğal scroll devam ediyor.
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
@@ -238,7 +238,7 @@ function App() {
   }, []);
 
   return (
-    <div className="page-container bg-gray-950 text-white">
+    <div className="page-container bg-gray-950 text-white" style={{ overflowY: 'scroll' }}>
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
@@ -247,7 +247,7 @@ function App() {
       <section 
         id="home" 
         ref={homeRef}
-        style={{ height: "100vh" }}
+        style={{ height: '100vh' }}
         className="flex items-center justify-center relative pt-20"
       >
         <div className="absolute inset-0 overflow-hidden">
@@ -286,7 +286,7 @@ function App() {
       <section 
         id="about" 
         ref={aboutRef}
-        style={{ height: "100vh" }}
+        style={{ height: '100vh' }}
         className="py-20 bg-gray-950"
       >
         <div className="container mx-auto px-4 md:px-6">
@@ -295,7 +295,7 @@ function App() {
         </div>
       </section>
 
-      {/* Projects Bölümü (Normal Scroll) */}
+      {/* Projects Bölümü (Doğal scroll) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -316,7 +316,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (Normal Scroll) */}
+      {/* Contact Bölümü (Doğal scroll) */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -336,6 +336,18 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+        html, body {
+          margin: 0;
+          padding: 0;
+          overflow-x: hidden;
+        }
+        /* Scrollbar'ı tamamen gizleme */
+        .page-container {
+          scrollbar-width: none; /* Firefox */
+        }
+        .page-container::-webkit-scrollbar {
+          display: none; /* Chrome, Safari, Opera */
+        }
         html { scroll-behavior: smooth; }
       `}</style>
     </div>

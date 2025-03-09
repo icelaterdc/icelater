@@ -177,32 +177,19 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
-  const prevScrollTop = useRef(0);
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll yönü ve pozisyonuna göre snap aktifliğini yönetiyoruz.
+  // Snap-active mantığını yalnızca sayfanın üst yarısı için uyguluyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleScroll = () => {
-      const currentScrollTop = container.scrollTop;
-      const isScrollingDown = currentScrollTop > prevScrollTop.current;
-      prevScrollTop.current = currentScrollTop;
-      // Home bölgesi: scrollTop < 0.5 * viewport
-      if (currentScrollTop < window.innerHeight * 0.5) {
+      if (container.scrollTop < window.innerHeight * 0.5) {
         container.classList.add("snap-active");
-      }
-      // About bölgesi: yaklaşık 0.5 * viewport ile 1.5 * viewport arası
-      else if (currentScrollTop < window.innerHeight * 1.5) {
-        if (isScrollingDown) {
-          container.classList.remove("snap-active");
-        } else {
-          container.classList.add("snap-active");
-        }
       } else {
         container.classList.remove("snap-active");
       }
@@ -267,11 +254,11 @@ function App() {
       <section
         id="about"
         ref={aboutRef}
-        className="snap py-20 bg-gray-950"
+        className="snap py-10 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+          <h2 className="text-6xl font-permanent-marker text-center mb-6">
             Who am I ?
           </h2>
           <AboutSection />
@@ -282,7 +269,7 @@ function App() {
       <section
         id="projects"
         ref={projectsRef}
-        className="non-snap py-4 bg-gray-950/50"
+        className="non-snap py-4 bg-gray-950"
       >
         <div
           ref={projectsContentRef}

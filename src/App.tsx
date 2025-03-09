@@ -177,21 +177,32 @@ function useElementVisibility(threshold = 0.1) {
 function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
+  const prevScrollTop = useRef(0);
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll konumuna bağlı olarak snap davranışını aktif/pasif yapıyoruz
+  // Scroll yönü ve pozisyonuna göre snap aktifliğini yönetiyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      // İlk 2 viewport (home ve about) için snap aktif, sonrası için devre dışı
-      if (scrollTop < window.innerHeight * 2) {
+      const currentScrollTop = container.scrollTop;
+      const isScrollingDown = currentScrollTop > prevScrollTop.current;
+      prevScrollTop.current = currentScrollTop;
+      // Home bölgesi: scrollTop < 0.5 * viewport
+      if (currentScrollTop < window.innerHeight * 0.5) {
         container.classList.add("snap-active");
+      }
+      // About bölgesi: yaklaşık 0.5 * viewport ile 1.5 * viewport arası
+      else if (currentScrollTop < window.innerHeight * 1.5) {
+        if (isScrollingDown) {
+          container.classList.remove("snap-active");
+        } else {
+          container.classList.add("snap-active");
+        }
       } else {
         container.classList.remove("snap-active");
       }

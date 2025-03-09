@@ -29,10 +29,10 @@ body {
   scroll-snap-type: y mandatory;
 }
 
-/* Sadece Home ve About bölümleri için Snap */
-.snap-home-about {
+/* Snap Bölümleri */
+.snap {
   scroll-snap-align: start;
-  height: 100vh; /* Tam ekran */
+  min-height: 100vh; /* Tam ekran için sabit height yerine min-height kullanılıyor */
 }
 
 /* Snap olmayan bölümler */

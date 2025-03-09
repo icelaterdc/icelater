@@ -4,7 +4,6 @@
 
 html {
   scroll-behavior: smooth;
-  /* Scroll snap CSS ile uygulanmıyor, JS ile kontrol edilecek */
 }
 
 body {

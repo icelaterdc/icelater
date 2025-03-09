@@ -24,9 +24,7 @@ function InteractiveEffects() {
     };
     const handleTouchMove = (e: TouchEvent) => {
       const touch = e.touches[0];
-      if (touch) {
-        setMousePos({ x: touch.clientX, y: touch.clientY });
-      }
+      if (touch) setMousePos({ x: touch.clientX, y: touch.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
     window.addEventListener('touchmove', handleTouchMove, { passive: true });
@@ -63,7 +61,6 @@ function AnimatedTitle() {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
@@ -176,9 +173,9 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  // Snap davranışını kontrol etmek için ek state
+  // snapIndex: 0 = Home, 1 = About; isAnimating kontrolü ufak scroll hareketlerine tepki vermemesi için
   const [snapIndex, setSnapIndex] = useState(0);
-  const [isScrolling, setIsScrolling] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
   const snapContainerRef = useRef<HTMLDivElement>(null);
   
   useEffect(() => {
@@ -186,60 +183,56 @@ function App() {
     setTimeout(() => setIsLoading(false), 500);
   }, []);
   
-  // Wheel event ile snap kontrolü (Home ve About bölümleri için)
+  // Snap container üzerinde wheel event ile kontrol
   useEffect(() => {
     const container = snapContainerRef.current;
     if (!container) return;
     
     const handleWheel = (e: WheelEvent) => {
-      // Eğer halihazırda animasyon devam ediyorsa çık
-      if (isScrolling) return;
-      
-      const threshold = 50; // Minimal deltaY değeri
+      if (isAnimating) return;
+      const threshold = 50;
       if (e.deltaY > threshold && snapIndex === 0) {
-        // Aşağı kaydırma, Home'dan About'a geçiş
-        setIsScrolling(true);
+        setIsAnimating(true);
         setSnapIndex(1);
-        container.scrollTo({ top: container.clientHeight, behavior: 'smooth' });
-        // Animasyon tamamlandığında tekrar izin ver
-        setTimeout(() => setIsScrolling(false), 800);
+        setTimeout(() => setIsAnimating(false), 800);
       } else if (e.deltaY < -threshold && snapIndex === 1) {
-        // Yukarı kaydırma, About'dan Home'a geçiş
-        setIsScrolling(true);
+        setIsAnimating(true);
         setSnapIndex(0);
-        container.scrollTo({ top: 0, behavior: 'smooth' });
-        setTimeout(() => setIsScrolling(false), 800);
+        setTimeout(() => setIsAnimating(false), 800);
       }
     };
     
-    container.addEventListener('wheel', handleWheel, { passive: true });
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, [snapIndex, isScrolling]);
+    container.addEventListener("wheel", handleWheel, { passive: true });
+    return () => container.removeEventListener("wheel", handleWheel);
+  }, [snapIndex, isAnimating]);
   
-  const homeRef = useRef(null);
-  const aboutRef = useRef(null);
+  // Diğer bölümler için referanslar
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
-  
   const [projectsContentRef, projectsVisible] = useElementVisibility(0.1);
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
-
+  
   return (
-    // Tüm sayfa için tek scroll container (body scroll barı)
+    // Tüm sayfa için tek container, scrollbar tarayıcıya yansımaz
     <div className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Snap container: Sadece Home ve About bölümleri burada yer alıyor */}
+      {/* Snap Container: Home ve About bölümleri */}
       <div
         ref={snapContainerRef}
-        style={{ height: '100vh', overflowY: 'hidden' }}
+        className="snap-container"
+        style={{ 
+          height: '100vh',
+          overflow: 'hidden',
+          transition: 'transform 0.8s ease',
+          transform: `translateY(-${snapIndex * 100}vh)`
+        }}
       >
         {/* Home Bölümü */}
         <section 
           id="home" 
-          ref={homeRef}
           className="min-h-screen flex items-center justify-center relative pt-20"
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -277,7 +270,6 @@ function App() {
         {/* About Bölümü */}
         <section 
           id="about" 
-          ref={aboutRef}
           className="py-20 bg-gray-950"
           style={{ position: "relative", zIndex: 5 }}
         >
@@ -288,7 +280,7 @@ function App() {
         </section>
       </div>
 
-      {/* Projects Bölümü (snap dışı) */}
+      {/* Projects Bölümü (snap dışında) */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -309,7 +301,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap dışı) */}
+      {/* Contact Bölümü (snap dışında) */}
       <section 
         id="contact" 
         ref={contactRef}
@@ -329,6 +321,14 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+        /* Tarayıcı scrollbar'ını gizlemek için */
+        .snap-container::-webkit-scrollbar {
+          display: none;
+        }
+        .snap-container {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
         html { scroll-behavior: smooth; }
       `}</style>
     </div>

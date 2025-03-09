@@ -2,35 +2,50 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Ana sayfa scroll ayarları */
 html {
   scroll-behavior: smooth;
+  /* Scroll bar gizleme */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE ve Edge */
+}
+
+html::-webkit-scrollbar {
+  display: none; /* Chrome, Safari ve Opera */
 }
 
 body {
   margin: 0;
   padding: 0;
   height: 100%;
-  /* Scrollbar'ı gizle */
-  -ms-overflow-style: none;
-  scrollbar-width: none;
 }
 
-/* Webkit tarayıcılar için scrollbar gizleme */
-::-webkit-scrollbar {
-  display: none;
-}
-
-/* page-container içine snap-enabled sınıfı eklendiğinde scroll snap aktif */
-.page-container.snap-enabled {
+/* Snap Container: Yalnızca Home ve About için snapping */
+.snap-container {
+  height: 200vh; /* Home ve About her biri min-h-screen, toplam 200vh */
+  overflow-y: scroll;
   scroll-snap-type: y mandatory;
+  /* Scroll bar gizleme */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE ve Edge */
 }
 
-/* Snap uygulanacak bölümler */
+.snap-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari ve Opera */
+}
+
+/* .page-container: Sayfanın tamamını kapsayan tek container */
+.page-container {
+  /* Bu container doğrudan body’nin içinde olduğundan,
+     body scroll barı kullanılır ve ekstra scroll bar oluşmaz */
+}
+
+/* Home ve About bölümleri için snap noktası */
 .snap {
   scroll-snap-align: start;
 }
 
-/* Snap uygulanmaması gereken bölümler */
+/* Diğer bölümlerde snap uygulanmasın */
 .no-snap {
   scroll-snap-align: none;
 }

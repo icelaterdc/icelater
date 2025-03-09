@@ -203,7 +203,7 @@ function App() {
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Home ve About bölümleri (snap uygulanacak) */}
+      {/* Home ve About bölümleri: snap uygulanacak */}
       <section 
         id="home" 
         ref={homeRef}
@@ -253,7 +253,7 @@ function App() {
         </div>
       </section>
 
-      {/* Projects Bölümü (snap uygulanmayacak) */}
+      {/* Projects Bölümü: snap uygulanmayacak */}
       <section 
         id="projects" 
         ref={projectsRef}
@@ -274,7 +274,7 @@ function App() {
         </div>
       </section>
 
-      {/* Contact Bölümü (snap uygulanmayacak) */}
+      {/* Contact Bölümü: snap uygulanmayacak */}
       <section 
         id="contact" 
         ref={contactRef}

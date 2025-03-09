@@ -9,36 +9,30 @@ html {
 body {
   margin: 0;
   padding: 0;
-  height: 100vh;
-  overflow: hidden; /* Body'nin kendi scrollbar'ını gizler */
+  /* Sabit 100vh yerine içerik kadar yüksek olacak */
+  overflow-x: hidden;
 }
 
-/* Dış container – normal scroll */
+/* Tek scroll container – tüm sayfa */
 .page-container {
-  height: 100vh;
-  overflow-y: auto;
-  -ms-overflow-style: none; /* IE ve Edge için scrollbar gizleme */
-  scrollbar-width: none; /* Firefox için scrollbar gizleme */
+  scroll-behavior: smooth;
+  scroll-snap-type: y proximity; /* proximity: daha yumuşak snap */
+  /* Scrollbarları gizle */
+  -ms-overflow-style: none; 
+  scrollbar-width: none;
 }
 
 .page-container::-webkit-scrollbar {
   display: none;
 }
 
-/* Home ve About için ayrılmış Snap Wrapper */
-.snap-wrapper {
-  height: 100vh;
-  overflow-y: scroll;
-  scroll-snap-type: y mandatory;
-}
-
-/* Snap noktaları (Home ve About bölümleri) */
+/* Snap uygulanacak bölümler (Home ve About) */
 .snap {
   scroll-snap-align: start;
-  height: 100vh;
+  height: 100vh; /* Tam ekran */
 }
 
-/* Normal içerik container'ı (snap özelliklerinden bağımsız) */
-.normal-container {
-  /* Burada snap özelliği yok */
+/* Snap uygulanmayacak bölümler (Projects, Contact, Footer) */
+.non-snap {
+  scroll-snap-align: none;
 }

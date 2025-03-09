@@ -176,36 +176,39 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
-  const [scrollPosition, setScrollPosition] = useState(0);
   const snapContainerRef = useRef(null);
   const normalScrollRef = useRef(null);
-  const [isInSnapContainer, setIsInSnapContainer] = useState(true);
+  const projectsSectionRef = useRef(null);
   
+  // Container arasındaki geçişi yönetmek için kullanılacak fonksiyon
   useEffect(() => {
-    const handleScroll = () => {
-      if (!snapContainerRef.current || !normalScrollRef.current) return;
+    const handleScrollSnapping = () => {
+      if (!snapContainerRef.current || !normalScrollRef.current || !projectsSectionRef.current) return;
       
-      const snapContainer = snapContainerRef.current;
-      const snapContainerHeight = snapContainer.scrollHeight;
-      const normalContainer = normalScrollRef.current;
+      const snapContainerRect = snapContainerRef.current.getBoundingClientRect();
+      const snapContainerBottom = snapContainerRect.bottom;
+      const projectsSection = projectsSectionRef.current;
       
-      // Detect if we're at the bottom of snap container
-      if (window.scrollY >= snapContainerHeight - window.innerHeight) {
-        if (isInSnapContainer) {
-          setIsInSnapContainer(false);
-        }
+      // About section'ın ekrandan çıktığını tespit et
+      if (snapContainerBottom <= 0) {
+        // Projects section'u görünür yap
+        projectsSection.style.opacity = '1';
+        projectsSection.style.transform = 'translateY(0)';
       } else {
-        if (!isInSnapContainer) {
-          setIsInSnapContainer(true);
-        }
+        // Geçiş sırasında kısmi opacity ve transform
+        const transitionPercentage = Math.max(0, Math.min(1, 1 - snapContainerBottom / window.innerHeight));
+        projectsSection.style.opacity = transitionPercentage.toString();
+        projectsSection.style.transform = `translateY(${20 * (1 - transitionPercentage)}px)`;
       }
-      
-      setScrollPosition(window.scrollY);
     };
     
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isInSnapContainer]);
+    window.addEventListener('scroll', handleScrollSnapping, { passive: true });
+    
+    // İlk yüklemede de çalıştır
+    handleScrollSnapping();
+    
+    return () => window.removeEventListener('scroll', handleScrollSnapping);
+  }, []);
   
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -221,7 +224,7 @@ function App() {
   const [contactContentRef, contactVisible] = useElementVisibility(0.1);
 
   return (
-    <div className="page-container bg-gray-950 text-white">
+    <div className="page-wrapper">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
@@ -234,7 +237,7 @@ function App() {
         <section 
           id="home" 
           ref={homeRef}
-          className="snap min-h-screen flex items-center justify-center relative pt-20"
+          className="snap-section min-h-screen flex items-center justify-center relative pt-20"
         >
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
@@ -271,7 +274,7 @@ function App() {
         <section 
           id="about" 
           ref={aboutRef}
-          className="snap py-20 bg-gray-950"
+          className="snap-section py-20 bg-gray-950"
           style={{ position: "relative", zIndex: 5 }}
         >
           <div className="container mx-auto px-4 md:px-6">
@@ -281,52 +284,58 @@ function App() {
         </section>
       </div>
 
-      {/* Normal scroll container için transition elemanı */}
-      <div className="scroll-transition" style={{ height: '100px', background: 'linear-gradient(to bottom, #0f172a, transparent)' }}></div>
-
-      {/* Projects ve Contact Bölümleri: Normal container */}
+      {/* Projects ve Contact Bölümleri: Normal scroll container */}
       <div 
         ref={normalScrollRef}
-        className="normal-scroll-container"
+        className="normal-scroll-container bg-gray-950 text-white"
       >
-        <section 
-          id="projects" 
-          ref={projectsRef}
-          className="py-20 bg-gray-950/50"
+        <div 
+          ref={projectsSectionRef}
+          style={{ 
+            transition: "opacity 0.5s ease, transform 0.5s ease", 
+            opacity: 0, 
+            transform: "translateY(20px)" 
+          }}
         >
-          <div 
-            ref={projectsContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          <section 
+            id="projects" 
+            ref={projectsRef}
+            className="py-20 bg-gray-950/50"
           >
-            <div className="mb-12">
-              <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
-              <p className="text-gray-300">
-                Explore my latest repositories and contributions on GitHub.
-              </p>
+            <div 
+              ref={projectsContentRef}
+              className="container mx-auto px-4 md:px-6"
+              style={{ opacity: projectsVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+            >
+              <div className="mb-12">
+                <h2 className="text-2xl font-bold text-white mb-4">My GitHub Projects</h2>
+                <p className="text-gray-300">
+                  Explore my latest repositories and contributions on GitHub.
+                </p>
+              </div>
+              <GitHubRepos />
             </div>
-            <GitHubRepos />
-          </div>
-        </section>
+          </section>
 
-        <section 
-          id="contact" 
-          ref={contactRef}
-          className="py-20 bg-gray-950"
-        >
-          <div 
-            ref={contactContentRef}
-            className="container mx-auto px-4 md:px-6"
-            style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+          <section 
+            id="contact" 
+            ref={contactRef}
+            className="py-20 bg-gray-950"
           >
-            <ContactSection />
-          </div>
-        </section>
+            <div 
+              ref={contactContentRef}
+              className="container mx-auto px-4 md:px-6"
+              style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
+            >
+              <ContactSection />
+            </div>
+          </section>
 
-        <Footer />
+          <Footer />
+        </div>
       </div>
 
-      <style>{`
+      <style jsx>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
       `}</style>

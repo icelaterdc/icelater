@@ -16,12 +16,6 @@ body {
 .page-container {
   height: 100vh;
   overflow-y: auto;
-  -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
-  scrollbar-width: none; /* Firefox scrollbar gizleme */
-}
-
-.page-container::-webkit-scrollbar {
-  display: none;
 }
 
 /* Snap Aktif Olduğunda */
@@ -38,4 +32,21 @@ body {
 /* Snap olmayan bölümler (projects, contact, footer) */
 .non-snap {
   scroll-snap-align: none;
+}
+
+/* Scroll bar tasarımı */
+/* Chrome, Safari ve Opera için */
+::-webkit-scrollbar {
+  width: 4px; /* Scroll bar'ın genişliği */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #3b82f6; /* Scroll bar'ın rengi */
+  border-radius: 2px; /* Scroll bar'ın köşe yuvarlaklığı */
+}
+
+/* Firefox için */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: #3b82f6 transparent;
 }

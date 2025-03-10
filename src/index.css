@@ -27,7 +27,7 @@ body {
 /* Snap Bölümleri (home ve about) */
 .snap {
   scroll-snap-align: start;
-  min-height: 80vh;
+  min-height: 100vh;
 }
 
 /* Snap olmayan bölümler (projects, contact, footer) */
@@ -43,7 +43,7 @@ body {
 
 ::-webkit-scrollbar-thumb {
   background-color: #3b82f6; /* Scroll bar'ın rengi */
-  border-radius: 2px; /* Scroll bar'ın köşe yuvarlaklığı */
+  border-radius: 4px; /* Scroll bar'ın köşe yuvarlaklığı */
 }
 
 /* Firefox için */

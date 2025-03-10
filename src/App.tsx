@@ -162,7 +162,7 @@ function useElementVisibility(threshold = 0.1) {
     const currentRef = ref.current;
     const observer = new IntersectionObserver(
       ([entry]) => {
-        setIsVisible(entry.isIntersecting);
+        if (entry.isIntersecting) setIsVisible(true);
       },
       { threshold }
     );
@@ -178,14 +178,14 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevScrollTop = useRef(0);
-  const [currentSection, setCurrentSection] = useState("home");
+  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll yönüne ve pozisyonuna göre snap aktifliğini ve aktif bölümü yönetiyoruz.
+  // Scroll yönüne göre hem snap hem de aktif bölüm (home/about) kontrolü
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -194,25 +194,32 @@ function App() {
       const isScrollingDown = currentScrollTop > prevScrollTop.current;
       prevScrollTop.current = currentScrollTop;
       
+      // Snap aktifliği
       if (currentScrollTop < window.innerHeight * 0.5) {
         container.classList.add("snap-active");
-        setCurrentSection("home");
       } else if (currentScrollTop < window.innerHeight * 1.5) {
         if (isScrollingDown) {
           container.classList.remove("snap-active");
         } else {
           container.classList.add("snap-active");
         }
-        setCurrentSection("about");
       } else {
         container.classList.remove("snap-active");
+      }
+
+      // Home ve About bölümleri için aktif bölge güncellemesi
+      if (currentScrollTop < window.innerHeight * 0.5) {
+        setActiveSection("home");
+      } else if (currentScrollTop < window.innerHeight * 1.5) {
+        setActiveSection("about");
       }
     };
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Diğer bölümlerin referansları
+  const homeRef = useRef(null);
+  const aboutRef = useRef(null);
   const projectsRef = useRef(null);
   const contactRef = useRef(null);
 
@@ -226,62 +233,74 @@ function App() {
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section id="home" className="snap relative">
+      <section
+        id="home"
+        ref={homeRef}
+        className="full-page snap flex items-center justify-center relative pt-20"
+      >
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+        </div>
         <motion.div
-          initial={{ opacity: 1 }}
-          animate={{ opacity: currentSection === "home" ? 1 : 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={activeSection === "home" ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
           transition={{ duration: 0.5 }}
-          className="h-full flex flex-col items-center justify-center"
+          className="container mx-auto px-4 md:px-6 py-16 relative z-10"
         >
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="flex flex-col items-center text-center mb-12">
-              <motion.div
-                initial={{ opacity: 0, y: -20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-              >
-                <AnimatedTitle />
-              </motion.div>
-              <motion.p
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="text-xl text-gray-300 max-w-2xl"
-              >
-                Building modern web applications with passion and precision.
-                Transforming ideas into elegant, functional digital experiences.
-              </motion.p>
-            </div>
+          <div className="flex flex-col items-center text-center mb-12">
             <motion.div
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
+              transition={{ duration: 0.5 }}
             >
-              <DiscordCard />
+              <AnimatedTitle />
             </motion.div>
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="text-xl text-gray-300 max-w-2xl"
+            >
+              Building modern web applications with passion and precision.
+              Transforming ideas into elegant, functional digital experiences.
+            </motion.p>
           </div>
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.4 }}
+          >
+            <DiscordCard />
+          </motion.div>
         </motion.div>
       </section>
 
       {/* About Bölümü */}
-      <section id="about" className="snap bg-gray-950" style={{ position: "relative", zIndex: 5 }}>
+      <section
+        id="about"
+        ref={aboutRef}
+        className="full-page snap py-20 bg-gray-950"
+        style={{ position: "relative", zIndex: 5 }}
+      >
         <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: currentSection === "about" ? 1 : 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={activeSection === "about" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.5 }}
-          className="h-full flex flex-col items-center justify-center"
+          className="container mx-auto px-4 md:px-6"
         >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">
-              Who am I ?
-            </h2>
-            <AboutSection />
-          </div>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
+          <AboutSection />
         </motion.div>
       </section>
 
       {/* GitHub Projects Bölümü */}
-      <section id="projects" ref={projectsRef} className="non-snap py-4 bg-gray-950/50">
+      <section
+        id="projects"
+        ref={projectsRef}
+        className="non-snap py-4 bg-gray-950/50"
+      >
         <div
           ref={projectsContentRef}
           className="container mx-auto px-4 md:px-6"
@@ -300,7 +319,11 @@ function App() {
       </section>
 
       {/* Contact Bölümü */}
-      <section id="contact" ref={contactRef} className="non-snap py-10 bg-gray-950">
+      <section
+        id="contact"
+        ref={contactRef}
+        className="non-snap py-10 bg-gray-950"
+      >
         <div
           ref={contactContentRef}
           className="container mx-auto px-4 md:px-6"

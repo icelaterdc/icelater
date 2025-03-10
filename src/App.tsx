@@ -241,7 +241,7 @@ function App() {
               transition={{ duration: 0.5, delay: 0.6 }}
               className="flex flex-col items-center mt-8"
             >
-              <div className="animate-bounce">
+              <div className="relative">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   width="32"
@@ -252,13 +252,16 @@ function App() {
                   strokeWidth="2"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  className="text-blue-400"
+                  className="text-blue-400 animate-bounce"
                 >
                   <path d="M12 5v14" />
                   <path d="M19 12l-7 7-7-7" />
                 </svg>
+                <div className="absolute inset-0 bg-blue-400 rounded-full opacity-20 animate-pulse"></div>
               </div>
-              <p className="text-sm text-gray-400 mt-2 animate-pulse">Scroll Down</p>
+              <p className="text-sm text-gray-400 mt-2 font-medium tracking-wide">
+                Scroll Down
+              </p>
             </motion.div>
           </div>
         </motion.div>

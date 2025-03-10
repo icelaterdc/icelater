@@ -58,12 +58,11 @@ function AnimatedTitle() {
   const [animationState, setAnimationState] = useState("main");
   const [fadeDirection, setFadeDirection] = useState("in");
   const [visibleChars, setVisibleChars] = useState<number[]>([]);
-  
+
   const animateText = (text: string, isAppearing: boolean) => {
     if (isAppearing) {
       setVisibleChars([]);
       const allIndices = [...Array(text.length).keys()];
-      
       if (text === "IceLater Full-Stack Developer") {
         const iceIndices = allIndices.slice(0, 8);
         const restIndices = allIndices.slice(8);
@@ -92,7 +91,7 @@ function AnimatedTitle() {
       });
     }
   };
-  
+
   useEffect(() => {
     let timer: any;
     if (fadeDirection === "in") {
@@ -124,7 +123,7 @@ function AnimatedTitle() {
     }
     return () => clearTimeout(timer);
   }, [animationState, fadeDirection]);
-  
+
   const getCharColor = (char: string, index: number, text: string) => {
     if (text === "IceLater Full-Stack Developer") {
       if (index >= 0 && index <= 7) return "#3b82f6";
@@ -135,49 +134,22 @@ function AnimatedTitle() {
     }
     return "white";
   };
-  
+
   return (
     <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-4">
       {displayText.split("").map((char, index) => (
-        <span 
-          key={index} 
-          style={{ 
+        <span
+          key={index}
+          style={{
             opacity: visibleChars.includes(index) ? 1 : 0,
             transition: "opacity 0.3s ease",
-            color: getCharColor(char, index, displayText)
+            color: getCharColor(char, index, displayText),
           }}
         >
           {char}
         </span>
       ))}
     </h1>
-  );
-}
-
-// Scroll Down Indicator
-function ScrollDownIndicator() {
-  return (
-    <div className="flex flex-col items-center mt-12">
-      <motion.div
-        animate={{ y: [0, 10, 0] }}
-        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
-        style={{ opacity: 0.75 }}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="w-8 h-8"
-        >
-          <polyline points="6 9 12 15 18 9"></polyline>
-        </svg>
-      </motion.div>
-      <span className="text-gray-400 text-sm mt-2">Scroll Down</span>
-    </div>
   );
 }
 
@@ -226,7 +198,6 @@ function App() {
       {/* Home Bölümü */}
       <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
-          translate="no"  /* Çeviri sistemlerinin bu alanı görmemesi için */
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
@@ -262,7 +233,33 @@ function App() {
             >
               <DiscordCard />
             </motion.div>
-            <ScrollDownIndicator />
+            {/* Scroll Down Tasarımı */}
+            <motion.div
+              translate="no"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 0.75, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex flex-col items-center mt-8"
+            >
+              <div className="animate-bounce">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-blue-400"
+                >
+                  <path d="M12 5v14" />
+                  <path d="M19 12l-7 7-7-7" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-400 mt-2 animate-pulse">Scroll Down</p>
+            </motion.div>
           </div>
         </motion.div>
       </section>
@@ -316,13 +313,6 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        .page-container {
-          overflow-y: scroll;
-          scrollbar-width: none; /* Firefox için */
-        }
-        .page-container::-webkit-scrollbar {
-          display: none; /* Chrome, Safari ve Opera için */
-        }
       `}</style>
     </div>
   );

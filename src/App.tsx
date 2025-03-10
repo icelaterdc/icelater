@@ -191,25 +191,18 @@ function App() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="page-container bg-gray-950 text-white"
-      style={{ height: activeSection === "other" ? "auto" : "100vh" }}
-    >
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section 
-        id="home" 
-        className="snap flex items-center justify-center relative pt-20" 
-        style={{ height: '100vh' }}
-      >
-        <motion.div 
-          initial={{ opacity: 1 }} 
-          animate={{ opacity: activeSection === "home" ? 1 : 0 }} 
-          transition={{ duration: 0.5 }} 
+      <section id="home" className="snap flex items-center justify-center relative pt-20">
+        <motion.div
+          translate="no"  /* Çeviri sistemlerinin bu alanı görmemesi için */
+          initial={{ opacity: 1 }}
+          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
           className="w-full"
         >
           <div className="absolute inset-0 overflow-hidden">
@@ -217,10 +210,10 @@ function App() {
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
-              <motion.div 
-                translate="no" 
-                initial={{ opacity: 0, y: -20 }} 
-                animate={{ opacity: 1, y: 0 }} 
+              <motion.div
+                translate="no"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
               >
                 <AnimatedTitle />
@@ -235,9 +228,9 @@ function App() {
                 Transforming ideas into elegant, functional digital experiences.
               </motion.p>
             </div>
-            <motion.div 
-              initial={{ opacity: 0, y: 30 }} 
-              animate={{ opacity: 1, y: 0 }} 
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               <DiscordCard />
@@ -250,12 +243,12 @@ function App() {
       <section
         id="about"
         className="snap py-20 bg-gray-950"
-        style={{ height: '100vh', position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
+        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
       >
-        <motion.div 
-          initial={{ opacity: 0 }} 
-          animate={{ opacity: activeSection === "home" ? 0 : 1 }} 
-          transition={{ duration: 0.5 }} 
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: activeSection === "home" ? 0 : 1 }}
+          transition={{ duration: 0.5 }}
           className="container mx-auto px-4 md:px-6"
         >
           <h2 className="text-6xl font-permanent-marker text-center mb-10">
@@ -287,8 +280,8 @@ function App() {
         </div>
       </section>
 
-      {/* Footer: Çeviriye dahil edilmesin */}
-      <div translate="no" style={{ marginBottom: 0 }}>
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      <div translate="no">
         <Footer />
       </div>
 

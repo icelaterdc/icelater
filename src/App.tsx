@@ -155,20 +155,57 @@ function AnimatedTitle() {
 }
 
 function App() {
+  const [activeSection, setActiveSection] = useState("home");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevScrollTop = useRef(0);
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
+    // Kısa bir yükleme animasyonu için
+    // setTimeout(() => setIsLoading(false), 500);
+  }, []);
+
+  // Scroll pozisyonuna göre aktif bölümü belirle ve snap efektini yönet
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const currentScrollTop = container.scrollTop;
+      const isScrollingDown = currentScrollTop > prevScrollTop.current;
+      prevScrollTop.current = currentScrollTop;
+      if (currentScrollTop < window.innerHeight * 0.5) {
+        setActiveSection("home");
+        container.classList.add("snap-active");
+      } else if (currentScrollTop < window.innerHeight * 1.5) {
+        setActiveSection("about");
+        if (isScrollingDown) {
+          container.classList.remove("snap-active");
+        } else {
+          container.classList.add("snap-active");
+        }
+      } else {
+        setActiveSection("other");
+        container.classList.remove("snap-active");
+      }
+    };
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
-    <div className="main-container bg-gray-950 text-white">
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
-      {/* Snap Container: Home ve About bölümleri */}
-      <div className="snap-container">
-        {/* Home Bölümü */}
-        <section id="home" className="snap-section flex items-center justify-center relative pt-20">
+      {/* Home Bölümü */}
+      <section id="home" className="snap flex items-center justify-center relative pt-20">
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full"
+        >
           <div className="absolute inset-0 overflow-hidden">
             <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
@@ -199,49 +236,51 @@ function App() {
               <DiscordCard />
             </motion.div>
           </div>
-        </section>
+        </motion.div>
+      </section>
 
-        {/* About Bölümü - scrollMarginTop ile hafif yukarı kaydırma */}
-        <section
-          id="about"
-          className="snap-section py-20 bg-gray-950"
-          style={{ scrollMarginTop: '30px' }}
+      {/* About Bölümü - scrollMarginTop ile hafif yukarı kaydırma */}
+      <section
+        id="about"
+        className="snap py-20 bg-gray-950"
+        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: activeSection === "about" ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className="container mx-auto px-4 md:px-6"
         >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">
-              Who am I ?
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
+          <AboutSection />
+        </motion.div>
+      </section>
+
+      {/* GitHub Projects Bölümü */}
+      <section id="projects" className="non-snap py-4 bg-gray-950/50">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              My GitHub Projects
             </h2>
-            <AboutSection />
+            <p className="text-gray-300">
+              Explore my latest repositories and contributions on GitHub.
+            </p>
           </div>
-        </section>
-      </div>
+          <GitHubRepos />
+        </div>
+      </section>
 
-      {/* Non-Snap Bölümler */}
-      <div className="non-snap-container">
-        {/* GitHub Projects Bölümü */}
-        <section id="projects" className="non-snap py-4 bg-gray-950/50">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="mb-8">
-              <h2 className="text-2xl font-bold text-white mb-4">
-                My GitHub Projects
-              </h2>
-              <p className="text-gray-300">
-                Explore my latest repositories and contributions on GitHub.
-              </p>
-            </div>
-            <GitHubRepos />
-          </div>
-        </section>
+      {/* Contact Bölümü */}
+      <section id="contact" className="non-snap py-10 bg-gray-950">
+        <div className="container mx-auto px-4 md:px-6">
+          <ContactSection />
+        </div>
+      </section>
 
-        {/* Contact Bölümü */}
-        <section id="contact" className="non-snap py-10 bg-gray-950">
-          <div className="container mx-auto px-4 md:px-6">
-            <ContactSection />
-          </div>
-        </section>
-
-        <Footer />
-      </div>
+      <Footer />
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');

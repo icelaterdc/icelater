@@ -15,7 +15,7 @@ body {
 
 /* Tüm sayfayı kapsayan container */
 .page-container {
-  height: 100vh;
+  height: 80vh;
   overflow-y: auto;
 }
 

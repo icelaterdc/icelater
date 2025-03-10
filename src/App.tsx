@@ -191,15 +191,22 @@ function App() {
   }, []);
 
   return (
-    <div ref={containerRef} className="page-container bg-gray-950 text-white">
+    <div 
+      ref={containerRef} 
+      className="page-container bg-gray-950 text-white" 
+      style={{ height: '100vh', overflowY: 'auto', scrollSnapType: 'y mandatory' }}
+    >
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section id="home" className="snap flex items-center justify-center relative pt-20">
+      <section 
+        id="home" 
+        className="snap flex items-center justify-center relative pt-20" 
+        style={{ scrollSnapAlign: 'start' }}
+      >
         <motion.div
-          translate="no"  /* Çeviri sistemlerinin bu alanı görmemesi için */
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
@@ -235,6 +242,53 @@ function App() {
             >
               <DiscordCard />
             </motion.div>
+            <div className="flex justify-center mt-8">
+              <motion.div
+                animate={{ 
+                  y: [0, -10, 0], 
+                  rotate: [0, 5, -5, 0] 
+                }}
+                transition={{ 
+                  repeat: Infinity, 
+                  duration: 2, 
+                  ease: "easeInOut" 
+                }}
+                style={{ opacity: 0.75 }}
+              >
+                <svg 
+                  width="40" 
+                  height="60" 
+                  viewBox="0 0 40 60" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
+                      <stop offset="100%" style={{ stopColor: '#1e3a8a', stopOpacity: 1 }} />
+                    </linearGradient>
+                  </defs>
+                  <path 
+                    d="M20 10 L20 40 M20 40 L10 30 M20 40 L30 30" 
+                    stroke="url(#arrowGradient)" 
+                    strokeWidth="3" 
+                    strokeLinecap="round"
+                  />
+                  <circle 
+                    cx="20" 
+                    cy="40" 
+                    r="10" 
+                    fill="none" 
+                    stroke="url(#arrowGradient)" 
+                    strokeWidth="1" 
+                    opacity="0.5"
+                  />
+                </svg>
+                <p style={{ color: 'white', fontSize: '0.875rem', marginTop: '5px' }}>
+                  Scroll Down
+                </p>
+              </motion.div>
+            </div>
           </div>
         </motion.div>
       </section>
@@ -243,7 +297,7 @@ function App() {
       <section
         id="about"
         className="snap py-20 bg-gray-950"
-        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
+        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px', scrollSnapAlign: 'start' }}
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -280,7 +334,7 @@ function App() {
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      {/* Footer */}
       <div translate="no">
         <Footer />
       </div>

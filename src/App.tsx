@@ -154,6 +154,23 @@ function AnimatedTitle() {
   );
 }
 
+// Scroll Indicator Bileşeni (Discord kartının altında yer alacak)
+function ScrollIndicator() {
+  return (
+    <motion.div
+      className="flex flex-col items-center mt-8"
+      style={{ opacity: 0.75 }}
+      animate={{ y: [0, 10, 0] }}
+      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+    >
+      <svg className="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+      </svg>
+      <span className="text-sm font-light">Scroll dön</span>
+    </motion.div>
+  );
+}
+
 function App() {
   const [activeSection, setActiveSection] = useState("home");
   const containerRef = useRef<HTMLDivElement>(null);
@@ -191,21 +208,13 @@ function App() {
   }, []);
 
   return (
-    <div 
-      ref={containerRef} 
-      className="page-container bg-gray-950 text-white" 
-      style={{ height: '100vh', overflowY: 'auto', scrollSnapType: 'y mandatory' }}
-    >
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section 
-        id="home" 
-        className="snap flex items-center justify-center relative pt-20" 
-        style={{ scrollSnapAlign: 'start' }}
-      >
+      <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
@@ -217,6 +226,7 @@ function App() {
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
+              {/* Sadece hareketli yazı çeviriye dahil edilmeyecek */}
               <motion.div
                 translate="no"
                 initial={{ opacity: 0, y: -20 }}
@@ -242,53 +252,8 @@ function App() {
             >
               <DiscordCard />
             </motion.div>
-            <div className="flex justify-center mt-8">
-              <motion.div
-                animate={{ 
-                  y: [0, -10, 0], 
-                  rotate: [0, 5, -5, 0] 
-                }}
-                transition={{ 
-                  repeat: Infinity, 
-                  duration: 2, 
-                  ease: "easeInOut" 
-                }}
-                style={{ opacity: 0.75 }}
-              >
-                <svg 
-                  width="40" 
-                  height="60" 
-                  viewBox="0 0 40 60" 
-                  fill="none" 
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <linearGradient id="arrowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" style={{ stopColor: '#3b82f6', stopOpacity: 1 }} />
-                      <stop offset="100%" style={{ stopColor: '#1e3a8a', stopOpacity: 1 }} />
-                    </linearGradient>
-                  </defs>
-                  <path 
-                    d="M20 10 L20 40 M20 40 L10 30 M20 40 L30 30" 
-                    stroke="url(#arrowGradient)" 
-                    strokeWidth="3" 
-                    strokeLinecap="round"
-                  />
-                  <circle 
-                    cx="20" 
-                    cy="40" 
-                    r="10" 
-                    fill="none" 
-                    stroke="url(#arrowGradient)" 
-                    strokeWidth="1" 
-                    opacity="0.5"
-                  />
-                </svg>
-                <p style={{ color: 'white', fontSize: '0.875rem', marginTop: '5px' }}>
-                  Scroll Down
-                </p>
-              </motion.div>
-            </div>
+            {/* Scroll Indicator ekleniyor */}
+            <ScrollIndicator />
           </div>
         </motion.div>
       </section>
@@ -297,7 +262,7 @@ function App() {
       <section
         id="about"
         className="snap py-20 bg-gray-950"
-        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px', scrollSnapAlign: 'start' }}
+        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
       >
         <motion.div
           initial={{ opacity: 0 }}
@@ -334,12 +299,19 @@ function App() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
       <div translate="no">
         <Footer />
       </div>
 
       <style>{`
+        .page-container {
+          scrollbar-width: none;
+          -ms-overflow-style: none;
+        }
+        .page-container::-webkit-scrollbar {
+          display: none;
+        }
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
       `}</style>

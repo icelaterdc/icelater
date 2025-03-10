@@ -52,7 +52,7 @@ function InteractiveEffects() {
   );
 }
 
-// Hareketli Yazı Bileşeni
+// Hareketli Yazı Bileşeni (değişiklik yapılmadı)
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -176,43 +176,38 @@ function useElementVisibility(threshold = 0.1) {
 
 function App() {
   const [isLoading, setIsLoading] = useState(true);
+  const [activeSection, setActiveSection] = useState("home");
   const containerRef = useRef<HTMLDivElement>(null);
   const prevScrollTop = useRef(0);
-  const [currentSection, setCurrentSection] = useState("home");
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Hem snap-active sınıfını hem de aktif bölümü (home/about) güncelleyen scroll event
+  // Scroll yönüne ve pozisyonuna göre hem snap sınıfı hem de aktif bölümü güncelliyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleScroll = () => {
       const currentScrollTop = container.scrollTop;
-      const viewportHeight = window.innerHeight;
       const isScrollingDown = currentScrollTop > prevScrollTop.current;
       prevScrollTop.current = currentScrollTop;
-
-      // Snap-active sınıfı kontrolü
-      if (currentScrollTop < viewportHeight * 0.5) {
+      
+      // Aktif bölümün tespiti: home ve about arasında geçiş
+      if (currentScrollTop < window.innerHeight * 0.5) {
+        setActiveSection("home");
         container.classList.add("snap-active");
-      } else if (currentScrollTop < viewportHeight * 1.5) {
+      } else if (currentScrollTop < window.innerHeight * 1.5) {
+        setActiveSection("about");
         if (isScrollingDown) {
           container.classList.remove("snap-active");
         } else {
           container.classList.add("snap-active");
         }
       } else {
+        setActiveSection("other");
         container.classList.remove("snap-active");
-      }
-
-      // currentSection güncellemesi: "home" veya "about"
-      if (currentScrollTop < viewportHeight * 0.5) {
-        setCurrentSection("home");
-      } else if (currentScrollTop < viewportHeight * 1.5) {
-        setCurrentSection("about");
       }
     };
     container.addEventListener("scroll", handleScroll);
@@ -241,7 +236,7 @@ function App() {
       >
         <motion.div
           initial={{ opacity: 1 }}
-          animate={ currentSection === "home" ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 } }
+          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
           className="w-full"
         >
@@ -287,15 +282,14 @@ function App() {
       >
         <motion.div
           initial={{ opacity: 0 }}
-          animate={ currentSection === "about" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 } }
+          animate={{ opacity: activeSection === "about" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
+          className="container mx-auto px-4 md:px-6"
         >
-          <div className="container mx-auto px-4 md:px-6">
-            <h2 className="text-6xl font-permanent-marker text-center mb-10">
-              Who am I ?
-            </h2>
-            <AboutSection />
-          </div>
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
+          <AboutSection />
         </motion.div>
       </section>
 

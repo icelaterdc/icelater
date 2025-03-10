@@ -161,11 +161,9 @@ function App() {
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
-    // Kısa bir yükleme animasyonu için
-    // setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll pozisyonuna göre aktif bölümü belirle ve snap efektini yönet
+  // Scroll pozisyonuna göre aktif bölümü ve snap efektini yönetiyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -202,7 +200,7 @@ function App() {
       <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
           initial={{ opacity: 1 }}
-          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
+          animate={{ opacity: 1 }}
           transition={{ duration: 0.5 }}
           className="w-full"
         >
@@ -239,7 +237,7 @@ function App() {
         </motion.div>
       </section>
 
-      {/* About Bölümü - scrollMarginTop ile hafif yukarı kaydırma */}
+      {/* About Bölümü */}
       <section
         id="about"
         className="snap py-20 bg-gray-950"
@@ -247,7 +245,8 @@ function App() {
       >
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: activeSection === "about" ? 1 : 0 }}
+          // Sadece yukarı (home'ya dönüşte) opacity 0 olacak; aşağıya kaydırırken opacity 1 kalacak.
+          animate={{ opacity: activeSection === "home" ? 0 : 1 }}
           transition={{ duration: 0.5 }}
           className="container mx-auto px-4 md:px-6"
         >

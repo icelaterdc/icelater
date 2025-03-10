@@ -338,3 +338,4 @@ if (require.main === module) {
 }
 
 module.exports = { generateDiscordCard };
+

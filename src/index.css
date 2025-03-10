@@ -12,33 +12,30 @@ body {
   overflow-x: hidden;
 }
 
-/* Ana kapsayıcı */
-.main-container {
-  /* Normal akış */
-}
-
-/* Snap Container: Sadece home ve about bölümleri için */
-.snap-container {
+/* Tüm sayfayı kapsayan container */
+.page-container {
   height: 100vh;
   overflow-y: auto;
+  -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
+  scrollbar-width: none; /* Firefox scrollbar gizleme */
+}
+
+.page-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* Snap Aktif Olduğunda */
+.snap-active {
   scroll-snap-type: y mandatory;
 }
 
-/* Gizli scrollbar ayarları */
-.snap-container::-webkit-scrollbar {
-  display: none;
-}
-.snap-container {
-  -ms-overflow-style: none; /* IE ve Edge */
-  scrollbar-width: none; /* Firefox */
-}
-
-/* Snap Bölümleri */
-.snap-section {
+/* Snap Bölümleri (home ve about) */
+.snap {
   scroll-snap-align: start;
-  min-height: 90vh;
+  min-height: 100vh;
 }
 
-/* Non-Snap Container: Diğer bölümler normal akışta */
-.non-snap-container {
+/* Snap olmayan bölümler (projects, contact, footer) */
+.non-snap {
+  scroll-snap-align: none;
 }

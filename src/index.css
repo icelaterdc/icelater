@@ -32,21 +32,10 @@ body {
 /* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
-  /* Tam ekran 100vh ataması kaldırıldı */
+  min-height: 100vh; /* 100vh yerine min-height kullanılarak içerik büyüdükçe boşluk kalmaz */
 }
 
 /* Snap olmayan bölümler */
 .non-snap {
   scroll-snap-align: none;
-}
-
-/* Mobilde snap efektlerini devre dışı bırak */
-@media (max-width: 768px) {
-  .snap-active {
-    scroll-snap-type: none;
-  }
-  .snap,
-  .non-snap {
-    scroll-snap-align: none;
-  }
 }

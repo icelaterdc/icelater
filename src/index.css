@@ -16,7 +16,7 @@ body {
 
 /* Tüm sayfayı kapsayan container */
 .page-container {
-  height: 99vh;
+  height: 99.9vh;
   overflow-y: auto;
   -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
   scrollbar-width: none; /* Firefox scrollbar gizleme */

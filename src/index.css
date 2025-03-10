@@ -27,7 +27,7 @@ body {
 /* Snap Bölümleri (home ve about) */
 .snap {
   scroll-snap-align: start;
-  min-height: 100vh;
+  min-height: 80vh;
 }
 
 /* Snap olmayan bölümler (projects, contact, footer) */

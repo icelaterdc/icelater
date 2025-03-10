@@ -178,26 +178,27 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevScrollTop = useRef(0);
+  const [currentSection, setCurrentSection] = useState("home");
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll yönü ve pozisyonuna göre snap aktifliğini yönetiyoruz.
+  // Hem snap-active sınıfını hem de aktif bölümü (home/about) güncelleyen scroll event
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     const handleScroll = () => {
       const currentScrollTop = container.scrollTop;
+      const viewportHeight = window.innerHeight;
       const isScrollingDown = currentScrollTop > prevScrollTop.current;
       prevScrollTop.current = currentScrollTop;
-      // Home bölgesi: scrollTop < 0.5 * viewport
-      if (currentScrollTop < window.innerHeight * 0.5) {
+
+      // Snap-active sınıfı kontrolü
+      if (currentScrollTop < viewportHeight * 0.5) {
         container.classList.add("snap-active");
-      }
-      // About bölgesi: yaklaşık 0.5 * viewport ile 1.5 * viewport arası
-      else if (currentScrollTop < window.innerHeight * 1.5) {
+      } else if (currentScrollTop < viewportHeight * 1.5) {
         if (isScrollingDown) {
           container.classList.remove("snap-active");
         } else {
@@ -205,6 +206,13 @@ function App() {
         }
       } else {
         container.classList.remove("snap-active");
+      }
+
+      // currentSection güncellemesi: "home" veya "about"
+      if (currentScrollTop < viewportHeight * 0.5) {
+        setCurrentSection("home");
+      } else if (currentScrollTop < viewportHeight * 1.5) {
+        setCurrentSection("about");
       }
     };
     container.addEventListener("scroll", handleScroll);
@@ -231,36 +239,43 @@ function App() {
         ref={homeRef}
         className="snap flex items-center justify-center relative pt-20"
       >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={ currentSection === "home" ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 } }
+          transition={{ duration: 0.5 }}
+          className="w-full"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
           </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+          </div>
+        </motion.div>
       </section>
 
       {/* About Bölümü */}
@@ -270,12 +285,18 @@ function App() {
         className="snap py-20 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
-        <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-6xl font-permanent-marker text-center mb-10">
-            Who am I ?
-          </h2>
-          <AboutSection />
-        </div>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={ currentSection === "about" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 } }
+          transition={{ duration: 0.5 }}
+        >
+          <div className="container mx-auto px-4 md:px-6">
+            <h2 className="text-6xl font-permanent-marker text-center mb-10">
+              Who am I ?
+            </h2>
+            <AboutSection />
+          </div>
+        </motion.div>
       </section>
 
       {/* GitHub Projects Bölümü */}
@@ -312,8 +333,7 @@ function App() {
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
-         
- <ContactSection />
+          <ContactSection />
         </div>
       </section>
 

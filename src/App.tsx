@@ -200,7 +200,7 @@ function App() {
       <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
           initial={{ opacity: 1 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
           className="w-full"
         >
@@ -245,7 +245,8 @@ function App() {
       >
         <motion.div
           initial={{ opacity: 0 }}
-          // Sadece yukarı (home'ya dönüşte) opacity 0 olacak; aşağıya kaydırırken opacity 1 kalacak.
+          // Home'dan abouta inerken aktifSection "about" olur, bu durumda about opak kalacak.
+          // Ancak home bölümüne geri dönüldüğünde (activeSection "home") about fade out olacak.
           animate={{ opacity: activeSection === "home" ? 0 : 1 }}
           transition={{ duration: 0.5 }}
           className="container mx-auto px-4 md:px-6"

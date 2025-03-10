@@ -32,7 +32,7 @@ body {
 /* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
-  min-height: 100vh; /* 100vh yerine min-height kullanılarak içerik büyüdükçe boşluk kalmaz */
+  min-height: 50vh; /* 100vh yerine min-height kullanılarak içerik büyüdükçe boşluk kalmaz */
 }
 
 /* Snap olmayan bölümler */

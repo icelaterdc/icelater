@@ -154,20 +154,30 @@ function AnimatedTitle() {
   );
 }
 
-// Scroll Indicator Bileşeni (Discord kartının altında yer alacak)
-function ScrollIndicator() {
+// Scroll Down Indicator
+function ScrollDownIndicator() {
   return (
-    <motion.div
-      className="flex flex-col items-center mt-8"
-      style={{ opacity: 0.75 }}
-      animate={{ y: [0, 10, 0] }}
-      transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-    >
-      <svg className="w-6 h-6 text-white mb-1" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-      </svg>
-      <span className="text-sm font-light">Scroll dön</span>
-    </motion.div>
+    <div className="flex flex-col items-center mt-12">
+      <motion.div
+        animate={{ y: [0, 10, 0] }}
+        transition={{ repeat: Infinity, duration: 1.5, ease: "easeInOut" }}
+        style={{ opacity: 0.75 }}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className="w-8 h-8"
+        >
+          <polyline points="6 9 12 15 18 9"></polyline>
+        </svg>
+      </motion.div>
+      <span className="text-gray-400 text-sm mt-2">Scroll Down</span>
+    </div>
   );
 }
 
@@ -216,6 +226,7 @@ function App() {
       {/* Home Bölümü */}
       <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
+          translate="no"  /* Çeviri sistemlerinin bu alanı görmemesi için */
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
@@ -226,7 +237,6 @@ function App() {
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
-              {/* Sadece hareketli yazı çeviriye dahil edilmeyecek */}
               <motion.div
                 translate="no"
                 initial={{ opacity: 0, y: -20 }}
@@ -252,8 +262,7 @@ function App() {
             >
               <DiscordCard />
             </motion.div>
-            {/* Scroll Indicator ekleniyor */}
-            <ScrollIndicator />
+            <ScrollDownIndicator />
           </div>
         </motion.div>
       </section>
@@ -305,15 +314,15 @@ function App() {
       </div>
 
       <style>{`
-        .page-container {
-          scrollbar-width: none;
-          -ms-overflow-style: none;
-        }
-        .page-container::-webkit-scrollbar {
-          display: none;
-        }
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+        .page-container {
+          overflow-y: scroll;
+          scrollbar-width: none; /* Firefox için */
+        }
+        .page-container::-webkit-scrollbar {
+          display: none; /* Chrome, Safari ve Opera için */
+        }
       `}</style>
     </div>
   );

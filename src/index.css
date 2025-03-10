@@ -24,11 +24,6 @@ body {
   display: none;
 }
 
-/* Sadece Home ve About gibi full-page bölümler için */
-.full-page {
-  height: 100vh;
-}
-
 /* Snap Aktif Olduğunda */
 .snap-active {
   scroll-snap-type: y mandatory;
@@ -37,9 +32,11 @@ body {
 /* Snap Bölümleri */
 .snap {
   scroll-snap-align: start;
+  height: 100vh; /* Tam ekran */
 }
 
 /* Snap olmayan bölümler */
-.non-snap {
+.n
+on-snap {
   scroll-snap-align: none;
 }

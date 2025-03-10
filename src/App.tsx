@@ -199,6 +199,7 @@ function App() {
       {/* Home Bölümü */}
       <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
+          translate="no"  /* Çeviri sistemlerinin bu alanı görmemesi için */
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
           transition={{ duration: 0.5 }}
@@ -210,6 +211,7 @@ function App() {
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
               <motion.div
+                translate="no"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -245,8 +247,6 @@ function App() {
       >
         <motion.div
           initial={{ opacity: 0 }}
-          // Home'dan abouta inerken aktifSection "about" olur, bu durumda about opak kalacak.
-          // Ancak home bölümüne geri dönüldüğünde (activeSection "home") about fade out olacak.
           animate={{ opacity: activeSection === "home" ? 0 : 1 }}
           transition={{ duration: 0.5 }}
           className="container mx-auto px-4 md:px-6"
@@ -280,7 +280,10 @@ function App() {
         </div>
       </section>
 
-      <Footer />
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      <div translate="no">
+        <Footer />
+      </div>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');

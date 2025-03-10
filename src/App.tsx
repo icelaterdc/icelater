@@ -178,14 +178,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevScrollTop = useRef(0);
-  const [activeSection, setActiveSection] = useState("home");
 
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
     setTimeout(() => setIsLoading(false), 500);
   }, []);
 
-  // Scroll yönüne göre hem snap hem de aktif bölüm (home/about) kontrolü
+  // Scroll yönü ve pozisyonuna göre snap aktifliğini yönetiyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -193,11 +192,12 @@ function App() {
       const currentScrollTop = container.scrollTop;
       const isScrollingDown = currentScrollTop > prevScrollTop.current;
       prevScrollTop.current = currentScrollTop;
-      
-      // Snap aktifliği
+      // Home bölgesi: scrollTop < 0.5 * viewport
       if (currentScrollTop < window.innerHeight * 0.5) {
         container.classList.add("snap-active");
-      } else if (currentScrollTop < window.innerHeight * 1.5) {
+      }
+      // About bölgesi: yaklaşık 0.5 * viewport ile 1.5 * viewport arası
+      else if (currentScrollTop < window.innerHeight * 1.5) {
         if (isScrollingDown) {
           container.classList.remove("snap-active");
         } else {
@@ -205,13 +205,6 @@ function App() {
         }
       } else {
         container.classList.remove("snap-active");
-      }
-
-      // Home ve About bölümleri için aktif bölge güncellemesi
-      if (currentScrollTop < window.innerHeight * 0.5) {
-        setActiveSection("home");
-      } else if (currentScrollTop < window.innerHeight * 1.5) {
-        setActiveSection("about");
       }
     };
     container.addEventListener("scroll", handleScroll);
@@ -236,17 +229,12 @@ function App() {
       <section
         id="home"
         ref={homeRef}
-        className="full-page snap flex items-center justify-center relative pt-20"
+        className="snap flex items-center justify-center relative pt-20"
       >
         <div className="absolute inset-0 overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
         </div>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={activeSection === "home" ? { opacity: 1, y: 0 } : { opacity: 0, y: -20 }}
-          transition={{ duration: 0.5 }}
-          className="container mx-auto px-4 md:px-6 py-16 relative z-10"
-        >
+        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
           <div className="flex flex-col items-center text-center mb-12">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -272,27 +260,22 @@ function App() {
           >
             <DiscordCard />
           </motion.div>
-        </motion.div>
+        </div>
       </section>
 
       {/* About Bölümü */}
       <section
         id="about"
         ref={aboutRef}
-        className="full-page snap py-20 bg-gray-950"
+        className="snap py-20 bg-gray-950"
         style={{ position: "relative", zIndex: 5 }}
       >
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={activeSection === "about" ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 0.5 }}
-          className="container mx-auto px-4 md:px-6"
-        >
+        <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-6xl font-permanent-marker text-center mb-10">
             Who am I ?
           </h2>
           <AboutSection />
-        </motion.div>
+        </div>
       </section>
 
       {/* GitHub Projects Bölümü */}
@@ -329,7 +312,8 @@ function App() {
           className="container mx-auto px-4 md:px-6"
           style={{ opacity: contactVisible ? 1 : 0, transition: "opacity 0.8s ease" }}
         >
-          <ContactSection />
+         
+ <ContactSection />
         </div>
       </section>
 

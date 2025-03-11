@@ -163,7 +163,7 @@ function HomePage() {
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      {/* Footer */}
       <div translate="no">
         <Footer />
       </div>
@@ -331,12 +331,14 @@ function AnimatedTitle() {
 function App() {
   // src/pages içindeki dosyaların isim ve uzantısı ne olursa olsun otomatik import edilmesi
   const pages = import.meta.glob('./pages/**/*.{js,jsx,ts,tsx}', { eager: true });
-  const pagesRoutes = Object.keys(pages).map((file) => {
-    const Component = pages[file].default;
-    let path = file.replace('./pages', '').replace(/\.(js|jsx|ts|tsx)$/, '').toLowerCase();
-    if (path === '/index') path = '/';
-    return <Route key={path} path={path} element={<Component />} />;
-  });
+  // Eğer pages klasöründe index dosyası varsa, ana sayfa route'u ile çakışmaması için filtreliyoruz
+  const pagesRoutes = Object.keys(pages)
+    .filter((file) => !file.match(/\/index\.(js|jsx|ts|tsx)$/i))
+    .map((file) => {
+      const Component = pages[file].default;
+      let path = file.replace('./pages', '').replace(/\.(js|jsx|ts|tsx)$/, '').toLowerCase();
+      return <Route key={path} path={path} element={<Component />} />;
+    });
 
   return (
     <BrowserRouter>

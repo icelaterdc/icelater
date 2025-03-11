@@ -1,6 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -154,123 +153,168 @@ function AnimatedTitle() {
   );
 }
 
-// Home Page Component
-function Home() {
-  return (
-    <section id="home" className="flex items-center justify-center relative pt-20 min-h-screen">
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full"
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              translate="no"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </motion.div>
-    </section>
-  );
-}
-
-// About Page Component
-function About() {
-  return (
-    <section id="about" className="py-20 bg-gray-950 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-6xl font-permanent-marker text-center mb-10">
-          Who am I ?
-        </h2>
-        <AboutSection />
-      </div>
-    </section>
-  );
-}
-
-// Projects Page Component
-function Projects() {
-  return (
-    <section id="projects" className="py-4 bg-gray-950/50 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            My GitHub Projects
-          </h2>
-          <p className="text-gray-300">
-            Explore my latest repositories and contributions on GitHub.
-          </p>
-        </div>
-        <GitHubRepos />
-      </div>
-    </section>
-  );
-}
-
-// Contact Page Component
-function Contact() {
-  return (
-    <section id="contact" className="py-10 bg-gray-950 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <ContactSection />
-      </div>
-    </section>
-  );
-}
-
-// Main App Component with Routing
 function App() {
+  const [activeSection, setActiveSection] = useState("home");
+  const containerRef = useRef<HTMLDivElement>(null);
+  const prevScrollTop = useRef(0);
+
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
   }, []);
 
+  // Scroll pozisyonuna göre aktif bölümü ve snap efektini yönetiyoruz.
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const handleScroll = () => {
+      const currentScrollTop = container.scrollTop;
+      const isScrollingDown = currentScrollTop > prevScrollTop.current;
+      prevScrollTop.current = currentScrollTop;
+      if (currentScrollTop < window.innerHeight * 0.5) {
+        setActiveSection("home");
+        container.classList.add("snap-active");
+      } else if (currentScrollTop < window.innerHeight * 1.5) {
+        setActiveSection("about");
+        if (isScrollingDown) {
+          container.classList.remove("snap-active");
+        } else {
+          container.classList.add("snap-active");
+        }
+      } else {
+        setActiveSection("other");
+        container.classList.remove("snap-active");
+      }
+    };
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <Router>
-      <div className="page-container bg-gray-950 text-white">
-        <InteractiveEffects />
-        <Header />
-        <AudioPlayer audioSrc="/music/music.mp3" />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/contact" element={<Contact />} />
-        </Routes>
-        <div translate="no">
-          <Footer />
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
+      <InteractiveEffects />
+      <Header />
+      <AudioPlayer audioSrc="/music/music.mp3" />
+
+      {/* Home Bölümü */}
+      <section id="home" className="snap flex items-center justify-center relative pt-20">
+        <motion.div
+          initial={{ opacity: 1 }}
+          animate={{ opacity: activeSection === "home" ? 1 : 0 }}
+          transition={{ duration: 0.5 }}
+          className="w-full"
+        >
+          <div className="absolute inset-0 overflow-hidden">
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+          </div>
+          <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
+            <div className="flex flex-col items-center text-center mb-12">
+              <motion.div
+                translate="no"
+                initial={{ opacity: 0, y: -20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5 }}
+              >
+                <AnimatedTitle />
+              </motion.div>
+              <motion.p
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                className="text-xl text-gray-300 max-w-2xl"
+              >
+                Building modern web applications with passion and precision.
+                Transforming ideas into elegant, functional digital experiences.
+              </motion.p>
+            </div>
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+            >
+              <DiscordCard />
+            </motion.div>
+            {/* Scroll Down Tasarımı */}
+            <motion.div
+              translate="no"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 0.75, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.6 }}
+              className="flex flex-col items-center mt-8"
+            >
+              <div className="animate-bounce">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="32"
+                  height="32"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="text-blue-400"
+                >
+                  <path d="M12 5v14" />
+                  <path d="M19 12l-7 7-7-7" />
+                </svg>
+              </div>
+              <p className="text-sm text-gray-400 mt-2 animate-pulse">Scroll Down</p>
+            </motion.div>
+          </div>
+        </motion.div>
+      </section>
+
+      {/* About Bölümü */}
+      <section
+        id="about"
+        className="snap py-20 bg-gray-950"
+        style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
+      >
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: activeSection === "home" ? 0 : 1 }}
+          transition={{ duration: 0.5 }}
+          className="container mx-auto px-4 md:px-6"
+        >
+          <h2 className="text-6xl font-permanent-marker text-center mb-10">
+            Who am I ?
+          </h2>
+          <AboutSection />
+        </motion.div>
+      </section>
+
+      {/* GitHub Projects Bölümü */}
+      <section id="projects" className="non-snap py-4 bg-gray-950/50">
+        <div className="container mx-auto px-4 md:px-6">
+          <div className="mb-8">
+            <h2 className="text-2xl font-bold text-white mb-4">
+              My GitHub Projects
+            </h2>
+            <p className="text-gray-300">
+              Explore my latest repositories and contributions on GitHub.
+            </p>
+          </div>
+          <GitHubRepos />
         </div>
-        <style>{`
-          @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
-          .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        `}</style>
+      </section>
+
+      {/* Contact Bölümü */}
+      <section id="contact" className="non-snap py-10 bg-gray-950">
+        <div className="container mx-auto px-4 md:px-6">
+          <ContactSection />
+        </div>
+      </section>
+
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      <div translate="no">
+        <Footer />
       </div>
-    </Router>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+      `}</style>
+    </div>
   );
 }
 

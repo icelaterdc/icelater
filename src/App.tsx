@@ -331,9 +331,9 @@ function AnimatedTitle() {
 function App() {
   // src/pages içindeki dosyaların isim ve uzantısı ne olursa olsun otomatik import edilmesi
   const pages = import.meta.glob('./pages/**/*.{js,jsx,ts,tsx}', { eager: true });
-  // Eğer pages klasöründe index dosyası varsa, ana sayfa route'u ile çakışmaması için filtreliyoruz
+  // Eğer pages klasöründe index dosyası varsa, "/" yoluyla HomePage çakışmaması için filtreliyoruz
   const pagesRoutes = Object.keys(pages)
-    .filter((file) => !file.match(/\/index\.(js|jsx|ts|tsx)$/i))
+    .filter((file) => !/^\.\/pages\/index\.(js|jsx|ts|tsx)$/i.test(file))
     .map((file) => {
       const Component = pages[file].default;
       let path = file.replace('./pages', '').replace(/\.(js|jsx|ts|tsx)$/, '').toLowerCase();
@@ -345,6 +345,8 @@ function App() {
       <Routes>
         <Route path="/" element={<HomePage />} />
         {pagesRoutes}
+        {/* Fallback: eşleşmeyen tüm yollar için ana sayfa */}
+        <Route path="*" element={<HomePage />} />
       </Routes>
     </BrowserRouter>
   );

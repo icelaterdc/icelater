@@ -244,24 +244,7 @@ function Contact() {
   );
 }
 
-/**
- * Otomatik Pages Route'ları:
- * src/pages klasöründeki tüm js, jsx, ts, tsx dosyalarını otomatik olarak route olarak ekler.
- * NOT: Eğer src/pages içerisinde index dosyası varsa, bu "/" route'unu alır ve
- * explicit olarak tanımlı Home component'inin render edilmesini engeller.
- * Bu nedenle, index dosyasını filtreleyerek explicit Home route'unun çalışmasını sağlıyoruz.
- */
-const pagesContext = require.context('./pages', true, /\.(js|jsx|ts|tsx)$/);
-const pageRoutes = pagesContext.keys()
-  .map((filePath: string) => {
-    let routePath = filePath.replace(/^.\//, '/').replace(/\.(js|jsx|ts|tsx)$/, '');
-    // index dosyasını atlayarak explicit Home component'in render edilmesini sağlıyoruz
-    if (routePath === '/index') return null;
-    const Component = pagesContext(filePath).default;
-    return <Route key={routePath} path={routePath} element={<Component />} />;
-  })
-  .filter(Boolean);
-
+// Main App Component with Routing
 function App() {
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -274,13 +257,10 @@ function App() {
         <Header />
         <AudioPlayer audioSrc="/music/music.mp3" />
         <Routes>
-          {/* Explicit route'lar */}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/contact" element={<Contact />} />
-          {/* Auto-generated pages route'ları */}
-          {pageRoutes}
         </Routes>
         <div translate="no">
           <Footer />
@@ -295,3 +275,6 @@ function App() {
 }
 
 export default App;
+
+
+Ayrıca react router sürümünü de bana önerirsen güzel olur

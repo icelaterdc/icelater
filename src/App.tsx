@@ -8,7 +8,9 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import Blog from './pages/Blog'; // Yeni sayfayı import ettik
+
+// Dinamik olarak pages klasöründeki dosyaları import etme
+const pages = import.meta.glob('./pages/*.{tsx,jsx,js}', { eager: true });
 
 // İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
@@ -155,97 +157,7 @@ function AnimatedTitle() {
   );
 }
 
-// Home Page Component
-function Home() {
-  return (
-    <section id="home" className="flex items-center justify-center relative pt-20 min-h-screen">
-      <motion.div
-        initial={{ opacity: 1 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 0.5 }}
-        className="w-full"
-      >
-        <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
-        </div>
-        <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
-          <div className="flex flex-col items-center text-center mb-12">
-            <motion.div
-              translate="no"
-              initial={{ opacity: 0, y: -20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5 }}
-            >
-              <AnimatedTitle />
-            </motion.div>
-            <motion.p
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl text-gray-300 max-w-2xl"
-            >
-              Building modern web applications with passion and precision.
-              Transforming ideas into elegant, functional digital experiences.
-            </motion.p>
-          </div>
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.4 }}
-          >
-            <DiscordCard />
-          </motion.div>
-        </div>
-      </motion.div>
-    </section>
-  );
-}
-
-// About Page Component
-function About() {
-  return (
-    <section id="about" className="py-20 bg-gray-950 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <h2 className="text-6xl font-permanent-marker text-center mb-10">
-          Who am I ?
-        </h2>
-        <AboutSection />
-      </div>
-    </section>
-  );
-}
-
-// Projects Page Component
-function Projects() {
-  return (
-    <section id="projects" className="py-4 bg-gray-950/50 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold text-white mb-4">
-            My GitHub Projects
-          </h2>
-          <p className="text-gray-300">
-            Explore my latest repositories and contributions on GitHub.
-          </p>
-        </div>
-        <GitHubRepos />
-      </div>
-    </section>
-  );
-}
-
-// Contact Page Component
-function Contact() {
-  return (
-    <section id="contact" className="py-10 bg-gray-950 min-h-screen">
-      <div className="container mx-auto px-4 md:px-6">
-        <ContactSection />
-      </div>
-    </section>
-  );
-}
-
-// Main App Component with Routing
+// Main App Component with Dynamic Routing
 function App() {
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -258,11 +170,20 @@ function App() {
         <Header />
         <AudioPlayer audioSrc="/music/music.mp3" />
         <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/projects" element={<Projects />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/blog" element={<Blog />} /> {/* Yeni route eklendi */}
+          {Object.entries(pages).map(([path, module]) => {
+            // Dosya adını ve uzantıyı çıkararak route path'i oluştur
+            const pageName = path
+              .replace('./pages/', '')
+              .replace(/\.(tsx|jsx|js)$/, '');
+            const routePath = pageName === 'index' ? '/' : `/${pageName}`;
+            return (
+              <Route
+                key={routePath}
+                path={routePath}
+                element={React.createElement(module.default)}
+              />
+            );
+          })}
         </Routes>
         <div translate="no">
           <Footer />

@@ -9,20 +9,7 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-const modules = import.meta.glob('./pages/*.{js,jsx,ts,tsx}', { eager: true });
-const pageRoutes = Object.keys(modules).map((key) => {
-  const PageComponent = (modules[key] as any).default;
-  let routePath = key.replace('./pages/', '').replace(/\.(js|jsx|ts|tsx)$/, '');
-  if (routePath.toLowerCase() === 'index') routePath = '';
-  return (
-    <Route
-      key={key}
-      path={`/${routePath}`}
-      element={<PageComponent />}
-    />
-  );
-});
-
+// İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const mistStyle = {
@@ -66,6 +53,7 @@ function InteractiveEffects() {
   );
 }
 
+// Hareketli Yazı Bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -166,6 +154,7 @@ function AnimatedTitle() {
   );
 }
 
+// Home Page Component
 function Home() {
   return (
     <section id="home" className="flex items-center justify-center relative pt-20 min-h-screen">
@@ -211,6 +200,7 @@ function Home() {
   );
 }
 
+// About Page Component
 function About() {
   return (
     <section id="about" className="py-20 bg-gray-950 min-h-screen">
@@ -224,6 +214,7 @@ function About() {
   );
 }
 
+// Projects Page Component
 function Projects() {
   return (
     <section id="projects" className="py-4 bg-gray-950/50 min-h-screen">
@@ -242,6 +233,7 @@ function Projects() {
   );
 }
 
+// Contact Page Component
 function Contact() {
   return (
     <section id="contact" className="py-10 bg-gray-950 min-h-screen">
@@ -252,6 +244,18 @@ function Contact() {
   );
 }
 
+// Otomatik Pages Route'ları: src/pages içindeki tüm js, jsx, ts, tsx dosyalarını route olarak ekler
+const pagesContext = require.context('./pages', true, /\.(js|jsx|ts|tsx)$/);
+const pageRoutes = pagesContext.keys().map((filePath: string) => {
+  const Component = pagesContext(filePath).default;
+  let routePath = filePath.replace(/^.\//, '/').replace(/\.(js|jsx|ts|tsx)$/, '');
+  if (routePath === '/index') {
+    routePath = '/';
+  }
+  return <Route key={routePath} path={routePath} element={<Component />} />;
+});
+
+// Main App Component with Routing
 function App() {
   useEffect(() => {
     document.title = "IceLater Full-Stack Developer";
@@ -264,11 +268,11 @@ function App() {
         <Header />
         <AudioPlayer audioSrc="/music/music.mp3" />
         <Routes>
+          {pageRoutes}
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/projects" element={<Projects />} />
           <Route path="/contact" element={<Contact />} />
-          {pageRoutes}
         </Routes>
         <div translate="no">
           <Footer />

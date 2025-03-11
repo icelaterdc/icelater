@@ -275,6 +275,3 @@ function App() {
 }
 
 export default App;
-
-
-Ayrıca react router sürümünü de bana önerirsen güzel olur

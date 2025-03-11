@@ -9,10 +9,10 @@ import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 
-const pagesContext = require.context('./pages', false, /\.(js|jsx|ts|tsx)$/);
-const pageRoutes = pagesContext.keys().map((key: string) => {
-  const PageComponent = pagesContext(key).default;
-  let routePath = key.replace(/^.\//, '').replace(/\.(js|jsx|ts|tsx)$/, '');
+const modules = import.meta.glob('./pages/*.{js,jsx,ts,tsx}', { eager: true });
+const pageRoutes = Object.keys(modules).map((key) => {
+  const PageComponent = (modules[key] as any).default;
+  let routePath = key.replace('./pages/', '').replace(/\.(js|jsx|ts|tsx)$/, '');
   if (routePath.toLowerCase() === 'index') routePath = '';
   return (
     <Route

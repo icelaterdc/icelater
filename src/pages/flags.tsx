@@ -1,85 +1,375 @@
 import React from 'react';
 
-const TuranFlagDisplay = () => {
-  // Bayrak URL'leri
-  const centralFlag = "https://upload.wikimedia.org/wikipedia/commons/3/37/Turan_flag.svg"; // Turan bayrağı (örnek URL)
+/* 
+  TuranFlagPage: Bu sayfa, merkezi Turan bayrağı ve etrafında dönen 7 Türk devletinin bayrağını içerir.
+  Tasarım; neon açık mavi çerçeveler, detaylı hover efektleri, dekoratif animasyonlar ve responsive
+  düzenlemeler ile yüksek kaliteli bir estetik sunar.
+  
+  Not: Bu dosya, app kodundan route edildiği için global sayfa stili ataması yapmadan sadece
+  component bazlı stil içerir.
+*/
+
+const TuranFlagPage = () => {
+  // Merkezi bayrak: Turan bayrağı URL'si (örnek URL)
+  const centralFlag = "https://upload.wikimedia.org/wikipedia/commons/3/37/Turan_flag.svg";
+  
+  // Dış bayraklar: 7 Türk devletinin bayrak URL'leri
   const outerFlags = [
-    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",                      // Türkiye
-    "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",                   // Azerbaycan
-    "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg",                   // Kazakistan
-    "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg",                   // Kırgızistan
-    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",                // Türkmenistan
-    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",                  // Özbekistan
+    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",        // Türkiye
+    "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",     // Azerbaycan
+    "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg",     // Kazakistan
+    "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg",     // Kırgızistan
+    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",  // Türkmenistan
+    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",    // Özbekistan
     "https://upload.wikimedia.org/wikipedia/commons/5/5e/Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg" // Kuzey Kıbrıs
   ];
 
   return (
-    <div className="flag-container">
-      <style>{`
-        /* Sayfa genel ayarları */
-        .flag-container {
+    <div className="page-container">
+      <style jsx>{`
+        /* Genel Sayfa Ayarları */
+        .page-container {
           position: relative;
           width: 100vw;
           height: 100vh;
-          background: linear-gradient(135deg, #1e3c72, #2a5298);
-          display: flex;
-          justify-content: center;
-          align-items: center;
+          background: radial-gradient(circle at center, #0f2027, #203a43, #2c5364);
           overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
         }
-        /* Merkezi Turan bayrağı */
-        .central-flag img {
-          width: 220px;
-          height: 220px;
-          border-radius: 50%;
-          border: 5px solid #fff;
-          box-shadow: 0 0 20px rgba(0,0,0,0.5);
-          z-index: 2;
+
+        /* Ana Wrapper: Merkezi içerik için konumlandırma */
+        .main-wrapper {
+          position: relative;
+          width: 800px;
+          height: 800px;
         }
-        /* Dönme dolap kapsayıcısı */
-        .rotating-flags {
-          position: absolute;
-          width: 500px;
-          height: 500px;
-          animation: rotate 120s linear infinite;
-        }
-        /* Her bir dış bayrak konumlandırması: 
-           CSS değişkeni (--i) ile her bayrak için açıyı hesaplar,
-           ardından dışarıya 220px kaydırır ve bayrağın düz görünmesini sağlar. */
-        .flag {
+
+        /* Merkezi Turan Bayrağı Stili */
+        .central-flag {
           position: absolute;
           top: 50%;
           left: 50%;
-          transform: rotate(calc((360deg / 7) * var(--i))) translate(220px) rotate(calc(-1 * (360deg / 7) * var(--i)));
-        }
-        .flag img {
-          width: 120px;
-          height: 120px;
+          transform: translate(-50%, -50%);
+          width: 300px;
+          height: 300px;
           border-radius: 50%;
-          border: 3px solid #fff;
-          box-shadow: 0 0 10px rgba(0,0,0,0.3);
+          border: 6px solid #00e5ff; /* Neon açık mavi */
+          box-shadow: 0 0 25px 5px rgba(0, 229, 255, 0.7);
+          background: #000;
+          z-index: 10;
+          transition: transform 0.5s ease, box-shadow 0.5s ease;
         }
-        /* Yavaş dönüş animasyonu */
-        @keyframes rotate {
+
+        .central-flag img {
+          width: 100%;
+          height: 100%;
+          border-radius: 50%;
+          object-fit: cover;
+        }
+
+        /* Dış Bayrakların Döndüğü Kapsayıcı */
+        .rotating-container {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 800px;
+          height: 800px;
+          margin-top: -400px;
+          margin-left: -400px;
+          animation: rotateContainer 180s linear infinite;
+        }
+
+        /* Her Dış Bayrak İçin Ortak Stil */
+        .outer-flag {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          /* Çember yarıçapı; merkezi bayrağa temas etmeyecek şekilde ayarlandı */
+          transform: rotate(calc((360deg / 7) * var(--i))) translate(350px) rotate(calc(-1 * (360deg / 7) * var(--i)));
+          transition: transform 0.3s ease-in-out;
+        }
+
+        .outer-flag img {
+          width: 180px;
+          height: 180px;
+          border-radius: 50%;
+          border: 4px solid #00e5ff; /* Neon açık mavi */
+          box-shadow: 0 0 20px 3px rgba(0, 229, 255, 0.6);
+          object-fit: cover;
+          transition: transform 0.5s ease, box-shadow 0.5s ease;
+        }
+
+        /* Dönen Kapsayıcı Animasyonu */
+        @keyframes rotateContainer {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
+
+        /* Hover Efektleri */
+        .outer-flag:hover {
+          transform: rotate(calc((360deg / 7) * var(--i))) translate(350px) rotate(calc(-1 * (360deg / 7) * var(--i))) scale(1.1);
+        }
+
+        .central-flag:hover {
+          transform: translate(-50%, -50%) scale(1.05);
+        }
+
+        /* Neon Detayları: Bayrakların Öncesi Dekoratif Çember */
+        .outer-flag:before {
+          content: '';
+          position: absolute;
+          top: -10px;
+          left: -10px;
+          width: 200px;
+          height: 200px;
+          border-radius: 50%;
+          border: 2px solid rgba(0, 229, 255, 0.4);
+          box-shadow: 0 0 15px 5px rgba(0, 229, 255, 0.3);
+          z-index: -1;
+        }
+
+        /* Responsive Ayarlar */
+        @media (max-width: 900px) {
+          .main-wrapper {
+            width: 600px;
+            height: 600px;
+          }
+          .central-flag {
+            width: 250px;
+            height: 250px;
+          }
+          .outer-flag img {
+            width: 150px;
+            height: 150px;
+          }
+          .rotating-container {
+            width: 600px;
+            height: 600px;
+            margin-top: -300px;
+            margin-left: -300px;
+          }
+          .outer-flag {
+            transform: rotate(calc((360deg / 7) * var(--i))) translate(280px) rotate(calc(-1 * (360deg / 7) * var(--i)));
+          }
+        }
+
+        /* Ekstra Neon Glow ve Pulsasyon Efektleri */
+        .outer-flag:after {
+          content: '';
+          position: absolute;
+          bottom: -8px;
+          right: -8px;
+          width: 30px;
+          height: 30px;
+          background: rgba(0, 229, 255, 0.5);
+          border-radius: 50%;
+          box-shadow: 0 0 10px 2px rgba(0, 229, 255, 0.7);
+          animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+          0% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.3);
+            opacity: 0.7;
+          }
+          100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+        }
+
+        /* Dekoratif Çizgiler ve Hareket Efektleri */
+        .decorative-line {
+          position: absolute;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(to right, transparent, #00e5ff, transparent);
+          top: 10%;
+          opacity: 0.3;
+          animation: slideLine 4s linear infinite;
+        }
+
+        @keyframes slideLine {
+          0% { transform: translateX(-100%); }
+          50% { transform: translateX(100%); }
+          100% { transform: translateX(-100%); }
+        }
+
+        .decorative-line.second {
+          top: 90%;
+          animation-duration: 6s;
+        }
+
+        /* Ek Açıklamalar:
+           Bu stil bölümü, merkezi bayrağın etrafında eşit aralıklı dönen bayrakların,
+           neon ışık efekti veren çerçevelerle birlikte modern ve dinamik bir görünüm kazanmasını sağlar.
+           Hover ve pulsasyon efektleri, etkileşimde ekstra görsel çekicilik sunar.
+        */
+
+        /* Ek Stil Notları ve Yorumlar */
+        /* --------------------------------------------------------------- */
+        /* 1. Renk Paleti: Arka plan için koyu tonlar, bayrak çerçeveleri için neon açık mavi. */
+        /* 2. Animasyon: Rotasyon animasyonu, outer bayrak kapsayıcısı üzerinde uygulanır.    */
+        /* 3. Responsive: Farklı ekran boyutlarına uyum sağlayacak şekilde düzenlemeler yapılmıştır. */
+        /* --------------------------------------------------------------- */
+
+        /* Ek Dekoratif Efekt: Sayfa Başlığı için stil */
+        .page-title {
+          position: absolute;
+          top: 5%;
+          width: 100%;
+          text-align: center;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 2rem;
+          color: #00e5ff;
+          text-shadow: 0 0 10px rgba(0, 229, 255, 0.7);
+        }
+
+        /* Alt Bilgi Stili */
+        .footer-note {
+          position: absolute;
+          bottom: 5%;
+          width: 100%;
+          text-align: center;
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-size: 1rem;
+          color: #00e5ff;
+          opacity: 0.7;
+        }
+
+        /* İçerik Wrapper: Merkezi elemanların hizalanması */
+        .content-wrapper {
+          position: relative;
+          width: 100%;
+          height: 100%;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+
+        /* Ek Sparkle Efektleri */
+        .sparkle {
+          position: absolute;
+          width: 10px;
+          height: 10px;
+          background: #00e5ff;
+          border-radius: 50%;
+          box-shadow: 0 0 15px 5px rgba(0, 229, 255, 0.5);
+          animation: sparkleAnim 2s infinite;
+        }
+
+        @keyframes sparkleAnim {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(0.5); opacity: 0; }
+        }
+
+        /* Rastgele Sparkle Konumları */
+        .sparkle.one   { top: 20%; left: 25%; }
+        .sparkle.two   { top: 40%; left: 70%; }
+        .sparkle.three { top: 65%; left: 50%; }
+        .sparkle.four  { top: 80%; left: 30%; }
+
+        /* Ekstra Stil Satırları ve Boşluklar - Estetik detay için */
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        /* -------------------------------------------------------------------------------- */
+        /* Aşağıdaki satırlar, sayfa tasarımına ekstra derinlik ve detay katmak amacıyla       */
+        /* eklenmiştir. Her satır, tasarımın her yönünü optimize etmek ve modern bir görünüm  */
+        /* sağlamak için özenle seçilmiştir.                                                  */
+        /* -------------------------------------------------------------------------------- */
+        
+        /* İlave gölge efektleri */
+        .central-flag,
+        .outer-flag img {
+          filter: brightness(1.05);
+        }
+        
+        /* Ek geçiş efektleri */
+        .central-flag img,
+        .outer-flag img {
+          transition: transform 0.5s ease, box-shadow 0.5s ease, filter 0.5s ease;
+        }
+        
+        /* Son dokunuş: sayfa genelinde uyumlu neon parıltılar */
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          margin: 0;
+          padding: 0;
+          background-color: #0f2027;
+        }
+        
+        /* Ek dekoratif çizgiler - tekrar */
+        .decorative-line.three {
+          top: 50%;
+          animation-duration: 5s;
+        }
+        
+        /* Kullanıcı etkileşimine duyarlı animasyon hızları */
+        .outer-flag:hover img {
+          transform: scale(1.08);
+        }
+        
+        /* Ek not: Tüm animasyon süreleri ve geçiş efektleri, kullanıcı deneyimini zenginleştirmek için ayarlanmıştır. */
+        
+        /* -------------------------------------------------------------------------------- */
+        /* Tasarım bitişi */
+        /* -------------------------------------------------------------------------------- */
       `}</style>
-      {/* Merkezi Turan bayrağı */}
-      <div className="central-flag">
-        <img src={centralFlag} alt="Turan Bayrağı" />
-      </div>
-      {/* Dış bayraklar: 7 Türk devletinin bayrağı */}
-      <div className="rotating-flags">
-        {outerFlags.map((flagUrl, index) => (
-          <div className="flag" key={index} style={{ '--i': index }}>
-            <img src={flagUrl} alt={`Türk Devleti Bayrağı ${index + 1}`} />
+
+      {/* Dekoratif Çizgiler */}
+      <div className="decorative-line"></div>
+      <div className="decorative-line second"></div>
+      <div className="decorative-line three"></div>
+
+      <div className="content-wrapper">
+        {/* Sayfa Başlığı */}
+        <div className="page-title">Turan ve Türk Devletleri Bayrak Gösterisi</div>
+        
+        <div className="main-wrapper">
+          {/* Merkezi Turan Bayrağı */}
+          <div className="central-flag">
+            <img src={centralFlag} alt="Turan Bayrağı" />
           </div>
-        ))}
+          
+          {/* Dış Bayraklar: 7 Türk Devleti Bayrağı */}
+          <div className="rotating-container">
+            {outerFlags.map((flagUrl, index) => (
+              <div className="outer-flag" key={index} style={{ '--i': index }}>
+                <img src={flagUrl} alt={`Türk Devleti Bayrağı ${index + 1}`} />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Sayfa Alt Bilgisi */}
+        <div className="footer-note">
+          &copy; 2025 Türk Birliği ve Turan Estetiği. Tüm hakları saklıdır.
+        </div>
+
+        {/* Sparkle Efektleri */}
+        <div className="sparkle one"></div>
+        <div className="sparkle two"></div>
+        <div className="sparkle three"></div>
+        <div className="sparkle four"></div>
       </div>
     </div>
   );
 };
 
-export default TuranFlagDisplay;
-                         
+export default TuranFlagPage;

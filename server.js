@@ -1,16 +1,17 @@
-// server.js
-import express from 'express';
-import musicRoutes from './routes/music.js'; // ES module kullanıyorsanız .js uzantısını ekleyin
-
+const express = require('express');
 const app = express();
+const port = 3000;
 
-// JSON body'leri parse edebilmek için middleware
-app.use(express.json());
+app.get('/pages', (req, res) => {
+  res.status(200).json({
+    message: 'Test kodu çalışıyor!',
+    status: 'Başarılı',
+    data: {
+      pages: ['anasayfa', 'hakkında', 'iletişim'] // Örnek veri, değiştirebilirsin
+    }
+  });
+});
 
-// API endpointlerini mount ediyoruz.
-app.use('/api/music', musicRoutes);
-
-const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Server ${port} portunda çalışıyor.`);
+  console.log(`Server şurada çalışıyor: http://localhost:${port}`);
 });

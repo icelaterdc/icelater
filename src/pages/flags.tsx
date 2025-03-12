@@ -76,8 +76,7 @@ const TuranFlagPage = () => {
           left: 50%;
           width: 800px;
           height: 800px;
-          margin-top: -400px;
-          margin-left: -400px;
+          transform: translate(-50%, -50%);
           animation: rotateContainer 180s linear infinite;
         }
 
@@ -86,14 +85,18 @@ const TuranFlagPage = () => {
           position: absolute;
           top: 50%;
           left: 50%;
-          /* Çember yarıçapı; merkezi bayrağa temas etmeyecek şekilde ayarlandı */
-          transform: rotate(calc((360deg / 7) * var(--i))) translate(350px) rotate(calc(-1 * (360deg / 7) * var(--i)));
+          width: 180px;
+          height: 180px;
+          /* Çember yarıçapı; tüm yönlerde eşit uzaklık */
+          margin-top: -90px;
+          margin-left: -90px;
+          transform: rotate(calc((360deg / 7) * var(--i))) translateX(350px);
           transition: transform 0.3s ease-in-out;
         }
 
         .outer-flag img {
-          width: 180px;
-          height: 180px;
+          width: 100%;
+          height: 100%;
           border-radius: 50%;
           border: 4px solid #00e5ff; /* Neon açık mavi */
           box-shadow: 0 0 20px 3px rgba(0, 229, 255, 0.6);
@@ -103,13 +106,13 @@ const TuranFlagPage = () => {
 
         /* Dönen Kapsayıcı Animasyonu */
         @keyframes rotateContainer {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from { transform: translate(-50%, -50%) rotate(0deg); }
+          to { transform: translate(-50%, -50%) rotate(360deg); }
         }
 
         /* Hover Efektleri */
         .outer-flag:hover {
-          transform: rotate(calc((360deg / 7) * var(--i))) translate(350px) rotate(calc(-1 * (360deg / 7) * var(--i))) scale(1.1);
+          transform: rotate(calc((360deg / 7) * var(--i))) translateX(350px) scale(1.1);
         }
 
         .central-flag:hover {
@@ -140,24 +143,19 @@ const TuranFlagPage = () => {
             width: 250px;
             height: 250px;
           }
-          .outer-flag img {
+          .outer-flag {
             width: 150px;
             height: 150px;
+            margin-top: -75px;
+            margin-left: -75px;
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(280px);
           }
-          .rotating-container {
-            width: 600px;
-            height: 600px;
-            margin-top: -300px;
-            margin-left: -300px;
-          }
-          .outer-flag {
-            transform: rotate(calc((360deg / 7) * var(--i))) translate(280px) rotate(calc(-1 * (360deg / 7) * var(--i)));
+          .outer-flag:hover {
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(280px) scale(1.1);
           }
         }
 
         /* Ekstra Neon Glow ve Pulsasyon Efektleri */
-        /* Mavi noktaları kaldırdık */
-
         @keyframes pulse {
           0% {
             transform: scale(1);
@@ -299,62 +297,63 @@ const TuranFlagPage = () => {
         /* Mobil uyumluluk için ek ayarlar */
         @media (max-width: 767px) {
           .main-wrapper {
-            width: 90vw;
-            height: 90vw;
+            width: 100vmin;
+            height: 100vmin;
             max-width: 600px;
             max-height: 600px;
           }
           
           .central-flag {
-            width: 30vw;
-            height: 30vw;
+            width: 30vmin;
+            height: 30vmin;
             max-width: 200px;
             max-height: 200px;
           }
           
           .rotating-container {
-            width: 90vw;
-            height: 90vw;
+            width: 100vmin;
+            height: 100vmin;
             max-width: 600px;
             max-height: 600px;
-            margin-top: -45vw;
-            margin-left: -45vw;
           }
           
           .outer-flag {
-            transform: rotate(calc((360deg / 7) * var(--i))) translate(40vw) rotate(calc(-1 * (360deg / 7) * var(--i)));
-          }
-          
-          .outer-flag img {
-            width: 15vw;
-            height: 15vw;
+            width: 15vmin;
+            height: 15vmin;
             max-width: 100px;
             max-height: 100px;
+            margin-top: -7.5vmin;
+            margin-left: -7.5vmin;
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(40vmin);
           }
           
           .outer-flag:hover {
-            transform: rotate(calc((360deg / 7) * var(--i))) translate(40vw) rotate(calc(-1 * (360deg / 7) * var(--i))) scale(1.1);
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(40vmin) scale(1.1);
           }
         }
         
         /* Daha küçük ekranlar için ek ayarlar */
         @media (max-width: 480px) {
+          .main-wrapper {
+            width: 90vmin;
+            height: 90vmin;
+          }
+          
           .central-flag {
-            width: 35vw;
-            height: 35vw;
+            width: 30vmin;
+            height: 30vmin;
           }
           
           .outer-flag {
-            transform: rotate(calc((360deg / 7) * var(--i))) translate(38vw) rotate(calc(-1 * (360deg / 7) * var(--i)));
-          }
-          
-          .outer-flag img {
-            width: 18vw;
-            height: 18vw;
+            width: 12vmin;
+            height: 12vmin;
+            margin-top: -6vmin;
+            margin-left: -6vmin;
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(35vmin);
           }
           
           .outer-flag:hover {
-            transform: rotate(calc((360deg / 7) * var(--i))) translate(38vw) rotate(calc(-1 * (360deg / 7) * var(--i))) scale(1.1);
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(35vmin) scale(1.1);
           }
         }
       `}</style>

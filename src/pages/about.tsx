@@ -1,10 +1,3 @@
-import { Link } from 'react-router-dom';
-
-const Nav = () => {
-  return (
-    <nav>
-      <Link to="/">Ana Sayfa</Link>
-      <Link to="/about">Hakkımda</Link>
-    </nav>
-  );
-};
+export default function About() {
+  return <h1>Hakkında Sayfası</h1>;
+}

@@ -15,12 +15,12 @@ const TuranFlagPage = () => {
   
   // Dış bayraklar: 7 Türk devletinin bayrak URL'leri
   const outerFlags = [
-    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",        // Türkiye
+    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",         // Türkiye
     "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",     // Azerbaycan
     "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg",     // Kazakistan
     "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg",     // Kırgızistan
-    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",  // Türkmenistan
-    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",    // Özbekistan
+    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",   // Türkmenistan
+    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",     // Özbekistan
     "https://upload.wikimedia.org/wikipedia/commons/5/5e/Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg" // Kuzey Kıbrıs
   ];
 
@@ -39,21 +39,23 @@ const TuranFlagPage = () => {
           justify-content: center;
         }
 
-        /* Ana Wrapper: Merkezi içerik için konumlandırma */
+        /* Ana Wrapper: Merkezi içerik için konumlandırma 
+           - Desktop tarafında 800x800 yerine 600x600 yapıldı */
         .main-wrapper {
           position: relative;
-          width: 800px;
-          height: 800px;
+          width: 600px;
+          height: 600px;
         }
 
-        /* Merkezi Turan Bayrağı Stili */
+        /* Merkezi Turan Bayrağı Stili 
+           - Desktop için 300x300 yerine 250x250 yapıldı */
         .central-flag {
           position: absolute;
           top: 50%;
           left: 50%;
           transform: translate(-50%, -50%);
-          width: 300px;
-          height: 300px;
+          width: 250px;
+          height: 250px;
           border-radius: 50%;
           border: 6px solid #00e5ff; /* Neon açık mavi */
           box-shadow: 0 0 25px 5px rgba(0, 229, 255, 0.7);
@@ -69,28 +71,29 @@ const TuranFlagPage = () => {
           object-fit: cover;
         }
 
-        /* Dış Bayrakların Döndüğü Kapsayıcı */
+        /* Dış Bayrakların Döndüğü Kapsayıcı 
+           - 800x800 yerine 600x600 */
         .rotating-container {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 800px;
-          height: 800px;
+          width: 600px;
+          height: 600px;
           transform: translate(-50%, -50%);
           animation: rotateContainer 180s linear infinite;
         }
 
-        /* Her Dış Bayrak İçin Ortak Stil */
+        /* Her Dış Bayrak İçin Ortak Stil 
+           - Genişlik 180px -> 150px, translateX(350px) -> 300px */
         .outer-flag {
           position: absolute;
           top: 50%;
           left: 50%;
-          width: 180px;
-          height: 180px;
-          /* Çember yarıçapı; tüm yönlerde eşit uzaklık */
-          margin-top: -90px;
-          margin-left: -90px;
-          transform: rotate(calc((360deg / 7) * var(--i))) translateX(350px);
+          width: 150px;
+          height: 150px;
+          margin-top: -75px;
+          margin-left: -75px;
+          transform: rotate(calc((360deg / 7) * var(--i))) translateX(300px);
           transition: transform 0.3s ease-in-out;
         }
 
@@ -112,7 +115,7 @@ const TuranFlagPage = () => {
 
         /* Hover Efektleri */
         .outer-flag:hover {
-          transform: rotate(calc((360deg / 7) * var(--i))) translateX(350px) scale(1.1);
+          transform: rotate(calc((360deg / 7) * var(--i))) translateX(300px) scale(1.1);
         }
 
         .central-flag:hover {
@@ -125,33 +128,39 @@ const TuranFlagPage = () => {
           position: absolute;
           top: -10px;
           left: -10px;
-          width: 200px;
-          height: 200px;
+          width: 170px;
+          height: 170px;
           border-radius: 50%;
           border: 2px solid rgba(0, 229, 255, 0.4);
           box-shadow: 0 0 15px 5px rgba(0, 229, 255, 0.3);
           z-index: -1;
         }
 
-        /* Responsive Ayarlar */
+        /* Responsive Ayarlar
+           - max-width:900px ve altı için 
+           bayrak boyutları ve translateX değerleri yeniden düzenlenir */
         @media (max-width: 900px) {
           .main-wrapper {
-            width: 600px;
-            height: 600px;
+            width: 500px;
+            height: 500px;
           }
           .central-flag {
-            width: 250px;
-            height: 250px;
+            width: 200px;
+            height: 200px;
+          }
+          .rotating-container {
+            width: 500px;
+            height: 500px;
           }
           .outer-flag {
-            width: 150px;
-            height: 150px;
-            margin-top: -75px;
-            margin-left: -75px;
-            transform: rotate(calc((360deg / 7) * var(--i))) translateX(280px);
+            width: 120px;
+            height: 120px;
+            margin-top: -60px;
+            margin-left: -60px;
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(220px);
           }
           .outer-flag:hover {
-            transform: rotate(calc((360deg / 7) * var(--i))) translateX(280px) scale(1.1);
+            transform: rotate(calc((360deg / 7) * var(--i))) translateX(220px) scale(1.1);
           }
         }
 
@@ -193,18 +202,11 @@ const TuranFlagPage = () => {
           animation-duration: 6s;
         }
 
-        /* Ek Açıklamalar:
-           Bu stil bölümü, merkezi bayrağın etrafında eşit aralıklı dönen bayrakların,
+        /* Ek Açıklamalar */
+        /* --------------------------------------------------------------- */
+        /* Bu stil bölümü, merkezi bayrağın etrafında eşit aralıklı dönen bayrakların,
            neon ışık efekti veren çerçevelerle birlikte modern ve dinamik bir görünüm kazanmasını sağlar.
-           Hover ve pulsasyon efektleri, etkileşimde ekstra görsel çekicilik sunar.
-        */
-
-        /* Ek Stil Notları ve Yorumlar */
-        /* --------------------------------------------------------------- */
-        /* 1. Renk Paleti: Arka plan için koyu tonlar, bayrak çerçeveleri için neon açık mavi. */
-        /* 2. Animasyon: Rotasyon animasyonu, outer bayrak kapsayıcısı üzerinde uygulanır.    */
-        /* 3. Responsive: Farklı ekran boyutlarına uyum sağlayacak şekilde düzenlemeler yapılmıştır. */
-        /* --------------------------------------------------------------- */
+           Hover ve pulsasyon efektleri, etkileşimde ekstra görsel çekicilik sunar. */
 
         /* İçerik Wrapper: Merkezi elemanların hizalanması */
         .content-wrapper {
@@ -233,42 +235,22 @@ const TuranFlagPage = () => {
           100% { transform: scale(0.5); opacity: 0; }
         }
 
-        /* Rastgele Sparkle Konumları */
         .sparkle.one   { top: 20%; left: 25%; }
         .sparkle.two   { top: 40%; left: 70%; }
         .sparkle.three { top: 65%; left: 50%; }
         .sparkle.four  { top: 80%; left: 30%; }
 
-        /* Ekstra Stil Satırları ve Boşluklar - Estetik detay için */
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        /* -------------------------------------------------------------------------------- */
-        /* Aşağıdaki satırlar, sayfa tasarımına ekstra derinlik ve detay katmak amacıyla       */
-        /* eklenmiştir. Her satır, tasarımın her yönünü optimize etmek ve modern bir görünüm  */
-        /* sağlamak için özenle seçilmiştir.                                                  */
-        /* -------------------------------------------------------------------------------- */
-        
-        /* İlave gölge efektleri */
+        /* İlave gölge ve geçiş efektleri */
         .central-flag,
         .outer-flag img {
           filter: brightness(1.05);
         }
-        
-        /* Ek geçiş efektleri */
+
         .central-flag img,
         .outer-flag img {
           transition: transform 0.5s ease, box-shadow 0.5s ease, filter 0.5s ease;
         }
-        
+
         /* Son dokunuş: sayfa genelinde uyumlu neon parıltılar */
         body {
           font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -276,45 +258,37 @@ const TuranFlagPage = () => {
           padding: 0;
           background-color: #0f2027;
         }
-        
-        /* Ek dekoratif çizgiler - tekrar */
+
         .decorative-line.three {
           top: 50%;
           animation-duration: 5s;
         }
-        
-        /* Kullanıcı etkileşimine duyarlı animasyon hızları */
+
         .outer-flag:hover img {
           transform: scale(1.08);
         }
-        
-        /* Ek not: Tüm animasyon süreleri ve geçiş efektleri, kullanıcı deneyimini zenginleştirmek için ayarlanmıştır. */
-        
-        /* -------------------------------------------------------------------------------- */
-        /* Tasarım bitişi */
-        /* -------------------------------------------------------------------------------- */
 
-        /* Mobil uyumluluk için ek ayarlar */
+        /* Mobil uyumluluk için ek ayarlar (daha küçük cihazlar) */
         @media (max-width: 767px) {
           .main-wrapper {
             width: 100vmin;
             height: 100vmin;
-            max-width: 600px;
-            max-height: 600px;
+            max-width: 500px;
+            max-height: 500px;
           }
           
           .central-flag {
             width: 30vmin;
             height: 30vmin;
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 180px;
+            max-height: 180px;
           }
           
           .rotating-container {
             width: 100vmin;
             height: 100vmin;
-            max-width: 600px;
-            max-height: 600px;
+            max-width: 500px;
+            max-height: 500px;
           }
           
           .outer-flag {
@@ -332,7 +306,6 @@ const TuranFlagPage = () => {
           }
         }
         
-        /* Daha küçük ekranlar için ek ayarlar */
         @media (max-width: 480px) {
           .main-wrapper {
             width: 90vmin;

@@ -19,12 +19,12 @@ type FileViewerProps = {
   fileName: string;
 };
 
-const FileViewer = ({ content, fileName }: FileViewerProps) => {
-  return (
-    <div style={{ padding: "1rem" }}>
-      <h1>{fileName}</h1>
-      <pre style={{ whiteSpace: "pre-wrap" }}>{content}</pre>
-    </div>
+const FileViewer: React.FC<FileViewerProps> = ({ content, fileName }) => {
+  return React.createElement(
+    "div",
+    { style: { padding: "1rem" } },
+    React.createElement("h1", null, fileName),
+    React.createElement("pre", { style: { whiteSpace: "pre-wrap" } }, content)
   );
 };
 
@@ -54,7 +54,10 @@ const routes: RouteObject[] = Object.entries(rawFiles).map(([filePath, rawConten
     // Diğer dosya türleri için ham içeriği FileViewer ile render ediyoruz
     return {
       path: routePath,
-      element: <FileViewer content={rawContent as string} fileName={routeName} />,
+      element: React.createElement(FileViewer, {
+        content: rawContent as string,
+        fileName: routeName,
+      }),
     };
   }
 });

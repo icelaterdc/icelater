@@ -12,19 +12,42 @@ const Page404 = () => {
       {/* Animasyonlu Gezegen İkonları */}
       <motion.img 
         src="https://cdn-icons-png.freepik.com/512/3336/3336008.png" 
-        alt="Gezegen" 
+        alt="Gezegen 1" 
         className="planet planet-1"
         initial={{ x: -50, y: -50, opacity: 0 }}
-        animate={{ x: 0, y: 0, opacity: 0.4, rotate: 360 }}
-        transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+        animate={{
+          x: [-50, 0, 50, 0, -50],
+          y: [-50, 50, 0, -50, -50],
+          opacity: [0, 0.4, 0.4, 0.4, 0],
+          rotate: [0, 90, 180, 270, 360]
+        }}
+        transition={{ duration: 20, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
       />
       <motion.img 
         src="https://www.iconpacks.net/icons/2/free-star-icon-2768-thumb.png" 
-        alt="Gezegen" 
+        alt="Gezegen 2" 
         className="planet planet-2"
         initial={{ x: 50, y: 50, opacity: 0 }}
-        animate={{ x: 0, y: 0, opacity: 0.3, rotate: -360 }}
-        transition={{ duration: 25, ease: "linear", repeat: Infinity }}
+        animate={{
+          x: [50, 0, -50, 0, 50],
+          y: [50, -50, 0, 50, 50],
+          opacity: [0, 0.3, 0.3, 0.3, 0],
+          rotate: [0, -90, -180, -270, -360]
+        }}
+        transition={{ duration: 25, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
+      />
+      <motion.img 
+        src="others/moon.png" 
+        alt="Gezegen 3" 
+        className="planet planet-3"
+        initial={{ x: 0, y: 0, opacity: 0 }}
+        animate={{
+          x: [0, 30, 0, -30, 0],
+          y: [0, -30, 0, 30, 0],
+          opacity: [0, 0.5, 0.5, 0.5, 0],
+          rotate: [0, 45, 90, 135, 180]
+        }}
+        transition={{ duration: 30, ease: "easeInOut", repeat: Infinity, repeatDelay: 1 }}
       />
 
       {/* Ana İçerik */}

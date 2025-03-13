@@ -68,12 +68,12 @@ body {
 }
 
 .page-404 .stars {
-  background: #0A192F url('https://i.imgur.com/Y8ZvZ9D.png') repeat top center;
+  background: #0A192F url('https://www.toptal.com/designers/subtlepatterns/patterns/stardust.png') repeat top center;
   z-index: 0;
 }
 
 .page-404 .twinkling {
-  background: transparent url('https://i.imgur.com/Y8ZvZ9D.png') repeat top center;
+  background: transparent url('https://www.toptal.com/designers/subtlepatterns/patterns/stardust.png') repeat top center;
   z-index: 1;
   animation: move-twink-back 200s linear infinite;
 }

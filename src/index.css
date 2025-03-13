@@ -50,7 +50,7 @@ body {
   align-items: center;
   background-color: #0A192F; /* Uzay mavisi */
   color: white;
-  font-family: 'Orbitron', sans-serif; /* Uzay temalı bir font, isteğe bağlı */
+  font-family: 'Orbitron', sans-serif;
   overflow: hidden;
 }
 
@@ -79,6 +79,31 @@ body {
 }
 
 @keyframes move-twink-back {
-  from { background-position: 0 0; }
-  to { background-position: -10000px 5000px; }
-    }
+  from {
+    background-position: 0 0; 
+  }
+  to { 
+    background-position: -10000px 5000px; 
+  }
+}
+
+/* Gezegen ikonları için stil */
+.page-404 .planet {
+  position: absolute;
+  z-index: 2;
+  opacity: 0.4;
+}
+
+.page-404 .planet-1 {
+  top: 10%;
+  left: 5%;
+  width: 100px;
+  height: auto;
+}
+
+.page-404 .planet-2 {
+  bottom: 15%;
+  right: 10%;
+  width: 80px;
+  height: auto;
+}

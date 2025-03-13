@@ -40,3 +40,45 @@ body {
 .non-snap {
   scroll-snap-align: none;
 }
+
+/* 404 Sayfası İçin Özel Stiller */
+.page-404 {
+  position: relative;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #0A192F; /* Uzay mavisi */
+  color: white;
+  font-family: 'Orbitron', sans-serif; /* Uzay temalı bir font, isteğe bağlı */
+  overflow: hidden;
+}
+
+/* Yıldızlar ve Parıldama Efekti */
+.page-404 .stars,
+.page-404 .twinkling {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.page-404 .stars {
+  background: #0A192F url('https://i.imgur.com/Y8ZvZ9D.png') repeat top center;
+  z-index: 0;
+}
+
+.page-404 .twinkling {
+  background: transparent url('https://i.imgur.com/Y8ZvZ9D.png') repeat top center;
+  z-index: 1;
+  animation: move-twink-back 200s linear infinite;
+}
+
+@keyframes move-twink-back {
+  from { background-position: 0 0; }
+  to { background-position: -10000px 5000px; }
+    }

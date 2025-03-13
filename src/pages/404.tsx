@@ -4,26 +4,36 @@ import { motion } from 'framer-motion';
 
 const Page404 = () => {
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-[#0A192F] to-black text-white overflow-hidden relative px-4">
-      {/* Arka Plan Animasyonu: Yıldızlar ve Parıldama */}
-      <motion.div 
-        className="absolute inset-0"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2 }}
-      >
-        <div className="stars"></div>
-        <div className="twinkling"></div>
-      </motion.div>
+    <div className="page-404">
+      {/* Arka Plan Efektleri */}
+      <div className="stars"></div>
+      <div className="twinkling"></div>
+
+      {/* Animasyonlu Gezegen İkonları */}
+      <motion.img 
+        src="https://img.icons8.com/ios-filled/100/ffffff/planet.png" 
+        alt="Gezegen" 
+        className="planet planet-1"
+        initial={{ x: -50, y: -50, opacity: 0 }}
+        animate={{ x: 0, y: 0, opacity: 0.4, rotate: 360 }}
+        transition={{ duration: 20, ease: "linear", repeat: Infinity }}
+      />
+      <motion.img 
+        src="https://img.icons8.com/ios-filled/80/ffffff/planet.png" 
+        alt="Gezegen" 
+        className="planet planet-2"
+        initial={{ x: 50, y: 50, opacity: 0 }}
+        animate={{ x: 0, y: 0, opacity: 0.3, rotate: -360 }}
+        transition={{ duration: 25, ease: "linear", repeat: Infinity }}
+      />
 
       {/* Ana İçerik */}
-      <div className="relative z-10 max-w-2xl text-center">
+      <div className="relative z-10 text-center px-4 max-w-2xl">
         <motion.h1
           initial={{ opacity: 0, y: -50 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1 }}
           className="text-7xl md:text-8xl font-extrabold mb-6"
-          style={{ fontFamily: 'Orbitron, sans-serif' }}
         >
           404
         </motion.h1>
@@ -45,22 +55,14 @@ const Page404 = () => {
         </motion.p>
         <Link to="/">
           <motion.button
-            whileHover={{ scale: 1.05, boxShadow: '0px 0px 20px rgba(57,255,20,0.8)' }}
+            whileHover={{ scale: 1.05, boxShadow: '0px 0px 15px rgba(0, 0, 139, 0.7)' }}
             whileTap={{ scale: 0.95 }}
-            className="bg-[#39FF14] text-black px-8 py-3 rounded-full font-bold tracking-wider"
+            className="bg-[#00008B] text-white px-8 py-3 rounded-full font-bold tracking-wider"
           >
             Ana Sayfaya Dön
           </motion.button>
         </Link>
       </div>
-
-      {/* Ekstra: Yavaş Dönen Yörünge Çemberi */}
-      <motion.div 
-        className="absolute border-2 border-[#39FF14] rounded-full"
-        style={{ width: '300px', height: '300px' }}
-        animate={{ rotate: 360 }}
-        transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-      />
     </div>
   );
 };

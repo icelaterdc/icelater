@@ -11,7 +11,7 @@ const Page404 = () => {
 
       {/* Animasyonlu Gezegen İkonları */}
       <motion.img 
-        src="https://img.icons8.com/ios-filled/100/ffffff/planet.png" 
+        src="https://cdn-icons-png.freepik.com/512/3336/3336008.png" 
         alt="Gezegen" 
         className="planet planet-1"
         initial={{ x: -50, y: -50, opacity: 0 }}
@@ -19,7 +19,7 @@ const Page404 = () => {
         transition={{ duration: 20, ease: "linear", repeat: Infinity }}
       />
       <motion.img 
-        src="https://img.icons8.com/ios-filled/80/ffffff/planet.png" 
+        src="https://www.iconpacks.net/icons/2/free-star-icon-2768-thumb.png" 
         alt="Gezegen" 
         className="planet planet-2"
         initial={{ x: 50, y: 50, opacity: 0 }}
@@ -51,7 +51,7 @@ const Page404 = () => {
           transition={{ duration: 1, delay: 0.6 }}
           className="text-lg md:text-xl mb-10"
         >
-          Aradığınız sayfa bu galakside bulunamadı. Endişelenmeyin; sizi evrenin merkezine geri götürebiliriz.
+          Sanırım yanlış bir galaksiye ışınlandınız. Endişelenmeyin; sizi evrenin merkezine geri götürebiliriz.
         </motion.p>
         <Link to="/">
           <motion.button

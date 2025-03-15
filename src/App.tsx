@@ -299,10 +299,24 @@ function App() {
         </div>
       </section>
 
-      {/* AI Kart Bölümü */}
-      <section className="non-snap py-10 bg-gray-950">
+      {/* Artificial Intelligence Bölümü */}
+      <section className="non-snap py-16 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <AICard />
+          <h2 className="text-4xl font-bold text-center mb-10 text-white">
+            Artificial Intelligence
+          </h2>
+          <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+            <AICard
+              title="Chat With AI"
+              gifSrc="/others/ai-chat.gif"
+              link="/ai-chat"
+            />
+            <AICard
+              title="Create Image With AI"
+              gifSrc="/others/ai-imagine.gif"
+              link="/ai-imagine"
+            />
+          </div>
         </div>
       </section>
 

@@ -7,7 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import AICard from './components/AICard'; // Yeni bileşeni import ediyoruz
+import AICard from './components/AICard';
 
 // İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
@@ -300,12 +300,12 @@ function App() {
       </section>
 
       {/* Artificial Intelligence Bölümü */}
-      <section className="non-snap py-16 bg-gray-950">
+      <section className="non-snap py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
-          <h2 className="text-4xl font-bold text-center mb-10 text-white">
+          <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Artificial Intelligence
           </h2>
-          <div className="flex flex-col md:flex-row justify-center items-center gap-8">
+          <div className="flex flex-row flex-wrap justify-center items-center gap-8">
             <AICard
               title="Chat With AI"
               gifSrc="/others/ai-left.gif"
@@ -321,13 +321,13 @@ function App() {
       </section>
 
       {/* Contact Bölümü */}
-      <section id="contact" className="non-snap py-10 bg-gray-950">
+      <section id="contact" className="non-snap py-12 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      {/* Footer */}
       <div translate="no">
         <Footer />
       </div>

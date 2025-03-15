@@ -7,6 +7,7 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
+import AICard from './components/AICard'; // Yeni bileşeni import ediyoruz
 
 // İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
@@ -298,6 +299,13 @@ function App() {
         </div>
       </section>
 
+      {/* AI Kart Bölümü */}
+      <section className="non-snap py-10 bg-gray-950">
+        <div className="container mx-auto px-4 md:px-6">
+          <AICard />
+        </div>
+      </section>
+
       {/* Contact Bölümü */}
       <section id="contact" className="non-snap py-10 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
@@ -305,8 +313,7 @@ function App() {
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) 
-*/}
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
       <div translate="no">
         <Footer />
       </div>

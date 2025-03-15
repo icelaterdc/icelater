@@ -308,12 +308,12 @@ function App() {
           <div className="flex flex-col md:flex-row justify-center items-center gap-8">
             <AICard
               title="Chat With AI"
-              gifSrc="/others/ai-chat.gif"
+              gifSrc="/others/ai.gif"
               link="/ai-chat"
             />
             <AICard
               title="Create Image With AI"
-              gifSrc="/others/ai-imagine.gif"
+              gifSrc="/others/ai.gif"
               link="/ai-imagine"
             />
           </div>

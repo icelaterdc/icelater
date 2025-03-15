@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
@@ -10,11 +10,19 @@ interface AICardProps {
 
 const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
   const [isHovered, setIsHovered] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
 
-  // Kartın ana stil objesi
+  useEffect(() => {
+    const img = new Image();
+    img.src = gifSrc;
+    img.onload = () => setIsLoaded(true);
+    img.onerror = () => setIsLoaded(true); // Hata durumunda da yüklendi say
+  }, [gifSrc]);
+
   const cardStyle = {
     position: 'relative' as const,
-    width: '300px',
+    width: '100%',
+    maxWidth: '300px',
     height: '400px',
     borderRadius: '15px',
     overflow: 'hidden',
@@ -24,9 +32,10 @@ const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
     boxShadow: isHovered
       ? '0 10px 20px rgba(30, 58, 138, 0.3)'
       : '0 4px 12px rgba(31, 41, 55, 0.2)',
+    opacity: isLoaded ? 1 : 0, // Yüklenene kadar gizli
+    transition: 'opacity 0.5s ease',
   };
 
-  // Başlık alanının stil objesi
   const headerStyle = {
     position: 'absolute' as const,
     top: 0,
@@ -43,7 +52,6 @@ const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
     transition: 'background-color 0.3s ease',
   };
 
-  // GIF'in stil objesi
   const gifStyle = {
     width: '100%',
     height: '100%',
@@ -59,7 +67,7 @@ const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <div style={headerStyle}>{title}</div>
-        <img src={gifSrc} alt={title} style={gifStyle} />
+        {isLoaded && <img src={gifSrc} alt={title} style={gifStyle} />}
       </motion.div>
     </Link>
   );

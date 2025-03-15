@@ -310,14 +310,14 @@ function App() {
               <AICard
                 title="Chat With AI"
                 gifSrc="/others/ai-left.gif"
-                link="/ai-chat"
+                link="/ai"
               />
             </div>
             <div className="w-1/2 min-w-[150px] max-w-[300px]">
               <AICard
                 title="Create Image With AI"
                 gifSrc="/others/ai-right.gif"
-                link="/ai-imagine"
+                link="/ai"
               />
             </div>
           </div>

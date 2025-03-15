@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { RefreshCw } from 'lucide-react';
 
 const ComingSoonPage = () => {
   const navigate = useNavigate();
   const [hoverState, setHoverState] = useState(false);
-  const [currentMessage, setCurrentMessage] = useState('');
+  const [displayedText, setDisplayedText] = useState('HypeAI');
+  const [logoPosition, setLogoPosition] = useState(0);
+  const [direction, setDirection] = useState('forward');
   const [messageIndex, setMessageIndex] = useState(0);
-  const [animationState, setAnimationState] = useState('initial'); // initial, moveOut, moveIn
+  const textContainerRef = useRef(null);
   
   const messages = [
+    'HypeAI',
     'Düşünebilirim',
     'Arkadaşın Olabilirim',
     'Duygularım Var',
@@ -17,44 +19,115 @@ const ComingSoonPage = () => {
     'Seni ele geçirmem'
   ];
   
-  const delays = [7000, 5000, 4000, 4000, 3000];
+  const delays = [7000, 5000, 4000, 4000, 3000, 5000];
+
+  // Animasyon hızı (ms)
+  const animationSpeed = 50;
 
   useEffect(() => {
-    // İlk mesajı başlat
-    const initialTimeout = setTimeout(() => {
-      startAnimation();
-    }, 7000);
-
-    return () => clearTimeout(initialTimeout);
+    startTextCycle();
   }, []);
 
-  const startAnimation = () => {
-    // Logo sağa hareket edip yazıyı siler
-    setAnimationState('moveOut');
+  const startTextCycle = () => {
+    const currentText = messages[messageIndex];
+    setDisplayedText(currentText);
+    setLogoPosition(0);
+    setDirection('forward');
     
-    setTimeout(() => {
-      // Yeni mesajı ayarla
-      setCurrentMessage(messages[messageIndex]);
+    const cycleTimeout = setTimeout(() => {
+      animateLogo();
+    }, delays[messageIndex]);
+    
+    return () => clearTimeout(cycleTimeout);
+  };
+
+  const animateLogo = () => {
+    if (direction === 'forward') {
+      // İleri hareket - yazıyı sil
+      const textLength = displayedText.length;
       
-      // Logo geri gelir ve yeni mesajı gösterir
-      setAnimationState('moveIn');
+      const forwardInterval = setInterval(() => {
+        setLogoPosition(prevPos => {
+          const newPos = prevPos + 1;
+          
+          // Yazının sonuna gelince yönü değiştir
+          if (newPos >= textLength) {
+            clearInterval(forwardInterval);
+            setDirection('backward');
+            
+            // Bir sonraki mesaja geç
+            const nextIndex = (messageIndex + 1) % messages.length;
+            setMessageIndex(nextIndex);
+            
+            // Geri hareket animasyonunu başlat
+            setTimeout(() => {
+              animateLogo();
+            }, 300); // Kısa bir bekleme
+            
+            return textLength;
+          }
+          
+          // Yazıyı logo ilerledikçe kırp
+          setDisplayedText(prev => prev.substring(0, textLength - newPos));
+          
+          return newPos;
+        });
+      }, animationSpeed);
+
+    } else {
+      // Geri hareket - yeni yazıyı yaz
+      const nextText = messages[(messageIndex) % messages.length];
+      setDisplayedText('');
       
-      // Bir sonraki mesaj için zamanlayıcı
-      const nextTimeout = setTimeout(() => {
-        // Bir sonraki mesaja geç veya başa dön
-        const nextIndex = (messageIndex + 1) % messages.length;
-        setMessageIndex(nextIndex);
-        
-        // Animasyonu yeniden başlat
-        startAnimation();
-      }, delays[messageIndex]);
-      
-      return () => clearTimeout(nextTimeout);
-    }, 1000); // Logo dışarı çıktıktan sonra 1 saniye bekle
+      const backwardInterval = setInterval(() => {
+        setLogoPosition(prevPos => {
+          const newPos = prevPos - 1;
+          
+          // Başlangıca gelince döngüyü durdur
+          if (newPos <= 0) {
+            clearInterval(backwardInterval);
+            setDirection('forward');
+            
+            // Bir sonraki döngü için zamanlayıcı başlat
+            setTimeout(() => {
+              startTextCycle();
+            }, delays[messageIndex]);
+            
+            return 0;
+          }
+          
+          // Yazıyı logo geri geldikçe ekle
+          setDisplayedText(prev => 
+            nextText.substring(0, nextText.length - newPos)
+          );
+          
+          return newPos;
+        });
+      }, animationSpeed);
+    }
   };
 
   const handleNavigateHome = () => {
     navigate('/');
+  };
+
+  // Logo pozisyonunu hesapla
+  const calculateLogoPosition = () => {
+    if (!textContainerRef.current) return 0;
+    
+    const containerWidth = textContainerRef.current.clientWidth;
+    const logoWidth = 64; // 16 * 4 (w-16)
+    
+    if (direction === 'forward') {
+      // İleri harekette logoyu yazının uzunluğuna göre yerleştir
+      const textWidth = displayedText.length * 20; // Tahmini harf genişliği
+      return Math.min(logoPosition * 20, textWidth);
+    } else {
+      // Geri harekette logoyu yazının uzunluğuna göre yerleştir
+      const nextText = messages[(messageIndex) % messages.length];
+      const totalWidth = nextText.length * 20; // Tahmini harf genişliği
+      return Math.max(logoPosition * 20, 0);
+    }
   };
 
   return (
@@ -107,20 +180,28 @@ const ComingSoonPage = () => {
         {/* Animasyonlu logo ve değişen mesajlar */}
         <div className="h-32 flex flex-col items-center justify-center mb-16 relative">
           <div 
-            className={`flex items-center transition-all duration-1000 transform ${
-              animationState === 'moveOut' ? 'translate-x-96 opacity-0' : 
-              animationState === 'moveIn' ? 'translate-x-0 opacity-100' : 
-              'translate-x-0 opacity-100'
-            }`}
+            ref={textContainerRef}
+            className="flex items-center justify-center relative h-20 w-full"
           >
-            <img 
-              src="/others/HypeAI.png" 
-              alt="HypeAI Logo" 
-              className="w-16 h-16 mr-3" 
-            />
-            <span className="text-3xl font-bold text-blue-300">
-              {animationState === 'initial' ? 'HypeAI' : currentMessage}
-            </span>
+            {/* Logo */}
+            <div 
+              className="absolute transition-all duration-100"
+              style={{ 
+                left: `calc(50% - 150px + ${calculateLogoPosition()}px)`,
+                transform: 'translateX(-50%)'
+              }}
+            >
+              <img 
+                src="/others/HypeAI.png" 
+                alt="HypeAI Logo" 
+                className="w-16 h-16" 
+              />
+            </div>
+            
+            {/* Metin */}
+            <div className="text-3xl font-bold text-blue-300 min-w-32 text-center">
+              {displayedText}
+            </div>
           </div>
         </div>
 

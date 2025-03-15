@@ -305,17 +305,21 @@ function App() {
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Artificial Intelligence
           </h2>
-          <div className="flex flex-row flex-wrap justify-center items-center gap-8">
-            <AICard
-              title="Chat With AI"
-              gifSrc="/others/ai-left.gif"
-              link="/ai-chat"
-            />
-            <AICard
-              title="Create Image With AI"
-              gifSrc="/others/ai-right.gif"
-              link="/ai-imagine"
-            />
+          <div className="flex flex-row flex-nowrap justify-center items-center gap-4">
+            <div className="w-1/2 min-w-[150px] max-w-[300px]">
+              <AICard
+                title="Chat With AI"
+                gifSrc="/others/ai-left.gif"
+                link="/ai-chat"
+              />
+            </div>
+            <div className="w-1/2 min-w-[150px] max-w-[300px]">
+              <AICard
+                title="Create Image With AI"
+                gifSrc="/others/ai-right.gif"
+                link="/ai-imagine"
+              />
+            </div>
           </div>
         </div>
       </section>
@@ -327,7 +331,7 @@ function App() {
         </div>
       </section>
 
-      {/* Footer */}
+      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
       <div translate="no">
         <Footer />
       </div>

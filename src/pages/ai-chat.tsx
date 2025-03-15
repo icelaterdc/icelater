@@ -1,76 +1,96 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Clock, Cpu, Code, Rocket, RefreshCw } from 'lucide-react';
+import { RefreshCw } from 'lucide-react';
 
 const ComingSoonPage = () => {
   const navigate = useNavigate();
-  const [progress, setProgress] = useState(0);
-  const [animationComplete, setAnimationComplete] = useState(false);
   const [hoverState, setHoverState] = useState(false);
+  const [currentMessage, setCurrentMessage] = useState('');
+  const [messageIndex, setMessageIndex] = useState(0);
+  const [animationState, setAnimationState] = useState('initial'); // initial, moveOut, moveIn
+  
+  const messages = [
+    'Düşünebilirim',
+    'Arkadaşın Olabilirim',
+    'Duygularım Var',
+    'Merak Etme',
+    'Seni ele geçirmem'
+  ];
+  
+  const delays = [7000, 5000, 4000, 4000, 3000];
 
   useEffect(() => {
-    const interval = setInterval(() => {
-      setProgress((prevProgress) => {
-        const newProgress = prevProgress + 1;
-        if (newProgress >= 75) {
-          clearInterval(interval);
-          setAnimationComplete(true);
-          return 75;
-        }
-        return newProgress;
-      });
-    }, 50);
+    // İlk mesajı başlat
+    const initialTimeout = setTimeout(() => {
+      startAnimation();
+    }, 7000);
 
-    return () => clearInterval(interval);
+    return () => clearTimeout(initialTimeout);
   }, []);
+
+  const startAnimation = () => {
+    // Logo sağa hareket edip yazıyı siler
+    setAnimationState('moveOut');
+    
+    setTimeout(() => {
+      // Yeni mesajı ayarla
+      setCurrentMessage(messages[messageIndex]);
+      
+      // Logo geri gelir ve yeni mesajı gösterir
+      setAnimationState('moveIn');
+      
+      // Bir sonraki mesaj için zamanlayıcı
+      const nextTimeout = setTimeout(() => {
+        // Bir sonraki mesaja geç veya başa dön
+        const nextIndex = (messageIndex + 1) % messages.length;
+        setMessageIndex(nextIndex);
+        
+        // Animasyonu yeniden başlat
+        startAnimation();
+      }, delays[messageIndex]);
+      
+      return () => clearTimeout(nextTimeout);
+    }, 1000); // Logo dışarı çıktıktan sonra 1 saniye bekle
+  };
 
   const handleNavigateHome = () => {
     navigate('/');
   };
 
-  const getRandomDelay = () => {
-    return Math.random() * 6 + 's';
-  };
-
-  const particleElements = Array.from({ length: 20 }, (_, index) => (
-    <div
-      key={index}
-      className="absolute w-2 h-2 bg-blue-500 rounded-full opacity-50 animate-pulse"
-      style={{
-        top: `${Math.random() * 100}%`,
-        left: `${Math.random() * 100}%`,
-        animationDelay: getRandomDelay(),
-        animationDuration: `${Math.random() * 8 + 2}s`,
-      }}
-    />
-  ));
-
-  const getProgressColor = () => {
-    if (progress < 25) return 'bg-red-500';
-    if (progress < 50) return 'bg-yellow-500';
-    return 'bg-green-500';
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-900 to-black text-white flex flex-col items-center justify-center relative overflow-hidden">
-      {/* Animasyonlu arka plan parçacıkları */}
-      {particleElements}
+      {/* Yavaş hareket eden arka plan parçacıkları */}
+      {Array.from({ length: 20 }, (_, index) => (
+        <div
+          key={index}
+          className="absolute w-2 h-2 bg-blue-500 rounded-full opacity-50 animate-pulse"
+          style={{
+            top: `${Math.random() * 100}%`,
+            left: `${Math.random() * 100}%`,
+            animationDelay: `${Math.random() * 10}s`,
+            animationDuration: `${Math.random() * 15 + 10}s`, // 10-25 saniye arası (yavaş hareket)
+          }}
+        />
+      ))}
       
       {/* Dönen animasyon dizisi */}
       <div className="absolute inset-0 flex items-center justify-center opacity-10">
-        <div className="w-96 h-96 border-4 border-blue-500 rounded-full animate-spin"></div>
-        <div className="absolute w-72 h-72 border-4 border-blue-300 rounded-full animate-spin" style={{ animationDuration: '8s' }}></div>
-        <div className="absolute w-48 h-48 border-4 border-blue-100 rounded-full animate-spin" style={{ animationDuration: '12s' }}></div>
+        <div className="w-96 h-96 border-4 border-blue-500 rounded-full animate-spin" style={{ animationDuration: '30s' }}></div>
+        <div className="absolute w-72 h-72 border-4 border-blue-300 rounded-full animate-spin" style={{ animationDuration: '25s' }}></div>
+        <div className="absolute w-48 h-48 border-4 border-blue-100 rounded-full animate-spin" style={{ animationDuration: '20s' }}></div>
+      </div>
+
+      {/* Sol üstteki logo ve isim */}
+      <div className="absolute top-6 left-6 flex items-center">
+        <img 
+          src="/others/HypeAI.png" 
+          alt="HypeAI Logo" 
+          className="w-10 h-10 mr-2" 
+        />
+        <span className="text-xl font-bold text-blue-400">HypeAI</span>
       </div>
 
       <div className="container mx-auto px-4 py-16 z-10 text-center">
-        <div className="mb-6 flex justify-center">
-          <div className="relative w-20 h-20 flex items-center justify-center">
-            <RefreshCw className="w-10 h-10 text-blue-500 animate-spin" style={{ animationDuration: '3s' }} />
-            <div className="absolute inset-0 border-4 border-blue-500 rounded-full opacity-50"></div>
-          </div>
-        </div>
-        
         <h1 className="text-5xl font-bold mb-4 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
             Bu Özellik Henüz Geliştirme Aşamasında!
@@ -84,34 +104,23 @@ const ComingSoonPage = () => {
           Çok yakında kullanımınıza hazır olacak bu özellik, kullanıcı deneyiminizi tamamen değiştirecek.
         </p>
 
-        <div className="max-w-xl mx-auto mb-12">
-          <div className="flex items-center mb-2">
-            <span className="text-sm text-blue-300">Geliştirme Durumu: %{progress}</span>
-            <span className="ml-auto text-sm text-blue-300">%75 (Hedef)</span>
-          </div>
-          <div className="w-full bg-gray-700 rounded-full h-4 overflow-hidden">
-            <div 
-              className={`h-full ${getProgressColor()} transition-all duration-300 ease-out rounded-full`} 
-              style={{ width: `${progress}%` }}
-            ></div>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap justify-center gap-8 mb-16">
-          <div className="bg-blue-900 bg-opacity-30 rounded-lg p-6 w-64 backdrop-blur-sm">
-            <Cpu className="w-8 h-8 text-blue-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Gelişmiş Teknoloji</h3>
-            <p className="text-blue-200 text-sm">En son teknolojileri kullanarak geliştirilen bu özellik, performans ve kullanıcı deneyimini optimize eder.</p>
-          </div>
-          <div className="bg-blue-900 bg-opacity-30 rounded-lg p-6 w-64 backdrop-blur-sm">
-            <Code className="w-8 h-8 text-blue-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Temiz Kod</h3>
-            <p className="text-blue-200 text-sm">Uzman geliştiricilerimiz tarafından yazılan sağlam ve ölçeklenebilir kod yapısı.</p>
-          </div>
-          <div className="bg-blue-900 bg-opacity-30 rounded-lg p-6 w-64 backdrop-blur-sm">
-            <Rocket className="w-8 h-8 text-blue-400 mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Yenilikçi Özellikler</h3>
-            <p className="text-blue-200 text-sm">Sektördeki en yenilikçi özellikleri sizlere sunmak için çalışıyoruz.</p>
+        {/* Animasyonlu logo ve değişen mesajlar */}
+        <div className="h-32 flex flex-col items-center justify-center mb-16 relative">
+          <div 
+            className={`flex items-center transition-all duration-1000 transform ${
+              animationState === 'moveOut' ? 'translate-x-96 opacity-0' : 
+              animationState === 'moveIn' ? 'translate-x-0 opacity-100' : 
+              'translate-x-0 opacity-100'
+            }`}
+          >
+            <img 
+              src="/others/HypeAI.png" 
+              alt="HypeAI Logo" 
+              className="w-16 h-16 mr-3" 
+            />
+            <span className="text-3xl font-bold text-blue-300">
+              {animationState === 'initial' ? 'HypeAI' : currentMessage}
+            </span>
           </div>
         </div>
 

@@ -2,7 +2,13 @@ import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 
-const AICard: React.FC = () => {
+interface AICardProps {
+  title: string;
+  gifSrc: string;
+  link: string;
+}
+
+const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
   const [isHovered, setIsHovered] = useState(false);
 
   // Kartın ana stil objesi
@@ -10,15 +16,14 @@ const AICard: React.FC = () => {
     position: 'relative' as const,
     width: '300px',
     height: '400px',
-    margin: '0 auto',
     borderRadius: '15px',
     overflow: 'hidden',
-    border: `1px solid ${isHovered ? '#1E3A8A' : '#4B5563'}`,
+    border: `1px solid ${isHovered ? '#1E3A8A' : '#1f2937'}`,
     transition: 'all 0.3s ease',
     cursor: 'pointer',
     boxShadow: isHovered
       ? '0 10px 20px rgba(30, 58, 138, 0.3)'
-      : '0 4px 12px rgba(75, 85, 99, 0.2)',
+      : '0 4px 12px rgba(31, 41, 55, 0.2)',
   };
 
   // Başlık alanının stil objesi
@@ -27,7 +32,7 @@ const AICard: React.FC = () => {
     top: 0,
     left: 0,
     width: '100%',
-    backgroundColor: isHovered ? '#1E3A8A' : '#4B5563',
+    backgroundColor: isHovered ? '#1E3A8A' : '#1f2937',
     color: 'white',
     padding: '12px',
     textAlign: 'center' as const,
@@ -46,15 +51,15 @@ const AICard: React.FC = () => {
   };
 
   return (
-    <Link to="/ai" style={{ textDecoration: 'none' }}>
+    <Link to={link} style={{ textDecoration: 'none' }}>
       <motion.div
         style={cardStyle}
         whileHover={{ scale: 1.05 }}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
       >
-        <div style={headerStyle}>Chat with AI or Draw a Picture</div>
-        <img src="/others/ai.gif" alt="AI Gif" style={gifStyle} />
+        <div style={headerStyle}>{title}</div>
+        <img src={gifSrc} alt={title} style={gifStyle} />
       </motion.div>
     </Link>
   );

@@ -49,15 +49,15 @@ const ComingSoonPage = () => {
       <div className="container mx-auto px-4 py-16 z-10 text-center mt-16">
         <h1 className="text-5xl font-bold mb-4 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
-            Bu Özellik Henüz Geliştirme Aşamasında!
+            Özellik Henüz Geliştirme Aşamasında!
           </span>
         </h1>
         
         <div className="w-32 h-1 bg-blue-500 mx-auto mb-8"></div>
 
         <p className="text-xl text-blue-200 mb-10 max-w-2xl mx-auto">
-          Ekibimiz bu özelliği en kaliteli şekilde sizlere sunmak için yoğun bir şekilde çalışıyor. 
-          Çok yakında kullanımınıza hazır olacak bu özellik, kullanıcı deneyiminizi tamamen değiştirecek.
+          Bu özellik henüz geliştirme aşamasında.
+          Tamamlandıktan sonra ücretsiz şekilde yapay zeka özelliklerine erişim sağlayabileceksiniz.
         </p>
 
         {/* Sabit Logo ve HypeAI Yazısı */}

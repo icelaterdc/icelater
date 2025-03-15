@@ -1,133 +1,13 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { RefreshCw } from 'lucide-react';
 
 const ComingSoonPage = () => {
   const navigate = useNavigate();
   const [hoverState, setHoverState] = useState(false);
-  const [displayedText, setDisplayedText] = useState('HypeAI');
-  const [logoPosition, setLogoPosition] = useState(0);
-  const [direction, setDirection] = useState('forward');
-  const [messageIndex, setMessageIndex] = useState(0);
-  const textContainerRef = useRef(null);
-  
-  const messages = [
-    'HypeAI',
-    'Düşünebilirim',
-    'Arkadaşın Olabilirim',
-    'Duygularım Var',
-    'Merak Etme',
-    'Seni ele geçirmem'
-  ];
-  
-  const delays = [7000, 5000, 4000, 4000, 3000, 5000];
-
-  // Animasyon hızı (ms)
-  const animationSpeed = 50;
-
-  useEffect(() => {
-    startTextCycle();
-  }, []);
-
-  const startTextCycle = () => {
-    const currentText = messages[messageIndex];
-    setDisplayedText(currentText);
-    setLogoPosition(0);
-    setDirection('forward');
-    
-    const cycleTimeout = setTimeout(() => {
-      animateLogo();
-    }, delays[messageIndex]);
-    
-    return () => clearTimeout(cycleTimeout);
-  };
-
-  const animateLogo = () => {
-    if (direction === 'forward') {
-      // İleri hareket - yazıyı sil
-      const textLength = displayedText.length;
-      
-      const forwardInterval = setInterval(() => {
-        setLogoPosition(prevPos => {
-          const newPos = prevPos + 1;
-          
-          // Yazının sonuna gelince yönü değiştir
-          if (newPos >= textLength) {
-            clearInterval(forwardInterval);
-            setDirection('backward');
-            
-            // Bir sonraki mesaja geç
-            const nextIndex = (messageIndex + 1) % messages.length;
-            setMessageIndex(nextIndex);
-            
-            // Geri hareket animasyonunu başlat
-            setTimeout(() => {
-              animateLogo();
-            }, 300); // Kısa bir bekleme
-            
-            return textLength;
-          }
-          
-          // Yazıyı logo ilerledikçe kırp
-          setDisplayedText(prev => prev.substring(0, textLength - newPos));
-          
-          return newPos;
-        });
-      }, animationSpeed);
-
-    } else {
-      // Geri hareket - yeni yazıyı yaz
-      const nextText = messages[(messageIndex) % messages.length];
-      setDisplayedText('');
-      
-      const backwardInterval = setInterval(() => {
-        setLogoPosition(prevPos => {
-          const newPos = prevPos - 1;
-          
-          // Başlangıca gelince döngüyü durdur
-          if (newPos <= 0) {
-            clearInterval(backwardInterval);
-            setDirection('forward');
-            
-            // Bir sonraki döngü için zamanlayıcı başlat
-            setTimeout(() => {
-              startTextCycle();
-            }, delays[messageIndex]);
-            
-            return 0;
-          }
-          
-          // Yazıyı logo geri geldikçe ekle
-          setDisplayedText(prev => 
-            nextText.substring(0, nextText.length - newPos)
-          );
-          
-          return newPos;
-        });
-      }, animationSpeed);
-    }
-  };
 
   const handleNavigateHome = () => {
     navigate('/');
-  };
-
-  // Logo pozisyonunu hesapla
-  const calculateLogoPosition = () => {
-    if (!textContainerRef.current) return 0;
-    
-    const containerWidth = textContainerRef.current.clientWidth;
-    const logoWidth = 64; // 16 * 4 (w-16)
-    
-    if (direction === 'forward') {
-      // İleri harekette logoyu yazının uzunluğuna göre yerleştir
-      const textWidth = displayedText.length * 20; // Tahmini harf genişliği
-      return Math.min(logoPosition * 20, textWidth);
-    } else {
-      // Geri harekette logoyu yazının uzunluğuna göre yerleştir
-      const nextText = messages[(messageIndex) % messages.length];
-      const totalWidth = nextText.length * 20; // Tahmini harf genişliği
-      return Math.max(logoPosition * 20, 0);
-    }
   };
 
   return (
@@ -145,7 +25,7 @@ const ComingSoonPage = () => {
           }}
         />
       ))}
-      
+
       {/* Dönen animasyon dizisi */}
       <div className="absolute inset-0 flex items-center justify-center opacity-10">
         <div className="w-96 h-96 border-4 border-blue-500 rounded-full animate-spin" style={{ animationDuration: '30s' }}></div>
@@ -153,17 +33,20 @@ const ComingSoonPage = () => {
         <div className="absolute w-48 h-48 border-4 border-blue-100 rounded-full animate-spin" style={{ animationDuration: '20s' }}></div>
       </div>
 
-      {/* Sol üstteki logo ve isim */}
-      <div className="absolute top-6 left-6 flex items-center">
-        <img 
-          src="/others/HypeAI.png" 
-          alt="HypeAI Logo" 
-          className="w-10 h-10 mr-2" 
-        />
-        <span className="text-xl font-bold text-blue-400">HypeAI</span>
-      </div>
+      {/* Header: %75 opak arkaplan ile */}
+      <header className="fixed top-0 left-0 right-0 z-20 bg-gray-900 bg-opacity-75 py-4">
+        <div className="container mx-auto px-4 flex items-center">
+          <img 
+            src="/others/HypeAI.png" 
+            alt="HypeAI Logo" 
+            className="w-10 h-10 mr-2" 
+          />
+          <span className="text-xl font-bold text-blue-400">HypeAI</span>
+        </div>
+      </header>
 
-      <div className="container mx-auto px-4 py-16 z-10 text-center">
+      {/* Ana İçerik */}
+      <div className="container mx-auto px-4 py-16 z-10 text-center mt-16">
         <h1 className="text-5xl font-bold mb-4 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
             Bu Özellik Henüz Geliştirme Aşamasında!
@@ -177,31 +60,15 @@ const ComingSoonPage = () => {
           Çok yakında kullanımınıza hazır olacak bu özellik, kullanıcı deneyiminizi tamamen değiştirecek.
         </p>
 
-        {/* Animasyonlu logo ve değişen mesajlar */}
+        {/* Sabit Logo ve HypeAI Yazısı */}
         <div className="h-32 flex flex-col items-center justify-center mb-16 relative">
-          <div 
-            ref={textContainerRef}
-            className="flex items-center justify-center relative h-20 w-full"
-          >
-            {/* Logo */}
-            <div 
-              className="absolute transition-all duration-100"
-              style={{ 
-                left: `calc(50% - 150px + ${calculateLogoPosition()}px)`,
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <img 
-                src="/others/HypeAI.png" 
-                alt="HypeAI Logo" 
-                className="w-16 h-16" 
-              />
-            </div>
-            
-            {/* Metin */}
-            <div className="text-3xl font-bold text-blue-300 min-w-32 text-center">
-              {displayedText}
-            </div>
+          <div className="flex items-center">
+            <img 
+              src="/others/HypeAI.png" 
+              alt="HypeAI Logo" 
+              className="w-16 h-16 mr-3" 
+            />
+            <span className="text-3xl font-bold text-blue-300">HypeAI</span>
           </div>
         </div>
 
@@ -218,7 +85,7 @@ const ComingSoonPage = () => {
       </div>
 
       <div className="absolute bottom-0 left-0 right-0 text-center py-4 text-blue-300 text-sm">
-        <p>&copy; {new Date().getFullYear()} Tüm Hakları Saklıdır.</p>
+        <p>© {new Date().getFullYear()} Tüm Hakları Saklıdır.</p>
       </div>
     </div>
   );

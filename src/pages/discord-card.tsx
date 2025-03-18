@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { toPng } from 'html-to-image';
+import domtoimage from 'dom-to-image-more';
 
 /* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
@@ -120,11 +120,11 @@ const DiscordCardImage: React.FC = () => {
     if (cardRef.current) {
       // DOM'un güncellendiğinden emin olmak için küçük bir gecikme ekliyoruz
       setTimeout(() => {
-        toPng(cardRef.current!)
-          .then((dataUrl) => {
+        domtoimage.toPng(cardRef.current!)
+          .then((dataUrl: string) => {
             setImageUrl(dataUrl);
           })
-          .catch((err) => {
+          .catch((err: any) => {
             console.error('Resim oluşturulurken hata oluştu:', err);
           });
       }, 500);

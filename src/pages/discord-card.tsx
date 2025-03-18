@@ -1,16 +1,19 @@
 // src/pages/discord-card.tsx
 
 import React, { useEffect, useState, useRef } from 'react';
+import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 
 /* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
+  const iconSize = 16;
   const iconPath = `/statusIcon/${status}.png`;
   return (
     <img
       src={iconPath}
       alt={status}
       className="w-4 h-4"
+      style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
       crossOrigin="anonymous"
     />
   );
@@ -25,8 +28,14 @@ const badgeMapping = [
 
 const formatDurationMs = (ms: number): string => {
   const totalSeconds = Math.floor(ms / 1000);
-  const minutes = Math.floor(totalSeconds / 60);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}`;
+  }
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
@@ -57,7 +66,10 @@ type LanyardData = {
   discord_status: string;
   listening_to_spotify: boolean;
   spotify: {
-    timestamps: { start: number; end: number };
+    timestamps: {
+      start: number;
+      end: number;
+    };
     album: string;
     album_art_url: string;
     artist: string;
@@ -70,14 +82,15 @@ type APIResponse = {
   success: boolean;
 };
 
+/* --- Discord Kartını Resme Dönüştüren Bileşen --- */
 const DiscordCardImage: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const [captured, setCaptured] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Lanyard API'den veriyi çek (5 saniyede bir)
+  // Lanyard API'den veriyi çek (her 5 saniyede bir)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -86,67 +99,68 @@ const DiscordCardImage: React.FC = () => {
         const json: APIResponse = await res.json();
         if (!json.success) throw new Error('API response unsuccessful');
         setData(json.data);
-      } catch (err) {
-        console.error('Lanyard API hatası:', err);
+        setError(null);
+      } catch (err: any) {
+        setError(`Veriler alınamadı: ${err.message}`);
+        console.error(err);
       }
     };
 
     fetchData();
-    const interval = setInterval(fetchData, 5000);
-    return () => clearInterval(interval);
+    const intervalId = setInterval(fetchData, 5000);
+    return () => clearInterval(intervalId);
   }, []);
 
-  // Spotify ilerlemesi için currentTime her saniye güncelleniyor
+  // Her saniye geçerli zamanı güncelle (Spotify progress için)
   useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentTime(Date.now());
-    }, 1000);
+    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Data geldikten ve eğer henüz capture yapılmadıysa, html2canvas ile PNG oluştur
+  // Kart veya veri her güncellendiğinde, html2canvas ile ekran görüntüsünü al
   useEffect(() => {
-    if (!data || !cardRef.current || captured) return;
+    if (!data || !cardRef.current) return;
 
-    const timeout = setTimeout(async () => {
-      try {
-        // Karttaki tüm <img>'lerin yüklenmesini bekle
-        const images = cardRef.current.querySelectorAll('img');
-        await Promise.all(
-          Array.from(images).map((img) => {
-            if (img.complete) return Promise.resolve();
-            return new Promise<void>((resolve, reject) => {
-              img.onload = () => resolve();
-              img.onerror = () => reject();
-            });
-          })
-        );
-
-        const canvas = await html2canvas(cardRef.current, {
-          useCORS: true,
-          scale: 2,
-          backgroundColor: null, // Şeffaf arkaplan
+    // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
+    const timeoutId = setTimeout(() => {
+      html2canvas(cardRef.current as HTMLElement, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
+      })
+        .then((canvas) => {
+          const pngData = canvas.toDataURL('image/png');
+          setImageUrl(pngData);
+        })
+        .catch((err) => {
+          console.error('Resim oluşturulurken hata oluştu:', err);
         });
-        setImageUrl(canvas.toDataURL('image/png'));
-        setCaptured(true);
-      } catch (err) {
-        console.error('PNG oluşturulurken hata:', err);
-      }
-    }, 600);
+    }, 500);
 
-    return () => clearTimeout(timeout);
-  }, [data, captured, currentTime]);
+    return () => clearTimeout(timeoutId);
+  }, [data, currentTime]);
 
-  if (!data) return null;
+  if (!data) {
+    return (
+      <div className="max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 animate-pulse text-white text-center">
+        Yükleniyor...
+      </div>
+    );
+  }
 
-  // Veriden gelen değerleri ayıklayalım
+  if (error) {
+    return (
+      <div className="max-w-md mx-auto bg-red-900/20 text-red-200 rounded-2xl shadow-2xl p-6 text-center">
+        {error}
+      </div>
+    );
+  }
+
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
-  const displayName =
-    discord_user.display_name ||
-    discord_user.global_name ||
-    discord_user.username;
+  const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
+  // Custom status (konuşma balonu)
   const customActivity = activities.find(
     (act) => act.id === 'custom' && act.state && act.state.trim() !== ''
   );
@@ -165,7 +179,7 @@ const DiscordCardImage: React.FC = () => {
         <div className="flex items-center">
           <img
             src={spotify.album_art_url}
-            alt="spotify-album"
+            alt={spotify.album}
             className="w-16 h-16 rounded-md object-cover mr-4"
             crossOrigin="anonymous"
           />
@@ -189,7 +203,7 @@ const DiscordCardImage: React.FC = () => {
             <div
               className="h-2 bg-green-500 rounded-full transition-all duration-1000 ease-linear"
               style={{ width: `${progressPercent}%` }}
-            />
+            ></div>
           </div>
           <div className="flex justify-between text-xs text-green-500 font-medium mt-1">
             <span>{formatDurationMs(elapsed)}</span>
@@ -200,7 +214,7 @@ const DiscordCardImage: React.FC = () => {
     );
   }
 
-  // Spotify dışı aktivite kartı
+  // Spotify dışındaki etkinlik kartı
   let activityCard = null;
   if (activities.length > 0) {
     const currentActivity = activities.find((a) => a.type !== 4);
@@ -220,14 +234,10 @@ const DiscordCardImage: React.FC = () => {
               {currentActivity.name}
             </p>
             {currentActivity.details && (
-              <p className="text-xs text-gray-300">
-                {currentActivity.details}
-              </p>
+              <p className="text-xs text-gray-300">{currentActivity.details}</p>
             )}
             {currentActivity.state && (
-              <p className="text-xs text-gray-500">
-                {currentActivity.state}
-              </p>
+              <p className="text-xs text-gray-500">{currentActivity.state}</p>
             )}
           </div>
         </div>
@@ -236,32 +246,26 @@ const DiscordCardImage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col items-center justify-center">
-      {/* Kartı ekranda kullanıcıya göstermeyecek şekilde konumlandırıyoruz:
-          Pozisyon: absolute ve z-index: -1000 sayesinde,
-          kart DOM’da render ediliyor ama görünür değil. */}
-      <div
+    <div className="text-white">
+      {/* HTML ile oluşturulan Discord Kartı */}
+      <motion.div
         ref={cardRef}
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          zIndex: -1000,
-        }}
-        className="max-w-md bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
       >
-        {discord_user.bannerURL && (
+        {discord_user.bannerURL && discord_user.bannerURL !== '' && (
           <div
             className="h-24 w-full bg-cover bg-center rounded-t-2xl mb-4"
             style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
           />
         )}
-
         <div className="flex items-center">
           <div className="relative w-20 h-20">
             <img
               src={avatarUrl}
-              alt="avatar"
+              alt={discord_user.username}
               className="w-full h-full rounded-full border-4 border-gray-800 object-cover"
               crossOrigin="anonymous"
             />
@@ -272,13 +276,13 @@ const DiscordCardImage: React.FC = () => {
           <div className="ml-4">
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
-            <div className="mt-2 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
+            <div className="mt-1 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
               {badgeMapping.map((mapping) => (
                 <img
                   key={mapping.bit}
                   src={mapping.img}
                   alt="rozet"
-                  className="w-5 h-5 mr-2 last:mr-0"
+                  className="w-4 h-4 mr-1 last:mr-0"
                   crossOrigin="anonymous"
                 />
               ))}
@@ -286,6 +290,7 @@ const DiscordCardImage: React.FC = () => {
           </div>
         </div>
 
+        {/* Custom Status (Konuşma Balonu) */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
@@ -296,25 +301,27 @@ const DiscordCardImage: React.FC = () => {
                 {customState}
               </div>
               <div className="absolute bottom-1 left-[-12px]">
-                <div className="w-2 h-2 rounded-full bg-gray-700" />
+                <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>
               <div className="absolute bottom-[-4px] left-[-20px]">
-                <div className="w-3 h-3 rounded-full bg-gray-700" />
+                <div className="w-3 h-3 rounded-full bg-gray-700"></div>
               </div>
             </div>
           </div>
         )}
 
+        {/* Spotify veya Aktivite Kartı */}
         {listening_to_spotify ? spotifyCard : activityCard}
-      </div>
+      </motion.div>
 
-      {/* Oluşturulan PNG resmi */}
+      {/* Oluşturulan PNG resminin önizlemesi */}
       {imageUrl && (
-        <div className="mt-6">
+        <div className="mt-6 text-center">
+          <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>
           <img
             src={imageUrl}
-            alt="Discord Card PNG"
-            className="rounded-2xl shadow-2xl"
+            alt="Discord Card"
+            className="mx-auto rounded-2xl shadow-2xl"
           />
         </div>
       )}

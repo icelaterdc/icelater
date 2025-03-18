@@ -1,27 +1,21 @@
-"use client";
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { toPng } from 'html-to-image';
 
-/* Durum İkonu için fonksiyon */
+/* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
-  const iconSize = 16; // İhtiyaca göre küçültebilirsin
+  const iconSize = 16;
   const iconPath = `/statusIcon/${status}.png`;
-
   return (
     <img
       src={iconPath}
       alt={status}
-      className="w-4 h-4" // Tailwind kullanıyorsan bu küçük yapar
-      style={{
-        width: `${iconSize}px`,
-        height: `${iconSize}px`,
-      }}
+      className="w-4 h-4"
+      style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
     />
   );
 };
 
-/* --- Rozet Mapping --- */
-/* Rozetler tek bir arka plan container'ı içinde, yuvarlatılmış köşelerle gösterilecek */
 const badgeMapping = [
   { bit: 1, img: "/badges/brilliance.png" },
   { bit: 2, img: "/badges/aktif_gelistirici.png" },
@@ -29,7 +23,20 @@ const badgeMapping = [
   { bit: 8, img: "/badges/gorev_tamamlandi.png" }
 ];
 
-/* --- Tip Tanımları --- */
+const formatDurationMs = (ms: number): string => {
+  const totalSeconds = Math.floor(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
+      .toString()
+      .padStart(2, '0')}`;
+  }
+  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
+};
+
+/* --- Tip Tanımlamaları --- */
 type LanyardData = {
   discord_user: {
     id: string;
@@ -73,35 +80,15 @@ type APIResponse = {
   success: boolean;
 };
 
-/* --- Süre Formatlama --- */
-/* HH:MM:SS şeklinde; saat sıfırsa MM:SS */
-const formatDurationMs = (ms: number): string => {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  if (hours > 0) {
-    return `${hours}:${minutes.toString().padStart(2, '0')}:${seconds
-      .toString()
-      .padStart(2, '0')}`;
-  }
-  return `${minutes}:${seconds.toString().padStart(2, '0')}`;
-};
-
-/* --- DiscordCard Component --- */
-const DiscordCard: React.FC = () => {
+/* --- Discord Kartını Resme Dönüştüren Bileşen --- */
+const DiscordCardImage: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
-  const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const cardRef = useRef<HTMLDivElement>(null);
 
-  // Canlı zaman güncellemesi (her saniye)
-  useEffect(() => {
-    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
-    return () => clearInterval(timer);
-  }, []);
-
-  // Her 5 saniyede bir API'den veri çekme
+  // Lanyard API'den veriyi çek (her 5 saniyede bir)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -111,10 +98,8 @@ const DiscordCard: React.FC = () => {
         if (!json.success) throw new Error('API response unsuccessful');
         setData(json.data);
         setError(null);
-        if (initialLoading) setInitialLoading(false);
       } catch (err: any) {
-        const username = data?.discord_user?.username || 'undefined';
-        setError(`Veriler alınamadı: ${err.message}. Kullanıcı: ${username}`);
+        setError(`Veriler alınamadı: ${err.message}`);
         console.error(err);
       }
     };
@@ -122,22 +107,34 @@ const DiscordCard: React.FC = () => {
     fetchData();
     const intervalId = setInterval(fetchData, 5000);
     return () => clearInterval(intervalId);
-  }, [initialLoading]);
+  }, []);
 
-  if (initialLoading) {
+  // Her saniye geçerli zamanı güncelle (Spotify progress için)
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
+    return () => clearInterval(timer);
+  }, []);
+
+  // Kart render edildikten sonra DOM elementinden resim URL'si oluştur
+  useEffect(() => {
+    if (cardRef.current) {
+      // DOM'un güncellendiğinden emin olmak için küçük bir gecikme ekliyoruz
+      setTimeout(() => {
+        toPng(cardRef.current!)
+          .then((dataUrl) => {
+            setImageUrl(dataUrl);
+          })
+          .catch((err) => {
+            console.error('Resim oluşturulurken hata oluştu:', err);
+          });
+      }, 500);
+    }
+  }, [data, currentTime]);
+
+  if (!data) {
     return (
       <div className="max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 animate-pulse text-white text-center">
         Yükleniyor...
-      </div>
-    );
-  }
-
-  if (error || !data) {
-    const username = data?.discord_user?.username || 'undefined';
-    return (
-      <div className="max-w-md mx-auto bg-red-900/20 text-red-200 rounded-2xl shadow-2xl p-6 text-center">
-        <p>{error || 'Profil yüklenemedi.'}</p>
-        <p>Kullanıcı: {username}</p>
       </div>
     );
   }
@@ -146,7 +143,7 @@ const DiscordCard: React.FC = () => {
   const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
-  // Custom status (konuşma balonu) için: id "custom" olan aktiviteden state alınır.
+  // Custom status (konuşma balonu)
   const customActivity = activities.find(act => act.id === "custom" && act.state && act.state.trim() !== "");
   const customState = customActivity ? customActivity.state : null;
 
@@ -192,18 +189,20 @@ const DiscordCard: React.FC = () => {
     );
   }
 
-  // Aktivite kartı
+  // Aktivite kartı (Spotify dışında)
   let activityCard = null;
   if (activities.length > 0) {
-    const currentActivity = activities.find((a) => a.type !== 4); // 4 = Custom Status
+    const currentActivity = activities.find((a) => a.type !== 4);
     if (currentActivity) {
       activityCard = (
         <div className="mt-4 bg-gray-900 p-3 rounded-lg flex items-center">
-          <img
-            src={currentActivity.assets?.large_image || ""}
-            alt={currentActivity.name}
-            className="w-12 h-12 rounded-lg mr-3"
-          />
+          {currentActivity.assets?.large_image && (
+            <img
+              src={currentActivity.assets.large_image}
+              alt={currentActivity.name}
+              className="w-12 h-12 rounded-lg mr-3"
+            />
+          )}
           <div>
             <p className="text-sm text-blue-400 font-semibold">
               {currentActivity.name}
@@ -221,29 +220,28 @@ const DiscordCard: React.FC = () => {
   }
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative"
-    >
-      {/* Banner (varsa) */}
-      {discord_user.bannerURL && discord_user.bannerURL !== "" && (
-        <div
-          className="h-24 w-full bg-cover bg-center"
-          style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
-        />
-      )}
-      <div className="p-6 relative">
+    <div>
+      {/* Discord kartının render edildiği alan */}
+      <motion.div
+        ref={cardRef}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
+      >
+        {discord_user.bannerURL && discord_user.bannerURL !== "" && (
+          <div
+            className="h-24 w-full bg-cover bg-center rounded-t-2xl mb-4"
+            style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
+          />
+        )}
         <div className="flex items-center">
-          {/* Avatar ve Custom Status Container */}
           <div className="relative w-20 h-20">
             <img
               src={avatarUrl}
               alt={discord_user.username}
               className="w-full h-full rounded-full border-4 border-gray-800 object-cover"
             />
-            {/* Durum İkonu */}
             <div className="absolute bottom-0 right-0 bg-gray-900 rounded-full p-1">
               {getStatusIcon(discord_status)}
             </div>
@@ -251,7 +249,6 @@ const DiscordCard: React.FC = () => {
           <div className="ml-4">
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
-            {/* Rozetler */}
             <div className="mt-1 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
               {badgeMapping.map((mapping) => (
                 <img
@@ -265,7 +262,6 @@ const DiscordCard: React.FC = () => {
           </div>
         </div>
 
-        {/* Custom Status Konuşma Balonu - Sağda ve bağlantı noktaları ile */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
@@ -275,7 +271,6 @@ const DiscordCard: React.FC = () => {
               >
                 {customState}
               </div>
-              {/* Bağlantı noktaları - Profil resmine doğru */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>
@@ -287,9 +282,29 @@ const DiscordCard: React.FC = () => {
         )}
 
         {listening_to_spotify ? spotifyCard : activityCard}
-      </div>
-    </motion.div>
+      </motion.div>
+      
+      {/* Oluşturulan resim URL'sinin ve önizlemesinin gösterimi */}
+      {imageUrl && (
+        <div className="mt-4 text-center">
+          <p className="text-white mb-2">Oluşturulan Discord Kartı Resmi:</p>
+          <img src={imageUrl} alt="Discord Card" className="mx-auto rounded-2xl shadow-2xl" />
+          <p className="text-white mt-2">Resim URL'si:</p>
+          <textarea
+            readOnly
+            value={imageUrl}
+            className="w-full p-2 bg-gray-800 text-white rounded"
+            rows={3}
+          />
+        </div>
+      )}
+      {error && (
+        <div className="mt-4 text-center text-red-500">
+          {error}
+        </div>
+      )}
+    </div>
   );
 };
 
-export default DiscordCard;
+export default DiscordCardImage;

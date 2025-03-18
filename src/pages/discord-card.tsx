@@ -1,4 +1,4 @@
-// src/pages/discord-card.png (veya .tsx/.jsx uzantısıyla)
+// src/pages/discord-card.png (ya da .tsx/.jsx)
 
 // Gerekli kütüphaneler
 import React, { useEffect, useState, useRef } from 'react';
@@ -123,20 +123,30 @@ const DiscordCardImage: React.FC = () => {
   useEffect(() => {
     if (!data || !cardRef.current) return;
 
-    // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
-    const timeoutId = setTimeout(() => {
-      html2canvas(cardRef.current as HTMLElement, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: null, // Arkaplanı şeffaf yapmak için
-      })
-        .then((canvas) => {
-          const pngData = canvas.toDataURL('image/png');
-          setImageUrl(pngData);
-        })
-        .catch((err) => {
-          console.error('Resim oluşturulurken hata oluştu:', err);
+    const timeoutId = setTimeout(async () => {
+      try {
+        // 1) Tüm <img> etiketlerinin yüklenmesini bekle
+        const images = cardRef.current.querySelectorAll('img');
+        await Promise.all(
+          [...images].map((img) => {
+            if (img.complete) return Promise.resolve();
+            return new Promise<void>((resolve, reject) => {
+              img.onload = () => resolve();
+              img.onerror = () => reject();
+            });
+          })
+        );
+
+        // 2) Ardından html2canvas ile PNG oluştur
+        const canvas = await html2canvas(cardRef.current, {
+          useCORS: true,
+          scale: 2,
+          backgroundColor: null, // PNG şeffaf arkaplan
         });
+        setImageUrl(canvas.toDataURL('image/png'));
+      } catch (err) {
+        console.error('Resim oluşturulurken hata oluştu:', err);
+      }
     }, 500);
 
     return () => clearTimeout(timeoutId);
@@ -148,7 +158,11 @@ const DiscordCardImage: React.FC = () => {
   }
 
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
-  const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
+  const displayName =
+    discord_user.display_name ||
+    discord_user.global_name ||
+    discord_user.username;
+
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
   // Custom status (konuşma balonu)
@@ -238,9 +252,10 @@ const DiscordCardImage: React.FC = () => {
 
   return (
     <div className="text-white">
-      {/* Discord kartının render edildiği alan */}
+      {/* Kartı DOM'da tutuyoruz ama görünmez yapıyoruz */}
       <motion.div
         ref={cardRef}
+        style={{ display: 'none' }}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -306,10 +321,9 @@ const DiscordCardImage: React.FC = () => {
         {listening_to_spotify ? spotifyCard : activityCard}
       </motion.div>
 
-      {/* Oluşturulan resmin önizlemesi */}
+      {/* Sadece oluşturulan PNG resmini gösteriyoruz */}
       {imageUrl && (
         <div className="mt-6 text-center">
-          <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>
           <img
             src={imageUrl}
             alt="Discord Card"

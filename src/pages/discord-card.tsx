@@ -47,6 +47,7 @@ type LanyardData = {
     avatar: string;
     display_name?: string;
     global_name?: string;
+    public_flags?: number;
     bannerURL?: string;
   };
   activities: Array<{
@@ -121,8 +122,16 @@ const DiscordCardImage: React.FC = () => {
   useEffect(() => {
     if (!data || !cardRef.current) return;
 
-    // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
-    const timeoutId = setTimeout(() => {
+    const loadImages = async () => {
+      const images = cardRef.current!.querySelectorAll('img');
+      await Promise.all(
+        Array.from(images).map((img) => {
+          return new Promise((resolve) => {
+            if (img.complete) resolve(null);
+            else img.onload = () => resolve(null);
+          });
+        })
+      );
       html2canvas(cardRef.current as HTMLElement, {
         useCORS: true,
         scale: 2,
@@ -135,25 +144,15 @@ const DiscordCardImage: React.FC = () => {
         .catch((err) => {
           console.error('Resim oluşturulurken hata oluştu:', err);
         });
-    }, 500);
+    };
 
+    const timeoutId = setTimeout(loadImages, 500);
     return () => clearTimeout(timeoutId);
   }, [data, currentTime]);
 
-  if (!data) {
-    return (
-      <div className="max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 animate-pulse text-white text-center">
-        Yükleniyor...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-md mx-auto bg-red-900/20 text-red-200 rounded-2xl shadow-2xl p-6 text-center">
-        {error}
-      </div>
-    );
+  // Eğer data yoksa veya hata varsa hiçbir şey dönme (boş)
+  if (!data || error) {
+    return null;
   }
 
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
@@ -186,7 +185,7 @@ const DiscordCardImage: React.FC = () => {
           <div className="flex-1">
             <h3 className="text-sm font-bold text-white">{spotify.song}</h3>
             <p className="text-xs text-gray-300">
-              {spotify.artist} &middot; {spotify.album}
+              {spotify.artist} · {spotify.album}
             </p>
           </div>
           <div className="ml-2">
@@ -245,9 +244,13 @@ const DiscordCardImage: React.FC = () => {
     }
   }
 
+  // Kullanıcının sahip olduğu badgesleri filtrele
+  const userFlags = discord_user.public_flags || 0;
+  const visibleBadges = badgeMapping.filter((mapping) => userFlags & mapping.bit);
+
   return (
     <div className="text-white">
-      {/* HTML ile oluşturulan Discord Kartı */}
+      {/* Discord kartının render edildiği alan */}
       <motion.div
         ref={cardRef}
         initial={{ opacity: 0, y: 20 }}
@@ -276,13 +279,13 @@ const DiscordCardImage: React.FC = () => {
           <div className="ml-4">
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
-            <div className="mt-1 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
-              {badgeMapping.map((mapping) => (
+            <div className="mt-2 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
+              {visibleBadges.map((mapping) => (
                 <img
                   key={mapping.bit}
                   src={mapping.img}
                   alt="rozet"
-                  className="w-4 h-4 mr-1 last:mr-0"
+                  className="w-5 h-5 mr-2 last:mr-0"
                   crossOrigin="anonymous"
                 />
               ))}
@@ -300,6 +303,7 @@ const DiscordCardImage: React.FC = () => {
               >
                 {customState}
               </div>
+              {/* Konuşma baloncuğu efekti (isteğe bağlı) */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>
@@ -314,7 +318,7 @@ const DiscordCardImage: React.FC = () => {
         {listening_to_spotify ? spotifyCard : activityCard}
       </motion.div>
 
-      {/* Oluşturulan PNG resminin önizlemesi */}
+      {/* Oluşturulan resmin önizlemesi */}
       {imageUrl && (
         <div className="mt-6 text-center">
           <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>

@@ -39,6 +39,6 @@
     "concurrently": "^7.6.0",
     "react-router-dom": "^6.26.2",
     "canvas": "^2.11.2",
-    "dom-to-image-more": "^3.5.0"
+    "html2canvas": "^1.4.1"
   }
 }

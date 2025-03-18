@@ -1,5 +1,6 @@
 // src/pages/discord-card.tsx
 
+// Gerekli kütüphaneler
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
@@ -19,11 +20,12 @@ const getStatusIcon = (status: string) => {
   );
 };
 
+// Badge'ler manuel olarak tanımlandı
 const badgeMapping = [
-  { bit: 1, img: "/badges/brilliance.png" },
-  { bit: 2, img: "/badges/aktif_gelistirici.png" },
-  { bit: 4, img: "/badges/eski_isim.png" },
-  { bit: 8, img: "/badges/gorev_tamamlandi.png" }
+  { img: "/badges/brilliance.png" },
+  { img: "/badges/aktif_gelistirici.png" },
+  { img: "/badges/eski_isim.png" },
+  { img: "/badges/gorev_tamamlandi.png" },
 ];
 
 const formatDurationMs = (ms: number): string => {
@@ -118,21 +120,15 @@ const DiscordCardImage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Kart veya veri her güncellendiğinde, html2canvas ile ekran görüntüsünü al
-  useEffect(() => {
-    if (!data || !cardRef.current) return;
+  // Ekran görüntüsü alma fonksiyonu
+  const captureScreenshot = () => {
+    if (!cardRef.current) return;
 
-    const loadImages = async () => {
-      const images = cardRef.current!.querySelectorAll('img');
-      await Promise.all(
-        Array.from(images).map((img) => {
-          return new Promise((resolve) => {
-            if (img.complete) resolve(null);
-            else img.onload = () => resolve(null);
-          });
-        })
-      );
-      html2canvas(cardRef.current as HTMLElement, {
+    const images = cardRef.current.querySelectorAll('img');
+    const allImagesLoaded = Array.from(images).every((img) => img.complete);
+
+    if (allImagesLoaded) {
+      html2canvas(cardRef.current, {
         useCORS: true,
         scale: 2,
         backgroundColor: null,
@@ -144,13 +140,22 @@ const DiscordCardImage: React.FC = () => {
         .catch((err) => {
           console.error('Resim oluşturulurken hata oluştu:', err);
         });
-    };
+    } else {
+      setTimeout(captureScreenshot, 100); // 100ms sonra tekrar dene
+    }
+  };
 
-    const timeoutId = setTimeout(loadImages, 500);
+  // Veri veya zaman güncellendiğinde ekran görüntüsü al
+  useEffect(() => {
+    if (!data || !cardRef.current) return;
+
+    const timeoutId = setTimeout(() => {
+      captureScreenshot();
+    }, 100); // Render için kısa bir gecikme
+
     return () => clearTimeout(timeoutId);
   }, [data, currentTime]);
 
-  // Eğer data yoksa veya hata varsa hiçbir şey dönme (boş)
   if (!data || error) {
     return null;
   }
@@ -159,7 +164,7 @@ const DiscordCardImage: React.FC = () => {
   const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
-  // Custom status (konuşma balonu)
+  // Custom status
   const customActivity = activities.find(
     (act) => act.id === 'custom' && act.state && act.state.trim() !== ''
   );
@@ -244,13 +249,9 @@ const DiscordCardImage: React.FC = () => {
     }
   }
 
-  // Kullanıcının sahip olduğu badgesleri filtrele
-  const userFlags = discord_user.public_flags || 0;
-  const visibleBadges = badgeMapping.filter((mapping) => userFlags & mapping.bit);
-
   return (
     <div className="text-white">
-      {/* Discord kartının render edildiği alan */}
+      {/* Discord kartı */}
       <motion.div
         ref={cardRef}
         initial={{ opacity: 0, y: 20 }}
@@ -280,9 +281,9 @@ const DiscordCardImage: React.FC = () => {
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
             <div className="mt-2 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
-              {visibleBadges.map((mapping) => (
+              {badgeMapping.map((mapping, index) => (
                 <img
-                  key={mapping.bit}
+                  key={index}
                   src={mapping.img}
                   alt="rozet"
                   className="w-5 h-5 mr-2 last:mr-0"
@@ -293,7 +294,7 @@ const DiscordCardImage: React.FC = () => {
           </div>
         </div>
 
-        {/* Custom Status (Konuşma Balonu) */}
+        {/* Custom Status */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
@@ -303,7 +304,6 @@ const DiscordCardImage: React.FC = () => {
               >
                 {customState}
               </div>
-              {/* Konuşma baloncuğu efekti (isteğe bağlı) */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>

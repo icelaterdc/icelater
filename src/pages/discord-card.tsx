@@ -1,3 +1,6 @@
+// src/pages/discord-card.png (veya .tsx/.jsx uzantısıyla)
+
+// Gerekli kütüphaneler
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
@@ -12,6 +15,7 @@ const getStatusIcon = (status: string) => {
       alt={status}
       className="w-4 h-4"
       style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
+      crossOrigin="anonymous"
     />
   );
 };
@@ -122,8 +126,9 @@ const DiscordCardImage: React.FC = () => {
     // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
     const timeoutId = setTimeout(() => {
       html2canvas(cardRef.current as HTMLElement, {
-        useCORS: true,  // CORS kaynaklı sorunları azaltmaya çalışır
-        scale: 2,       // Daha yüksek çözünürlüklü çıktı için
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null, // Arkaplanı şeffaf yapmak için
       })
         .then((canvas) => {
           const pngData = canvas.toDataURL('image/png');
@@ -137,20 +142,9 @@ const DiscordCardImage: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [data, currentTime]);
 
-  if (!data) {
-    return (
-      <div className="max-w-md mx-auto bg-gray-800 rounded-2xl shadow-2xl p-6 animate-pulse text-white text-center">
-        Yükleniyor...
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="max-w-md mx-auto bg-red-900/20 text-red-200 rounded-2xl shadow-2xl p-6 text-center">
-        {error}
-      </div>
-    );
+  // Eğer data yoksa veya hata varsa hiçbir şey dönme (boş)
+  if (!data || error) {
+    return null;
   }
 
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
@@ -187,7 +181,12 @@ const DiscordCardImage: React.FC = () => {
             </p>
           </div>
           <div className="ml-2">
-            <img src="/badges/spotify.png" alt="Spotify" className="w-6 h-6" />
+            <img
+              src="/badges/spotify.png"
+              alt="Spotify"
+              className="w-6 h-6"
+              crossOrigin="anonymous"
+            />
           </div>
         </div>
         <div className="mt-3">
@@ -268,13 +267,14 @@ const DiscordCardImage: React.FC = () => {
           <div className="ml-4">
             <h2 className="text-2xl font-bold text-white">{displayName}</h2>
             <p className="text-sm text-gray-300">{discord_user.username}</p>
-            <div className="mt-1 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
+            <div className="mt-2 bg-gray-900 inline-flex items-center px-2 py-1 rounded-lg">
               {badgeMapping.map((mapping) => (
                 <img
                   key={mapping.bit}
                   src={mapping.img}
                   alt="rozet"
-                  className="w-4 h-4 mr-1 last:mr-0"
+                  className="w-5 h-5 mr-2 last:mr-0"
+                  crossOrigin="anonymous"
                 />
               ))}
             </div>
@@ -291,6 +291,7 @@ const DiscordCardImage: React.FC = () => {
               >
                 {customState}
               </div>
+              {/* Konuşma baloncuğu efekti (isteğe bağlı) */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>

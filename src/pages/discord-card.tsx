@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import domtoimage from 'dom-to-image-more';
+import html2canvas from 'html2canvas';
 
 /* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
@@ -115,20 +115,26 @@ const DiscordCardImage: React.FC = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Kart render edildikten sonra DOM elementinden resim URL'si oluştur
+  // Kart veya veri her güncellendiğinde, html2canvas ile ekran görüntüsünü al
   useEffect(() => {
-    if (cardRef.current) {
-      // DOM'un güncellendiğinden emin olmak için küçük bir gecikme ekliyoruz
-      setTimeout(() => {
-        domtoimage.toPng(cardRef.current!)
-          .then((dataUrl: string) => {
-            setImageUrl(dataUrl);
-          })
-          .catch((err: any) => {
-            console.error('Resim oluşturulurken hata oluştu:', err);
-          });
-      }, 500);
-    }
+    if (!data || !cardRef.current) return;
+
+    // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
+    const timeoutId = setTimeout(() => {
+      html2canvas(cardRef.current as HTMLElement, {
+        useCORS: true,  // CORS kaynaklı sorunları azaltmaya çalışır
+        scale: 2,       // Daha yüksek çözünürlüklü çıktı için
+      })
+        .then((canvas) => {
+          const pngData = canvas.toDataURL('image/png');
+          setImageUrl(pngData);
+        })
+        .catch((err) => {
+          console.error('Resim oluşturulurken hata oluştu:', err);
+        });
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [data, currentTime]);
 
   if (!data) {
@@ -139,12 +145,22 @@ const DiscordCardImage: React.FC = () => {
     );
   }
 
+  if (error) {
+    return (
+      <div className="max-w-md mx-auto bg-red-900/20 text-red-200 rounded-2xl shadow-2xl p-6 text-center">
+        {error}
+      </div>
+    );
+  }
+
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
   const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
   // Custom status (konuşma balonu)
-  const customActivity = activities.find(act => act.id === "custom" && act.state && act.state.trim() !== "");
+  const customActivity = activities.find(
+    (act) => act.id === 'custom' && act.state && act.state.trim() !== ''
+  );
   const customState = customActivity ? customActivity.state : null;
 
   // Spotify kartı
@@ -162,6 +178,7 @@ const DiscordCardImage: React.FC = () => {
             src={spotify.album_art_url}
             alt={spotify.album}
             className="w-16 h-16 rounded-md object-cover mr-4"
+            crossOrigin="anonymous"
           />
           <div className="flex-1">
             <h3 className="text-sm font-bold text-white">{spotify.song}</h3>
@@ -189,7 +206,7 @@ const DiscordCardImage: React.FC = () => {
     );
   }
 
-  // Aktivite kartı (Spotify dışında)
+  // Spotify dışındaki etkinlik kartı
   let activityCard = null;
   if (activities.length > 0) {
     const currentActivity = activities.find((a) => a.type !== 4);
@@ -201,6 +218,7 @@ const DiscordCardImage: React.FC = () => {
               src={currentActivity.assets.large_image}
               alt={currentActivity.name}
               className="w-12 h-12 rounded-lg mr-3"
+              crossOrigin="anonymous"
             />
           )}
           <div>
@@ -220,7 +238,7 @@ const DiscordCardImage: React.FC = () => {
   }
 
   return (
-    <div>
+    <div className="text-white">
       {/* Discord kartının render edildiği alan */}
       <motion.div
         ref={cardRef}
@@ -229,7 +247,7 @@ const DiscordCardImage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
       >
-        {discord_user.bannerURL && discord_user.bannerURL !== "" && (
+        {discord_user.bannerURL && discord_user.bannerURL !== '' && (
           <div
             className="h-24 w-full bg-cover bg-center rounded-t-2xl mb-4"
             style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
@@ -241,6 +259,7 @@ const DiscordCardImage: React.FC = () => {
               src={avatarUrl}
               alt={discord_user.username}
               className="w-full h-full rounded-full border-4 border-gray-800 object-cover"
+              crossOrigin="anonymous"
             />
             <div className="absolute bottom-0 right-0 bg-gray-900 rounded-full p-1">
               {getStatusIcon(discord_status)}
@@ -262,12 +281,13 @@ const DiscordCardImage: React.FC = () => {
           </div>
         </div>
 
+        {/* Custom Status (Konuşma Balonu) */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
               <div
                 className="bg-gray-700 text-white text-sm px-3 py-1.5 rounded-lg shadow-lg"
-                style={{ maxWidth: "180px", wordBreak: "break-word" }}
+                style={{ maxWidth: '180px', wordBreak: 'break-word' }}
               >
                 {customState}
               </div>
@@ -281,26 +301,19 @@ const DiscordCardImage: React.FC = () => {
           </div>
         )}
 
+        {/* Spotify veya Aktivite Kartı */}
         {listening_to_spotify ? spotifyCard : activityCard}
       </motion.div>
-      
-      {/* Oluşturulan resim URL'sinin ve önizlemesinin gösterimi */}
+
+      {/* Oluşturulan resmin önizlemesi */}
       {imageUrl && (
-        <div className="mt-4 text-center">
-          <p className="text-white mb-2">Oluşturulan Discord Kartı Resmi:</p>
-          <img src={imageUrl} alt="Discord Card" className="mx-auto rounded-2xl shadow-2xl" />
-          <p className="text-white mt-2">Resim URL'si:</p>
-          <textarea
-            readOnly
-            value={imageUrl}
-            className="w-full p-2 bg-gray-800 text-white rounded"
-            rows={3}
+        <div className="mt-6 text-center">
+          <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>
+          <img
+            src={imageUrl}
+            alt="Discord Card"
+            className="mx-auto rounded-2xl shadow-2xl"
           />
-        </div>
-      )}
-      {error && (
-        <div className="mt-4 text-center text-red-500">
-          {error}
         </div>
       )}
     </div>

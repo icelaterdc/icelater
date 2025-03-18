@@ -1,6 +1,5 @@
-// src/pages/discord-card.png (ya da .tsx/.jsx)
+// src/pages/discord-card.png (veya .tsx/.jsx)
 
-// Gerekli kütüphaneler
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
@@ -87,7 +86,6 @@ type APIResponse = {
 /* --- Discord Kartını Resme Dönüştüren Bileşen --- */
 const DiscordCardImage: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
-  const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
@@ -101,10 +99,8 @@ const DiscordCardImage: React.FC = () => {
         const json: APIResponse = await res.json();
         if (!json.success) throw new Error('API response unsuccessful');
         setData(json.data);
-        setError(null);
-      } catch (err: any) {
-        setError(`Veriler alınamadı: ${err.message}`);
-        console.error(err);
+      } catch (err) {
+        console.error('Veri çekilirken hata:', err);
       }
     };
 
@@ -152,8 +148,8 @@ const DiscordCardImage: React.FC = () => {
     return () => clearTimeout(timeoutId);
   }, [data, currentTime]);
 
-  // Eğer data yoksa veya hata varsa hiçbir şey dönme (boş)
-  if (!data || error) {
+  // Eğer data yoksa hiçbir şey dönme (boş)
+  if (!data) {
     return null;
   }
 
@@ -252,14 +248,18 @@ const DiscordCardImage: React.FC = () => {
 
   return (
     <div className="text-white">
-      {/* Kartı DOM'da tutuyoruz ama görünmez yapıyoruz */}
+      {/* Kartı DOM'da tutuyoruz ama görünmez ve tıklanamaz yapıyoruz */}
       <motion.div
         ref={cardRef}
-        style={{ display: 'none' }}
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
-        className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
+        initial={{ opacity: 1 }}
+        animate={{ opacity: 0 }}
+        style={{
+          position: 'absolute',
+          top: '-9999px',
+          left: '-9999px',
+          pointerEvents: 'none',
+        }}
+        className="max-w-md bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
       >
         {discord_user.bannerURL && discord_user.bannerURL !== '' && (
           <div

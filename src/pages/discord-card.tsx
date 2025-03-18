@@ -1,10 +1,11 @@
 // src/pages/discord-card.tsx
 
+// Gerekli kütüphaneler
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import html2canvas from 'html2canvas';
 
-// Yardımcı Fonksiyonlar
+/* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
   const iconSize = 16;
   const iconPath = `/statusIcon/${status}.png`;
@@ -40,7 +41,7 @@ const formatDurationMs = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-// Tip Tanımlamaları
+/* --- Tip Tanımlamaları --- */
 type LanyardData = {
   discord_user: {
     id: string;
@@ -48,6 +49,8 @@ type LanyardData = {
     avatar: string;
     display_name?: string;
     global_name?: string;
+    public_flags?: number;
+    bannerURL?: string;
   };
   activities: Array<{
     id: string;
@@ -82,7 +85,7 @@ type APIResponse = {
   success: boolean;
 };
 
-// Discord Kartı Bileşeni
+/* --- Discord Kartını Resme Dönüştüren Bileşen --- */
 const DiscordCardImage: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -90,7 +93,7 @@ const DiscordCardImage: React.FC = () => {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
 
-  // Lanyard API'den veri çekme
+  // Lanyard API'den veriyi çek (her 5 saniyede bir)
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -111,46 +114,38 @@ const DiscordCardImage: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Zaman güncelleme (Spotify progress için)
+  // Her saniye geçerli zamanı güncelle (Spotify progress için)
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Resimlerin yüklenmesini bekleme fonksiyonu
-  const waitForImages = (images: HTMLImageElement[]): Promise<void> => {
-    const promises = images.map((img) => {
-      if (img.complete) return Promise.resolve();
-      return new Promise<void>((resolve) => {
-        img.onload = () => resolve();
-        img.onerror = () => resolve(); // Hata durumunda devam et
-      });
-    });
-    return Promise.all(promises).then(() => {});
-  };
-
   // Ekran görüntüsü alma fonksiyonu
-  const captureScreenshot = async () => {
+  const captureScreenshot = () => {
     if (!cardRef.current) return;
 
-    const images = Array.from(cardRef.current.querySelectorAll('img'));
-    await waitForImages(images);
+    const images = cardRef.current.querySelectorAll('img');
+    const allImagesLoaded = Array.from(images).every((img) => img.complete);
 
-    html2canvas(cardRef.current, {
-      useCORS: true,
-      scale: 2,
-      backgroundColor: null,
-    })
-      .then((canvas) => {
-        const pngData = canvas.toDataURL('image/png');
-        setImageUrl(pngData);
+    if (allImagesLoaded) {
+      html2canvas(cardRef.current, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: null,
       })
-      .catch((err) => {
-        console.error('Resim oluşturulurken hata oluştu:', err);
-      });
+        .then((canvas) => {
+          const pngData = canvas.toDataURL('image/png');
+          setImageUrl(pngData);
+        })
+        .catch((err) => {
+          console.error('Resim oluşturulurken hata oluştu:', err);
+        });
+    } else {
+      setTimeout(captureScreenshot, 100); // 100ms sonra tekrar dene
+    }
   };
 
-  // Veri veya zaman değiştiğinde ekran görüntüsü al
+  // Veri veya zaman güncellendiğinde ekran görüntüsü al
   useEffect(() => {
     if (!data || !cardRef.current) return;
 
@@ -162,7 +157,7 @@ const DiscordCardImage: React.FC = () => {
   }, [data, currentTime]);
 
   if (!data || error) {
-    return <div>{error || 'Yükleniyor...'}</div>;
+    return null;
   }
 
   const { discord_user, activities, discord_status, listening_to_spotify, spotify } = data;
@@ -223,6 +218,37 @@ const DiscordCardImage: React.FC = () => {
     );
   }
 
+  // Spotify dışındaki etkinlik kartı
+  let activityCard = null;
+  if (activities.length > 0) {
+    const currentActivity = activities.find((a) => a.type !== 4);
+    if (currentActivity) {
+      activityCard = (
+        <div className="mt-4 bg-gray-900 p-3 rounded-lg flex items-center">
+          {currentActivity.assets?.large_image && (
+            <img
+              src={currentActivity.assets.large_image}
+              alt={currentActivity.name}
+              className="w-12 h-12 rounded-lg mr-3"
+              crossOrigin="anonymous"
+            />
+          )}
+          <div>
+            <p className="text-sm text-blue-400 font-semibold">
+              {currentActivity.name}
+            </p>
+            {currentActivity.details && (
+              <p className="text-xs text-gray-300">{currentActivity.details}</p>
+            )}
+            {currentActivity.state && (
+              <p className="text-xs text-gray-500">{currentActivity.state}</p>
+            )}
+          </div>
+        </div>
+      );
+    }
+  }
+
   return (
     <div className="text-white">
       {/* Discord kartı */}
@@ -233,6 +259,12 @@ const DiscordCardImage: React.FC = () => {
         transition={{ duration: 0.5 }}
         className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative p-6"
       >
+        {discord_user.bannerURL && discord_user.bannerURL !== '' && (
+          <div
+            className="h-24 w-full bg-cover bg-center rounded-t-2xl mb-4"
+            style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
+          />
+        )}
         <div className="flex items-center">
           <div className="relative w-20 h-20">
             <img
@@ -272,15 +304,21 @@ const DiscordCardImage: React.FC = () => {
               >
                 {customState}
               </div>
+              <div className="absolute bottom-1 left-[-12px]">
+                <div className="w-2 h-2 rounded-full bg-gray-700"></div>
+              </div>
+              <div className="absolute bottom-[-4px] left-[-20px]">
+                <div className="w-3 h-3 rounded-full bg-gray-700"></div>
+              </div>
             </div>
           </div>
         )}
 
-        {/* Spotify Kartı */}
-        {spotifyCard}
+        {/* Spotify veya Aktivite Kartı */}
+        {listening_to_spotify ? spotifyCard : activityCard}
       </motion.div>
 
-      {/* Oluşturulan PNG Önizlemesi */}
+      {/* Oluşturulan resmin önizlemesi */}
       {imageUrl && (
         <div className="mt-6 text-center">
           <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>

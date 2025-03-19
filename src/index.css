@@ -10,7 +10,7 @@ body {
   margin: 0;
   padding: 0;
   overflow-x: hidden;
-  background-color: #030712;
+  background-color: #030712; /* Fallback arkaplan rengi */
 }
 
 /* Tüm sayfayı kapsayan container */
@@ -19,8 +19,11 @@ body {
   overflow-y: auto;
   -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
   scrollbar-width: none; /* Firefox scrollbar gizleme */
-  background: #030712 url('/images/noise.png') repeat; /* Arkaplan rengi ve gürültü resmi */
-  background-size: 200px 200px; /* Gürültü resminin boyutunu ayarla */
+  background-color: #030712; /* Arkaplan rengi */
+  background-image: url('/images/noise.png'); /* Gürültü resmi */
+  background-repeat: repeat; /* Resmi tekrarla */
+  background-size: 200px 200px; /* Gürültü deseninin boyutunu ayarla */
+  background-blend-mode: overlay; /* Gürültü ve rengin karışım modu */
 }
 
 .page-container::-webkit-scrollbar {

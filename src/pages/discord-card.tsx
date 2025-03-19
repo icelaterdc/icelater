@@ -1,9 +1,5 @@
-// src/pages/discord-card.png (veya .tsx/.jsx uzantısıyla)
-
-// Gerekli kütüphaneler
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import html2canvas from 'html2canvas';
 
 /* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
@@ -16,6 +12,7 @@ const getStatusIcon = (status: string) => {
       className="w-4 h-4"
       style={{ width: `${iconSize}px`, height: `${iconSize}px` }}
       crossOrigin="anonymous"
+      onContextMenu={(e) => e.preventDefault()}
     />
   );
 };
@@ -84,13 +81,11 @@ type APIResponse = {
   success: boolean;
 };
 
-/* --- Discord Kartını Resme Dönüştüren Bileşen --- */
-const DiscordCardImage: React.FC = () => {
+/* --- Discord Kartı Bileşeni (Sadece HTML Card) --- */
+const DiscordCard: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
-  const [imageUrl, setImageUrl] = useState<string | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
 
   // Lanyard API'den veriyi çek (her 5 saniyede bir)
   useEffect(() => {
@@ -113,36 +108,12 @@ const DiscordCardImage: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Her saniye geçerli zamanı güncelle (Spotify progress için)
+  // Spotify progress için her saniye geçerli zamanı güncelle
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Kart veya veri her güncellendiğinde, html2canvas ile ekran görüntüsünü al
-  useEffect(() => {
-    if (!data || !cardRef.current) return;
-
-    // Biraz gecikme ekleyerek kartın tamamen render olmasını bekliyoruz
-    const timeoutId = setTimeout(() => {
-      html2canvas(cardRef.current as HTMLElement, {
-        useCORS: true,
-        scale: 2,
-        backgroundColor: null, // Arkaplanı şeffaf yapmak için
-      })
-        .then((canvas) => {
-          const pngData = canvas.toDataURL('image/png');
-          setImageUrl(pngData);
-        })
-        .catch((err) => {
-          console.error('Resim oluşturulurken hata oluştu:', err);
-        });
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [data, currentTime]);
-
-  // Eğer data yoksa veya hata varsa hiçbir şey dönme (boş)
   if (!data || error) {
     return null;
   }
@@ -173,6 +144,7 @@ const DiscordCardImage: React.FC = () => {
             alt={spotify.album}
             className="w-16 h-16 rounded-md object-cover mr-4"
             crossOrigin="anonymous"
+            onContextMenu={(e) => e.preventDefault()}
           />
           <div className="flex-1">
             <h3 className="text-sm font-bold text-white">{spotify.song}</h3>
@@ -186,6 +158,7 @@ const DiscordCardImage: React.FC = () => {
               alt="Spotify"
               className="w-6 h-6"
               crossOrigin="anonymous"
+              onContextMenu={(e) => e.preventDefault()}
             />
           </div>
         </div>
@@ -218,6 +191,7 @@ const DiscordCardImage: React.FC = () => {
               alt={currentActivity.name}
               className="w-12 h-12 rounded-lg mr-3"
               crossOrigin="anonymous"
+              onContextMenu={(e) => e.preventDefault()}
             />
           )}
           <div>
@@ -238,9 +212,7 @@ const DiscordCardImage: React.FC = () => {
 
   return (
     <div className="text-white">
-      {/* Discord kartının render edildiği alan */}
       <motion.div
-        ref={cardRef}
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -250,6 +222,7 @@ const DiscordCardImage: React.FC = () => {
           <div
             className="h-24 w-full bg-cover bg-center rounded-t-2xl mb-4"
             style={{ backgroundImage: `url(${discord_user.bannerURL})` }}
+            onContextMenu={(e) => e.preventDefault()}
           />
         )}
         <div className="flex items-center">
@@ -259,6 +232,7 @@ const DiscordCardImage: React.FC = () => {
               alt={discord_user.username}
               className="w-full h-full rounded-full border-4 border-gray-800 object-cover"
               crossOrigin="anonymous"
+              onContextMenu={(e) => e.preventDefault()}
             />
             <div className="absolute bottom-0 right-0 bg-gray-900 rounded-full p-1">
               {getStatusIcon(discord_status)}
@@ -275,13 +249,13 @@ const DiscordCardImage: React.FC = () => {
                   alt="rozet"
                   className="w-5 h-5 mr-2 last:mr-0"
                   crossOrigin="anonymous"
+                  onContextMenu={(e) => e.preventDefault()}
                 />
               ))}
             </div>
           </div>
         </div>
 
-        {/* Custom Status (Konuşma Balonu) */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
@@ -291,7 +265,6 @@ const DiscordCardImage: React.FC = () => {
               >
                 {customState}
               </div>
-              {/* Konuşma baloncuğu efekti (isteğe bağlı) */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>
@@ -302,23 +275,10 @@ const DiscordCardImage: React.FC = () => {
           </div>
         )}
 
-        {/* Spotify veya Aktivite Kartı */}
         {listening_to_spotify ? spotifyCard : activityCard}
       </motion.div>
-
-      {/* Oluşturulan resmin önizlemesi */}
-      {imageUrl && (
-        <div className="mt-6 text-center">
-          <h3 className="text-xl font-semibold mb-2">Oluşturulan Discord Kartı Resmi:</h3>
-          <img
-            src={imageUrl}
-            alt="Discord Card"
-            className="mx-auto rounded-2xl shadow-2xl"
-          />
-        </div>
-      )}
     </div>
   );
 };
 
-export default DiscordCardImage;
+export default DiscordCard;

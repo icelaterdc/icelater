@@ -9,16 +9,14 @@ import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import AICard from './components/AICard';
 
-// İmleç etrafında pürüzlü (noise efektli) sis efekti
+// İmleç etrafında pürüzlü sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  // Küçük bir noise dokusu (base64 kodlu)
-  const noiseTexture = 'url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABFElEQVR42mNk+M+ACzAbVwKIsD8aMN4Px/j+o5BxkxQR0QYQD5D8mmASzIUQjT/ccHh1MMkQ0/7GB/BM7BVQewTYQ5UEKMkXgbCE+7//0YxQCSE/0mmCgyYfFegLxpjc/8/f+Zf//pwPkP8YmEGMhhAnA5DHDC0ZswZJAf0kA90vYzBBSJ1D8giDaMCvEVQNhjTJwH8XIFMZRB8kAf0lAf07YxAS5dAyDYwQJQnQNkA1kMKEIZoBjg9EFTKQD0kA90oYxQGJzf+T8f8n/1/7P5HCDPMI0T8kAf0kA90vYwSlN8DiOT+0JwwIi/M7D8TBoD3StAnS2YwSxHgHJEmYBgAEGihyH7/JSAAAAAElFTkSuQmCC")';
   const mistStyle = {
-    background: `radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%), ${noiseTexture}`,
-    filter: 'blur(8px)',
-    borderRadius: '70%',
-    backgroundBlendMode: 'overlay',
+    background:
+      'radial-gradient(circle at center, rgba(10,130,255,0.30) 0%, rgba(10,130,255,0.15) 30%, rgba(10,130,255,0.05) 60%, rgba(10,130,255,0) 100%)',
+    filter: 'blur(12px)',
+    borderRadius: '50%',
   };
 
   useEffect(() => {
@@ -46,8 +44,8 @@ function InteractiveEffects() {
         left: mousePos.x,
         top: mousePos.y,
         transform: 'translate(-50%, -50%)',
-        width: '85px',
-        height: '85px',
+        width: '120px',
+        height: '120px',
         pointerEvents: 'none',
         ...mistStyle,
       }}
@@ -76,7 +74,7 @@ function AnimatedTitle() {
           setVisibleChars(prev => [...prev, ...restIndices]);
         }, 450);
       } else {
-        const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
+        const randomOrder = [...Array(text.length).keys()].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
           setTimeout(() => {
             setVisibleChars(prev => [...prev, index]);
@@ -193,7 +191,15 @@ function App() {
   }, []);
 
   return (
-    <div ref={containerRef} className="page-container bg-gray-950 text-white">
+    <div
+      ref={containerRef}
+      className="page-container bg-gray-950 text-white"
+      style={{
+        backgroundImage: 'url(/images/noise.png)',
+        backgroundRepeat: 'repeat',
+        backgroundSize: '200px 200px', // Gürültü resminin boyutuna göre ayarlayabilirsin
+      }}
+    >
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
@@ -341,23 +347,9 @@ function App() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
         .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
-        /* Arkaplana pürüzlü (noise) efekt ekliyoruz */
-        .page-container::before {
-          content: "";
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          height: 100%;
-          background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAABFElEQVR42mNk+M+ACzAbVwKIsD8aMN4Px/j+o5BxkxQR0QYQD5D8mmASzIUQjT/ccHh1MMkQ0/7GB/BM7BVQewTYQ5UEKMkXgbCE+7//0YxQCSE/0mmCgyYfFegLxpjc/8/f+Zf//pwPkP8YmEGMhhAnA5DHDC0ZswZJAf0kA90vYzBBSJ1D8giDaMCvEVQNhjTJwH8XIFMZRB8kAf0lAf07YxAS5dAyDYwQJQnQNkA1kMKEIZoBjg9EFTKQD0kA90oYxQGJzf+T8f8n/1/7P5HCDPMI0T8kAf0kA90vYwSlN8DiOT+0JwwIi/M7D8TBoD3StAnS2YwSxHgHJEmYBgAEGihyH7/JSAAAAAElFTkSuQmCC');
-          opacity: 0.1;
-          z-index: 0;
-          pointer-events: none;
-        }
       `}</style>
     </div>
   );
 }
 
 export default App;
-                     

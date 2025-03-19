@@ -15,8 +15,10 @@ function InteractiveEffects() {
   const mistStyle = {
     background:
       'radial-gradient(circle at center, rgba(10,130,255,0.30) 0%, rgba(10,130,255,0.15) 30%, rgba(10,130,255,0.05) 60%, rgba(10,130,255,0) 100%)',
-    filter: 'blur(12px)',
+    filter: 'blur(12px) contrast(1.2)', // Pürüzlü görünüm için blur ve contrast
     borderRadius: '50%',
+    width: '120px',
+    height: '120px',
   };
 
   useEffect(() => {
@@ -44,8 +46,6 @@ function InteractiveEffects() {
         left: mousePos.x,
         top: mousePos.y,
         transform: 'translate(-50%, -50%)',
-        width: '120px',
-        height: '120px',
         pointerEvents: 'none',
         ...mistStyle,
       }}
@@ -74,7 +74,7 @@ function AnimatedTitle() {
           setVisibleChars(prev => [...prev, ...restIndices]);
         }, 450);
       } else {
-        const randomOrder = [...Array(text.length).keys()].sort(() => Math.random() - 0.5);
+        const randomOrder = [...allIndices].sort(() => Math.random() - 0.5);
         randomOrder.forEach((index, i) => {
           setTimeout(() => {
             setVisibleChars(prev => [...prev, index]);
@@ -191,15 +191,16 @@ function App() {
   }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="page-container bg-gray-950 text-white"
-      style={{
-        backgroundImage: 'url(/images/noise.png)',
-        backgroundRepeat: 'repeat',
-        backgroundSize: '200px 200px', // Gürültü resminin boyutuna göre ayarlayabilirsin
-      }}
-    >
+    <div ref={containerRef} className="page-container text-white">
+      {/* SVG filtresi tanımı */}
+      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+        <filter id="noiseFilter">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feColorMatrix type="saturate" values="0" />
+          <feBlend in="SourceGraphic" in2="noise" mode="multiply" />
+        </filter>
+      </svg>
+
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
@@ -276,7 +277,7 @@ function App() {
       {/* About Bölümü */}
       <section
         id="about"
-        className="snap py-20 bg-gray-950"
+        className="snap py-20"
         style={{ position: "relative", zIndex: 5, scrollMarginTop: '30px' }}
       >
         <motion.div
@@ -293,7 +294,7 @@ function App() {
       </section>
 
       {/* GitHub Projects Bölümü */}
-      <section id="projects" className="non-snap py-4 bg-gray-950/50">
+      <section id="projects" className="non-snap py-4">
         <div className="container mx-auto px-4 md:px-6">
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-white mb-4">
@@ -308,7 +309,7 @@ function App() {
       </section>
 
       {/* Artificial Intelligence Bölümü */}
-      <section className="non-snap py-20 bg-gray-950">
+      <section className="non-snap py-20">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Artificial Intelligence
@@ -333,7 +334,7 @@ function App() {
       </section>
 
       {/* Contact Bölümü */}
-      <section id="contact" className="non-snap py-12 bg-gray-950">
+      <section id="contact" className="non-snap py-12">
         <div className="container mx-auto px-4 md:px-6">
           <ContactSection />
         </div>

@@ -1,1 +1,3 @@
-<p><img align="center" src="https://icelater.vercel.app/discord-card" alt="IceLater" width="850px"/></p>
+<p align="center">
+  <img src="https://icelater.vercel.app/discord-card" alt="Discord Card" width="850px" />
+</p>

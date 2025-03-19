@@ -9,16 +9,14 @@ import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
 import AICard from './components/AICard';
 
-// İmleç etrafında pürüzlü sis efekti
+// İmleç etrafında yumuşak sis efekti (neon aydınlatma)
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const mistStyle = {
     background:
-      'radial-gradient(circle at center, rgba(10,130,255,0.30) 0%, rgba(10,130,255,0.15) 30%, rgba(10,130,255,0.05) 60%, rgba(10,130,255,0) 100%)',
-    filter: 'blur(12px) contrast(1.2)', // Pürüzlü görünüm için blur ve contrast
-    borderRadius: '50%',
-    width: '120px',
-    height: '120px',
+      'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
+    filter: 'blur(8px)', // Pürüzlülük olmadan yumuşak bir efekt
+    borderRadius: '70%',
   };
 
   useEffect(() => {
@@ -46,6 +44,8 @@ function InteractiveEffects() {
         left: mousePos.x,
         top: mousePos.y,
         transform: 'translate(-50%, -50%)',
+        width: '85px',
+        height: '85px',
         pointerEvents: 'none',
         ...mistStyle,
       }}
@@ -214,7 +214,7 @@ function App() {
           className="w-full"
         >
           <div className="absolute inset-0 overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-gray-950"></div>
+            <div className="absolute inset-0 bg-gradient-to-b from-blue-800/30 to-transparent"></div>
           </div>
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
@@ -340,7 +340,7 @@ function App() {
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
+      {/* Footer */}
       <div translate="no">
         <Footer />
       </div>

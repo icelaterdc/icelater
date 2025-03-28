@@ -5,7 +5,7 @@ import AIModalContent from './AIModalContent';
 import GameModalContent from './GameModalContent';
 import GalleryModalContent from './GalleryModalContent';
 
-type ModalType = 'ai' | 'game' | 'gallery' | null;
+export type ModalType = 'ai' | 'game' | 'gallery' | null;
 
 const NewCardsSection: React.FC = () => {
   const [openModal, setOpenModal] = useState<ModalType>(null);
@@ -13,26 +13,26 @@ const NewCardsSection: React.FC = () => {
   const closeModal = () => setOpenModal(null);
 
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-6">
       {/* AI Kartı */}
       <FancyCard
         imageSrc="/images/ai-icon.png"
         title="Artificial Intelligence"
-        description="Chat & Imagine AI services for your creative needs."
+        description="Chat & Imagine AI services."
         onClick={() => setOpenModal('ai')}
       />
       {/* Oyun Kartı */}
       <FancyCard
         imageSrc="/images/game-icon.png"
         title="Games"
-        description="Play chess, snake, or football. A fun collection awaits."
+        description="Chess, Snake & Football."
         onClick={() => setOpenModal('game')}
       />
       {/* Galeri Kartı */}
       <FancyCard
         imageSrc="/images/gallery-icon.png"
         title="Gallery"
-        description="Discover beautiful images and creative visuals."
+        description="Beautiful visuals await."
         onClick={() => setOpenModal('gallery')}
       />
 
@@ -56,4 +56,3 @@ const NewCardsSection: React.FC = () => {
 };
 
 export default NewCardsSection;
-      

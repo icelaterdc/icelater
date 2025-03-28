@@ -188,13 +188,13 @@ function App() {
   }, []);
 
   return (
-    <div ref={containerRef} className="page-container bg-gray-950 text-white">
+    <div ref={containerRef} className="page-container bg-gray-950 text-white relative">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section id="home" className="snap flex items-center justify-center relative pt-20">
+      <section id="home" className="snap flex flex-col items-center justify-center relative pt-20">
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
@@ -207,7 +207,6 @@ function App() {
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
               <motion.div
-                translate="no"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -232,7 +231,6 @@ function App() {
               <DiscordCard />
             </motion.div>
             <motion.div
-              translate="no"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 0.75, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -296,7 +294,7 @@ function App() {
       </section>
 
       {/* Yeni Kartlar Bölümü */}
-      <section className="non-snap py-20 bg-gray-950">
+      <section className="non-snap py-20 bg-gray-950 relative">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
             Explore More

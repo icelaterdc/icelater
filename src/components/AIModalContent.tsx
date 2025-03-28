@@ -7,12 +7,10 @@ interface AIModalContentProps {
 
 const AIModalContent: React.FC<AIModalContentProps> = ({ onClose }) => {
   const handleChatGo = () => {
-    // Chat AI yönlendirme işlemleri
     window.location.href = '/chat-ai';
   };
 
   const handleImagineGo = () => {
-    // Imagine AI yönlendirme işlemleri
     window.location.href = '/imagine-ai';
   };
 

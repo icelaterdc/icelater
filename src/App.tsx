@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
@@ -7,9 +7,8 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import AICard from './components/AICard';
+import NewCardsSection from './components/NewCardsSection';
 
-// İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const mistStyle = {
@@ -53,7 +52,6 @@ function InteractiveEffects() {
   );
 }
 
-// Hareketli Yazı Bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -163,7 +161,6 @@ function App() {
     document.title = "IceLater Full-Stack Developer";
   }, []);
 
-  // Scroll pozisyonuna göre aktif bölümü ve snap efektini yönetiyoruz.
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -234,7 +231,6 @@ function App() {
             >
               <DiscordCard />
             </motion.div>
-            {/* Scroll Down Tasarımı */}
             <motion.div
               translate="no"
               initial={{ opacity: 0, y: 20 }}
@@ -299,28 +295,13 @@ function App() {
         </div>
       </section>
 
-      {/* Artificial Intelligence Bölümü */}
+      {/* Yeni Kartlar Bölümü */}
       <section className="non-snap py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
-            Artificial Intelligence
+            Explore More
           </h2>
-          <div className="flex flex-row flex-nowrap justify-center items-center gap-4">
-            <div className="w-1/2 min-w-[150px] max-w-[300px]">
-              <AICard
-                title="Chat With AI"
-                gifSrc="/others/ai-left.gif"
-                link="/ai"
-              />
-            </div>
-            <div className="w-1/2 min-w-[150px] max-w-[300px]">
-              <AICard
-                title="Create Image With AI"
-                gifSrc="/others/ai-right.gif"
-                link="/ai"
-              />
-            </div>
-          </div>
+          <NewCardsSection />
         </div>
       </section>
 
@@ -331,7 +312,6 @@ function App() {
         </div>
       </section>
 
-      {/* Footer (çeviri hariç tutulması için translate="no" ile sarıldı) */}
       <div translate="no">
         <Footer />
       </div>

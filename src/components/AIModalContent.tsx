@@ -1,32 +1,20 @@
 import React from 'react';
-import ModalCard from './ModalCard';
+import ActionCard from './ActionCard';
 
-interface AIModalContentProps {
-  onClose: () => void;
-}
-
-const AIModalContent: React.FC<AIModalContentProps> = ({ onClose }) => {
-  const handleChatGo = () => {
-    window.location.href = '/chat-ai';
-  };
-
-  const handleImagineGo = () => {
-    window.location.href = '/imagine-ai';
-  };
-
+const AIModalContent: React.FC = () => {
   return (
     <div className="flex flex-col gap-6">
-      <ModalCard
-        imageSrc="/images/chat-ai.png"
+      <ActionCard
+        imageSrc="/images/chat-ai.jpg"
         author="Chat AI"
-        description="Konuşarak destek al, sorularını yanıtla."
-        onGo={handleChatGo}
+        description="Interact with our advanced chatbot."
+        link="/ai/chat"
       />
-      <ModalCard
-        imageSrc="/images/imagine-ai.png"
+      <ActionCard
+        imageSrc="/images/imagine-ai.jpg"
         author="Imagine AI"
-        description="Hayal gücünü konuştur, resimler oluştur."
-        onGo={handleImagineGo}
+        description="Generate stunning images using AI."
+        link="/ai/imagine"
       />
     </div>
   );

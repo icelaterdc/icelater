@@ -8,23 +8,21 @@ interface ModalProps {
 }
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
-  // Modal açıkken kaydırma pozisyonunu koru ve kaydırmayı engelle
   useEffect(() => {
     if (isOpen) {
-      const scrollY = window.scrollY; // Mevcut kaydırma pozisyonunu al
+      const scrollY = window.scrollY;
       document.body.style.position = 'fixed';
-      document.body.style.top = `-${scrollY}px`; // Sayfayı sabitle
+      document.body.style.top = `-${scrollY}px`;
       document.body.style.width = '100%';
-      document.body.style.overflow = 'hidden'; // Kaydırmayı engelle
+      document.body.style.overflow = 'hidden';
     } else {
       const scrollY = document.body.style.top;
       document.body.style.position = '';
       document.body.style.top = '';
       document.body.style.width = '';
-      document.body.style.overflow = 'auto'; // Kaydırmayı geri aç
-      window.scrollTo(0, parseInt(scrollY || '0') * -1); // Orijinal pozisyona dön
+      document.body.style.overflow = 'auto';
+      window.scrollTo(0, parseInt(scrollY || '0') * -1);
     }
-    // Bileşen kaldırıldığında varsayılan ayarlara dön
     return () => {
       document.body.style.position = '';
       document.body.style.top = '';
@@ -52,10 +50,9 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       >
         {children}
       </motion.div>
-      {/* Kapatma butonu modalın altına taşındı */}
-      <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
         <button
-          className="text-gray-400 hover:text-white transition-colors bg-gray-700 rounded-full p-3"
+          className="text-gray-400 hover:text-white transition-colors p-2"
           onClick={onClose}
         >
           <svg

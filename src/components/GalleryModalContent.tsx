@@ -1,22 +1,14 @@
 import React from 'react';
-import ModalCard from './ModalCard';
+import ActionCard from './ActionCard';
 
-interface GalleryModalContentProps {
-  onClose: () => void;
-}
-
-const GalleryModalContent: React.FC<GalleryModalContentProps> = ({ onClose }) => {
-  const handleGalleryGo = () => {
-    window.location.href = '/gallery';
-  };
-
+const GalleryModalContent: React.FC = () => {
   return (
-    <div className="flex justify-center">
-      <ModalCard
-        imageSrc="/images/gallery.png"
+    <div>
+      <ActionCard
+        imageSrc="/images/gallery.jpg"
         author="Gallery"
-        description="Göz alıcı görsellerle dolu galeriye göz atın."
-        onGo={handleGalleryGo}
+        description="Browse through our stunning image collection."
+        link="/gallery"
       />
     </div>
   );

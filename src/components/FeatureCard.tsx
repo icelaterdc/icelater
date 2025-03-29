@@ -24,12 +24,8 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
         <h3 className="text-2xl font-semibold text-white">{title}</h3>
         <p className="text-gray-300 mt-1">{description}</p>
       </div>
-      <motion.div
-        className="ml-6"
-        whileHover={{ scale: 1.3, rotate: 15 }} // Framer-motion ile efekt
-        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-      >
-        <svg
+      <div className="ml-6">
+        <motion.svg
           xmlns="http://www.w3.org/2000/svg"
           width="28"
           height="28"
@@ -39,12 +35,14 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
-          className="transition-all duration-300 hover:scale-130 hover:rotate-15 hover:shadow-[0_0_15px_rgba(59,130,246,0.8)]"
+          className="transition-all duration-300 hover:shadow-[0_0_15px_rgba(59,130,246,0.8)]"
+          whileHover={{ scale: 1.3, rotate: 15 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 10 }}
         >
           <path d="M5 12h14" />
           <path d="M12 5l7 7-7 7" />
-        </svg>
-      </motion.div>
+        </motion.svg>
+      </div>
     </motion.div>
   );
 };

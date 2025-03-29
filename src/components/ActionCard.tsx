@@ -20,13 +20,8 @@ const ActionCard: React.FC<ActionCardProps> = ({ imageSrc, author, description, 
       <p className="text-gray-300 text-center mt-2">{description}</p>
       <motion.a
         href={link}
-        className="mt-4 px-6 py-2 bg-gray-600 text-white rounded-full border-2 border-blue-500 font-medium"
-        whileHover={{
-          scale: 1.1,
-          boxShadow: '0 0 20px rgba(59, 130, 246, 0.8)',
-          borderColor: '#60a5fa',
-        }}
-        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
+        className="mt-4 px-6 py-2 bg-gray-600 text-white rounded-full border-2 border-blue-500 font-medium transition-all duration-300 hover:scale-110 hover:shadow-[0_0_20px_rgba(59,130,246,0.8)] hover:border-blue-400"
+        whileHover={{ scale: 1.1 }} // Framer-motion ile büyüme
       >
         Go
       </motion.a>

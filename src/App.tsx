@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
@@ -7,8 +7,13 @@ import AboutSection from './components/AboutSection';
 import ContactSection from './components/ContactSection';
 import Footer from './components/Footer';
 import AudioPlayer from './components/AudioPlayer';
-import NewCardsSection from './components/NewCardsSection';
+import FeatureCard from './components/FeatureCard';
+import Modal from './components/Modal';
+import AIModalContent from './components/AIModalContent';
+import GamesModalContent from './components/GamesModalContent';
+import GalleryModalContent from './components/GalleryModalContent';
 
+// İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const mistStyle = {
@@ -52,6 +57,7 @@ function InteractiveEffects() {
   );
 }
 
+// Hareketli Yazı Bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");
@@ -154,6 +160,7 @@ function AnimatedTitle() {
 
 function App() {
   const [activeSection, setActiveSection] = useState("home");
+  const [activeModal, setActiveModal] = useState<string | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const prevScrollTop = useRef(0);
 
@@ -188,13 +195,13 @@ function App() {
   }, []);
 
   return (
-    <div ref={containerRef} className="page-container bg-gray-950 text-white relative">
+    <div ref={containerRef} className="page-container bg-gray-950 text-white">
       <InteractiveEffects />
       <Header />
       <AudioPlayer audioSrc="/music/music.mp3" />
 
       {/* Home Bölümü */}
-      <section id="home" className="snap flex flex-col items-center justify-center relative pt-20">
+      <section id="home" className="snap flex items-center justify-center relative pt-20">
         <motion.div
           initial={{ opacity: 1 }}
           animate={{ opacity: activeSection === "home" ? 1 : 0 }}
@@ -207,6 +214,7 @@ function App() {
           <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
             <div className="flex flex-col items-center text-center mb-12">
               <motion.div
+                translate="no"
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
@@ -231,6 +239,7 @@ function App() {
               <DiscordCard />
             </motion.div>
             <motion.div
+              translate="no"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 0.75, y: 0 }}
               transition={{ duration: 0.5, delay: 0.6 }}
@@ -293,13 +302,32 @@ function App() {
         </div>
       </section>
 
-      {/* Yeni Kartlar Bölümü */}
-      <section className="non-snap py-20 bg-gray-950 relative">
+      {/* Features Bölümü */}
+      <section className="non-snap py-20 bg-gray-950">
         <div className="container mx-auto px-4 md:px-6">
           <h2 className="text-4xl font-bold text-center mb-12 text-white">
-            Explore More
+            Features
           </h2>
-          <NewCardsSection />
+          <div className="flex flex-col gap-6 max-w-2xl mx-auto">
+            <FeatureCard
+              imageSrc="/images/ai.jpg"
+              title="AI"
+              description="Discover cutting-edge AI tools for chat and image generation."
+              onClick={() => setActiveModal('ai')}
+            />
+            <FeatureCard
+              imageSrc="/images/games.jpg"
+              title="Games"
+              description="Enjoy a variety of fun and interactive games."
+              onClick={() => setActiveModal('games')}
+            />
+            <FeatureCard
+              imageSrc="/images/gallery.jpg"
+              title="Gallery"
+              description="View a curated collection of stunning images."
+              onClick={() => setActiveModal('gallery')}
+            />
+          </div>
         </div>
       </section>
 
@@ -310,9 +338,17 @@ function App() {
         </div>
       </section>
 
+      {/* Footer */}
       <div translate="no">
         <Footer />
       </div>
+
+      {/* Modal */}
+      <Modal isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
+        {activeModal === 'ai' && <AIModalContent />}
+        {activeModal === 'games' && <GamesModalContent />}
+        {activeModal === 'gallery' && <GalleryModalContent />}
+      </Modal>
 
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');

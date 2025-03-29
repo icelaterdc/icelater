@@ -1,46 +1,52 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
 interface ModalProps {
+  isOpen: boolean;
   onClose: () => void;
   children: React.ReactNode;
 }
 
-const Modal: React.FC<ModalProps> = ({ onClose, children }) => {
-  // Escape tuşuyla kapatma ve scroll kilitleme
-  useEffect(() => {
-    const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.body.style.overflow = 'hidden';
-    window.addEventListener('keydown', handleEsc);
-    return () => {
-      document.body.style.overflow = 'unset';
-      window.removeEventListener('keydown', handleEsc);
-    };
-  }, [onClose]);
+const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
+  if (!isOpen) return null;
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-30 backdrop-blur-sm"
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-sm"
       onClick={onClose}
     >
       <motion.div
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.3 }}
+        className="bg-gray-800 rounded-2xl p-8 relative max-w-lg w-full mx-4"
         onClick={(e) => e.stopPropagation()}
-        initial={{ opacity: 0, scale: 0.85 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="bg-gray-900 rounded-2xl p-8 shadow-2xl max-w-lg w-full relative"
       >
-        {children}
-        {/* Kapatma (çarpı) butonu */}
         <button
+          className="absolute top-4 right-4 text-gray-400 hover:text-white transition-colors"
           onClick={onClose}
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-400 hover:text-white transition-colors duration-200 text-3xl"
         >
-          &times;
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M18 6L6 18" />
+            <path d="M6 6l12 12" />
+          </svg>
         </button>
+        {children}
       </motion.div>
-    </div>
+    </motion.div>
   );
 };
 

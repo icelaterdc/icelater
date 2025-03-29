@@ -26,7 +26,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
       </div>
       <motion.div
         className="ml-6"
-        whileHover={{ scale: 1.3, rotate: 15 }}
+        whileHover={{ scale: 1.3, rotate: 15 }} // Framer-motion ile efekt
         transition={{ type: 'spring', stiffness: 400, damping: 10 }}
       >
         <svg
@@ -39,6 +39,7 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
           strokeWidth="2"
           strokeLinecap="round"
           strokeLinejoin="round"
+          className="transition-all duration-300 hover:scale-130 hover:rotate-15 hover:shadow-[0_0_15px_rgba(59,130,246,0.8)]"
         >
           <path d="M5 12h14" />
           <path d="M12 5l7 7-7 7" />

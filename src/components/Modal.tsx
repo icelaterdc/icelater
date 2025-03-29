@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { motion } from 'framer-motion';
 
 interface ModalProps {
@@ -33,7 +34,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
 
   if (!isOpen) return null;
 
-  return (
+  return createPortal(
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -50,11 +51,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
       >
         {children}
       </motion.div>
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <button
-          className="text-gray-400 hover:text-white transition-colors p-2"
-          onClick={onClose}
-        >
+      <div className="absolute bottom-12 left-1/2 transform -translate-x-1/2">
+        <button className="text-gray-400 hover:text-white transition-colors p-2" onClick={onClose}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             width="32"
@@ -71,7 +69,8 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
           </svg>
         </button>
       </div>
-    </motion.div>
+    </motion.div>,
+    document.body
   );
 };
 

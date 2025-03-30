@@ -30,9 +30,9 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
         strokeWidth="2"
         strokeLinecap="round"
         strokeLinejoin="round"
-        className="ml-6 cursor-pointer"
+        className="ml-6 cursor-pointer transition-all duration-300 hover:shadow-[0_0_15px_rgba(59,130,246,0.8)]"
         whileHover={{ scale: 1.3, rotate: 15 }}
-        transition={{ duration: 0.3 }}
+        transition={{ type: 'spring', stiffness: 400, damping: 10 }}
         onClick={onClick}
       >
         <path d="M5 12h14" />

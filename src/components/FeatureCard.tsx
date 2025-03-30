@@ -10,11 +10,7 @@ interface FeatureCardProps {
 
 const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description, onClick }) => {
   return (
-    <motion.div
-      className="flex items-center bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 cursor-pointer shadow-xl hover:shadow-2xl transition-shadow duration-300"
-      whileHover={{ scale: 1.03 }}
-      onClick={onClick}
-    >
+    <div className="flex items-center bg-gradient-to-r from-gray-800 to-gray-900 rounded-2xl p-6 shadow-xl">
       <img
         src={imageSrc}
         alt={title}
@@ -24,26 +20,25 @@ const FeatureCard: React.FC<FeatureCardProps> = ({ imageSrc, title, description,
         <h3 className="text-2xl font-semibold text-white">{title}</h3>
         <p className="text-gray-300 mt-1">{description}</p>
       </div>
-      <div className="ml-6">
-        <motion.svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="#3b82f6"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          className="transition-all duration-300 hover:shadow-[0_0_15px_rgba(59,130,246,0.8)]"
-          whileHover={{ scale: 1.3, rotate: 15 }}
-          transition={{ type: 'spring', stiffness: 400, damping: 10 }}
-        >
-          <path d="M5 12h14" />
-          <path d="M12 5l7 7-7 7" />
-        </motion.svg>
-      </div>
-    </motion.div>
+      <motion.svg
+        xmlns="http://www.w3.org/2000/svg"
+        width="28"
+        height="28"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="#3b82f6"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        className="ml-6 cursor-pointer"
+        whileHover={{ scale: 1.3, rotate: 15 }}
+        transition={{ duration: 0.3 }}
+        onClick={onClick}
+      >
+        <path d="M5 12h14" />
+        <path d="M12 5l7 7-7 7" />
+      </motion.svg>
+    </div>
   );
 };
 

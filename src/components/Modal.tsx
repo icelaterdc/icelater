@@ -33,12 +33,14 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, children }) => {
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.3 }}
-        className="bg-gray-800 rounded-2xl p-6 w-[90%] max-w-md mx-4 h-auto max-h-[90vh] overflow-y-auto relative"
+        className="bg-gray-800 rounded-2xl p-6 w-[90%] max-w-md mx-4 flex flex-col items-center"
         onClick={(e) => e.stopPropagation()}
       >
-        {children}
+        <div className="w-full max-h-[70vh] overflow-y-auto">
+          {children}
+        </div>
         <button
-          className="absolute bottom-4 left-1/2 transform -translate-x-1/2 text-gray-400 hover:text-white"
+          className="mt-4 text-gray-400 hover:text-white"
           onClick={onClose}
         >
           <svg

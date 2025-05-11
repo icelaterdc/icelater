@@ -1,15 +1,9 @@
 const express = require('express');
 const router = express.Router();
 
-// Distube instance'ınızı ve ilgili metodlarınızı içe aktarın
-// Örneğin: const { client } = require('../distubeClient');
-const { client } = require('../distubeClient'); // dosya yolunu projenize göre ayarlayın
-
-// Müzik oynatma endpoint'i
 router.post('/play', async (req, res) => {
   const { query } = req.body;
   try {
-    // Sorguya göre parçayı çalacak metodunuz
     const track = await client.player.play(query);
     res.json({ track });
   } catch (error) {
@@ -55,10 +49,8 @@ router.post('/loop', async (req, res) => {
   }
 });
 
-// Güncel parça bilgilerini ve ilerlemeyi dönen endpoint
 router.get('/status', async (req, res) => {
   try {
-    // Oynatma durumunuza göre uyarlayın. Aşağıdaki örnek statik veri:
     const status = {
       track: {
         title: "Örnek Parça",

@@ -3,14 +3,14 @@ import { motion } from 'framer-motion';
 
 
 const getStatusIcon = (status: string) => {
-  const iconSize = 16; // Burayı ihtiyacına göre küçültebilirsin
+  const iconSize = 16; 
   const iconPath = `/statusIcon/${status}.png`;
 
   return (
     <img
       src={iconPath}
       alt={status}
-      className="w-4 h-4" // Tailwind kullanıyorsan bu küçük yapar
+      className="w-4 h-4" 
       style={{
         width: `${iconSize}px`,
         height: `${iconSize}px`,
@@ -19,8 +19,6 @@ const getStatusIcon = (status: string) => {
   );
 };
 
-/* --- Rozet Mapping --- */
-/* Rozetler tek bir arka plan container'ı içinde, yuvarlatılmış (rounded-lg) köşelerle gösterilecek */
 const badgeMapping = [
   { bit: 1, img: "/badges/brilliance.png" },
   { bit: 2, img: "/badges/aktif_gelistirici.png" },
@@ -28,7 +26,6 @@ const badgeMapping = [
   { bit: 8, img: "/badges/gorev_tamamlandi.png" }
 ];
 
-/* --- Tip Tanımları --- */
 type LanyardData = {
   discord_user: {
     id: string;
@@ -71,8 +68,6 @@ type APIResponse = {
   success: boolean;
 };
 
-/* --- Süre Formatlama --- */
-/* HH:MM:SS şeklinde; saat sıfırsa MM:SS */
 const formatDurationMs = (ms: number): string => {
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
@@ -86,20 +81,17 @@ const formatDurationMs = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-/* --- DiscordCard Component --- */
 const DiscordCard: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
   const [initialLoading, setInitialLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
 
-  // Canlı zaman güncellemesi (her saniye)
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
   }, []);
 
-  // Her 5 saniyede bir API'den veri çekme
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -144,11 +136,9 @@ const DiscordCard: React.FC = () => {
   const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
-  // Custom status (konuşma balonu) için: id "custom" olan aktiviteden state alınır.
   const customActivity = activities.find(act => act.id === "custom" && act.state && act.state.trim() !== "");
   const customState = customActivity ? customActivity.state : null;
 
-  // Spotify kartı
   let spotifyCard = null;
   if (listening_to_spotify && spotify) {
     const { start, end } = spotify.timestamps;
@@ -190,7 +180,6 @@ const DiscordCard: React.FC = () => {
     );
   }
 
-  // Aktivite kartı
   let activityCard = null;
   if (activities.length > 0) {
     const currentActivity = activities.find((a) => a.type !== 4); // 4 = Custom Status
@@ -225,7 +214,7 @@ const DiscordCard: React.FC = () => {
       transition={{ duration: 0.5 }}
       className="max-w-md mx-auto bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl shadow-2xl relative"
     >
-      {/* Banner (varsa) */}
+      {/* Banner */}
       {discord_user.bannerURL && discord_user.bannerURL !== "" && (
         <div
           className="h-24 w-full bg-cover bg-center"
@@ -263,7 +252,7 @@ const DiscordCard: React.FC = () => {
           </div>
         </div>
 
-        {/* Custom Status Konuşma Balonu - Sağda ve bağlantı noktaları ile */}
+        {/* Custom Status Konuşma Balonu */}
         {customState && (
           <div className="absolute top-6 right-6">
             <div className="relative">
@@ -273,7 +262,7 @@ const DiscordCard: React.FC = () => {
               >
                 {customState}
               </div>
-              {/* Bağlantı noktaları - Profil resmine doğru */}
+              {/* Bağlantı noktaları */}
               <div className="absolute bottom-1 left-[-12px]">
                 <div className="w-2 h-2 rounded-full bg-gray-700"></div>
               </div>

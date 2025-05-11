@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 
-/* --- Yardımcı Fonksiyonlar --- */
 const getStatusIcon = (status: string) => {
   const iconSize = 16;
   const iconPath = `/statusIcon/${status}.png`;
@@ -37,7 +36,6 @@ const formatDurationMs = (ms: number): string => {
   return `${minutes}:${seconds.toString().padStart(2, '0')}`;
 };
 
-/* --- Tip Tanımlamaları --- */
 type LanyardData = {
   discord_user: {
     id: string;
@@ -81,13 +79,11 @@ type APIResponse = {
   success: boolean;
 };
 
-/* --- Discord Kartı Bileşeni (Sadece HTML Card) --- */
 const DiscordCard: React.FC = () => {
   const [data, setData] = useState<LanyardData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [currentTime, setCurrentTime] = useState<number>(Date.now());
-
-  // Lanyard API'den veriyi çek (her 5 saniyede bir)
+  
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -108,7 +104,6 @@ const DiscordCard: React.FC = () => {
     return () => clearInterval(intervalId);
   }, []);
 
-  // Spotify progress için her saniye geçerli zamanı güncelle
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(Date.now()), 1000);
     return () => clearInterval(timer);
@@ -122,13 +117,11 @@ const DiscordCard: React.FC = () => {
   const displayName = discord_user.display_name || discord_user.global_name || discord_user.username;
   const avatarUrl = `https://cdn.discordapp.com/avatars/${discord_user.id}/${discord_user.avatar}.webp?size=1024`;
 
-  // Custom status (konuşma balonu)
   const customActivity = activities.find(
     (act) => act.id === 'custom' && act.state && act.state.trim() !== ''
   );
   const customState = customActivity ? customActivity.state : null;
-
-  // Spotify kartı
+  
   let spotifyCard = null;
   if (listening_to_spotify && spotify) {
     const { start, end } = spotify.timestamps;
@@ -178,7 +171,6 @@ const DiscordCard: React.FC = () => {
     );
   }
 
-  // Spotify dışındaki etkinlik kartı
   let activityCard = null;
   if (activities.length > 0) {
     const currentActivity = activities.find((a) => a.type !== 4);

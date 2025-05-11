@@ -22,11 +22,10 @@ const AudioPlayer: React.FC<AudioPlayerProps> = ({ audioSrc }) => {
     }
   };
 
-  // Bileşeni geçici olarak gizlemek için bu koşulu ekleyebilirsiniz
-  const isVisible = false; // Şu anlık görünmesin diye false yaptık
+  const isVisible = false; 
 
   if (!isVisible) {
-    return null; // Bileşen render edilmez, yani görünmez
+    return null; 
   }
 
   return (

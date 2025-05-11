@@ -1,24 +1,16 @@
 import React from 'react';
 
-/* 
-  TuranFlagPage: Bu sayfa, merkezi Turan bayrağı ve etrafında dönen 7 Türk devletinin bayrağını içerir.
-  Tasarım; neon açık mavi çerçeveler, detaylı hover efektleri, dekoratif animasyonlar ve responsive
-  düzenlemeler ile yüksek kaliteli bir estetik sunar.
-*/
-
 const TuranFlagPage = () => {
-  // Merkezi bayrak: Turan bayrağı URL'si
   const centralFlag = "https://upload.wikimedia.org/wikipedia/commons/3/37/Turan_flag.svg";
   
-  // Dış bayraklar: 7 Türk devletinin bayrak URL'leri
   const outerFlags = [
-    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",         // Türkiye
-    "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",     // Azerbaycan
-    "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg",     // Kazakistan
-    "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg",     // Kırgızistan
-    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",   // Türkmenistan
-    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",     // Özbekistan
-    "https://upload.wikimedia.org/wikipedia/commons/5/5e/Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg" // Kuzey Kıbrıs
+    "https://upload.wikimedia.org/wikipedia/commons/b/b4/Flag_of_Turkey.svg",        
+    "https://upload.wikimedia.org/wikipedia/commons/d/dd/Flag_of_Azerbaijan.svg",     
+    "https://upload.wikimedia.org/wikipedia/commons/d/d3/Flag_of_Kazakhstan.svg",     
+    "https://upload.wikimedia.org/wikipedia/commons/c/c7/Flag_of_Kyrgyzstan.svg",     
+    "https://upload.wikimedia.org/wikipedia/commons/1/1b/Flag_of_Turkmenistan.svg",   
+    "https://upload.wikimedia.org/wikipedia/commons/8/84/Flag_of_Uzbekistan.svg",     
+    "https://upload.wikimedia.org/wikipedia/commons/5/5e/Flag_of_the_Turkish_Republic_of_Northern_Cyprus.svg" 
   ];
 
   return (

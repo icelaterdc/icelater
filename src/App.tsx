@@ -13,7 +13,6 @@ import AIModalContent from './components/AIModalContent';
 import GamesModalContent from './components/GamesModalContent';
 import GalleryModalContent from './components/GalleryModalContent';
 
-// İmleç etrafında yumuşak sis efekti
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const mistStyle = {
@@ -57,7 +56,6 @@ function InteractiveEffects() {
   );
 }
 
-// Hareketli Yazı Bileşeni
 function AnimatedTitle() {
   const [displayText, setDisplayText] = useState("IceLater Full-Stack Developer");
   const [animationState, setAnimationState] = useState("main");

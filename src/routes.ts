@@ -8,9 +8,9 @@ const pageModules = import.meta.glob("./pages/**/*.{tsx,jsx}", {
 const routes: RouteObject[] = Object.entries(pageModules).map(
   ([filePath, component]) => {
     const path = filePath
-      .replace("./pages/", "") // pages/ kısmını çıkar
-      .replace(/\.(tsx|jsx)$/, "") // uzantıları çıkar
-      .toLowerCase(); // küçük harfe çevir
+      .replace("./pages/", "") 
+      .replace(/\.(tsx|jsx)$/, "") 
+      .toLowerCase(); 
 
     const routePath = path === "home" ? "/" : `/${path}`;
 

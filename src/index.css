@@ -13,51 +13,45 @@ body {
   background-color: #030712;
 }
 
-/* Tüm sayfayı kapsayan container */
 .page-container {
   height: 99.5vh;
   overflow-y: auto;
-  -ms-overflow-style: none; /* IE ve Edge scrollbar gizleme */
-  scrollbar-width: none; /* Firefox scrollbar gizleme */
+  -ms-overflow-style: none; 
+  scrollbar-width: none; 
   background-color: #030712;
   position: relative;
-  filter: url(#noiseFilter); /* SVG noise filtresini uygula */
+  filter: url(#noiseFilter); 
 }
 
 .page-container::-webkit-scrollbar {
   display: none;
 }
 
-/* Snap Aktif Olduğunda */
 .snap-active {
   scroll-snap-type: y mandatory;
 }
 
-/* Snap Bölümleri (home ve about) */
 .snap {
   scroll-snap-align: start;
   min-height: 80vh;
 }
 
-/* Snap olmayan bölümler (projects, contact, footer) */
 .non-snap {
   scroll-snap-align: none;
 }
 
-/* 404 Sayfası İçin Özel Stiller */
 .page-404 {
   position: relative;
   min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background-color: #0A192F; /* Uzay mavisi */
+  background-color: #0A192F; 
   color: white;
   font-family: 'Orbitron', sans-serif;
   overflow: hidden;
 }
 
-/* Yıldızlar ve Parıldama Efekti */
 .page-404 .stars,
 .page-404 .twinkling {
   position: absolute;
@@ -90,7 +84,6 @@ body {
   }
 }
 
-/* Gezegen ikonları için stil */
 .page-404 .planet {
   position: absolute;
   z-index: 2;

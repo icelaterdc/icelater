@@ -21,7 +21,7 @@ const ComingSoonPage = () => {
             top: `${Math.random() * 100}%`,
             left: `${Math.random() * 100}%`,
             animationDelay: `${Math.random() * 10}s`,
-            animationDuration: `${Math.random() * 15 + 10}s`, // 10-25 saniye arası (yavaş hareket)
+            animationDuration: `${Math.random() * 15 + 10}s`, 
           }}
         />
       ))}

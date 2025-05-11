@@ -20,13 +20,11 @@ const ContactSection: React.FC = () => {
     e.preventDefault();
     setIsSubmitting(true);
     
-    // Simulate form submission
     setTimeout(() => {
       setIsSubmitting(false);
       setSubmitStatus('success');
       setFormData({ name: '', email: '', message: '' });
       
-      // Reset status after 5 seconds
       setTimeout(() => {
         setSubmitStatus('idle');
       }, 5000);

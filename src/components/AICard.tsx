@@ -16,7 +16,7 @@ const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
     const img = new Image();
     img.src = gifSrc;
     img.onload = () => setIsLoaded(true);
-    img.onerror = () => setIsLoaded(true); // Hata durumunda da yüklendi say
+    img.onerror = () => setIsLoaded(true); 
   }, [gifSrc]);
 
   const cardStyle = {
@@ -32,7 +32,7 @@ const AICard: React.FC<AICardProps> = ({ title, gifSrc, link }) => {
     boxShadow: isHovered
       ? '0 10px 20px rgba(30, 58, 138, 0.3)'
       : '0 4px 12px rgba(31, 41, 55, 0.2)',
-    opacity: isLoaded ? 1 : 0, // Yüklenene kadar gizli
+    opacity: isLoaded ? 1 : 0, 
     transition: 'opacity 0.5s ease',
   };
 

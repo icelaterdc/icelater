@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 interface Track {
   title: string;
   artist?: string;
-  duration: number; // saniye cinsinden
+  duration: number; 
   cover?: string;
 }
 
@@ -15,7 +15,6 @@ const MusicPlayer: React.FC = () => {
   const [duration, setDuration] = useState(0);
   const [loopMode, setLoopMode] = useState(false);
 
-  // "Çal" butonuna tıklanınca backend'e istek gönderir
   const handlePlay = async () => {
     if (query.trim() === '') return;
     try {
@@ -36,7 +35,6 @@ const MusicPlayer: React.FC = () => {
     }
   };
 
-  // Müzik oynarken her saniye status endpointinden güncel bilgiyi çekiyoruz
   useEffect(() => {
     let interval: NodeJS.Timeout;
     if (isPlaying) {
@@ -101,7 +99,6 @@ const MusicPlayer: React.FC = () => {
     }
   };
 
-  // İlerleme çubuğu için yüzde hesaplaması
   const progressPercent = duration > 0 ? (progress / duration) * 100 : 0;
 
   return (

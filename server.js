@@ -7,7 +7,7 @@ app.get('/pages', (req, res) => {
     message: 'Test kodu çalışıyor!',
     status: 'Başarılı',
     data: {
-      pages: ['anasayfa', 'hakkında', 'iletişim'] // Örnek veri, değiştirebilirsin
+      pages: ['anasayfa', 'hakkında', 'iletişim'] 
     }
   });
 });

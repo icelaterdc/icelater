@@ -1,0 +1,24 @@
+@import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+
+.font-permanent-marker {
+  font-family: 'Permanent Marker', cursive;
+}
+
+.neon-mist {
+  position: fixed;
+  transform: translate(-50%, -50%);
+  width: 95px;
+  height: 95px;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(0, 225, 255, 0.35) 0%,
+    rgba(0, 140, 255, 0.15) 40%,
+    rgba(0, 120, 255, 0.08) 70%,
+    rgba(0, 100, 255, 0) 100%
+  );
+  filter: blur(14px) contrast(140%) saturate(160%);
+  border-radius: 50%;
+  z-index: 30;
+  mix-blend-mode: screen;
+}

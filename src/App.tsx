@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import './App.css';
 import Header from './components/Header';
 import DiscordCard from './components/DiscordCard';
 import GitHubRepos from './components/GitHubRepos';
@@ -16,6 +15,12 @@ import GalleryModalContent from './components/GalleryModalContent';
 
 function InteractiveEffects() {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const mistStyle = {
+    background:
+      'radial-gradient(circle at center, rgba(10,130,255,0.20) 0%, rgba(10,130,255,0.08) 40%, rgba(10,130,255,0.04) 70%, rgba(10,130,255,0) 100%)',
+    filter: 'blur(8px) contrast(1.2) url(#noise)',
+    borderRadius: '70%',
+  };
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
@@ -36,13 +41,26 @@ function InteractiveEffects() {
   }, []);
 
   return (
-    <div
-      className="neon-mist"
-      style={{
-        left: mousePos.x,
-        top: mousePos.y,
-      }}
-    />
+    <>
+      <svg width="0" height="0" style={{ position: 'absolute' }}>
+        <filter id="noise">
+          <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" />
+          <feDisplacementMap in="SourceGraphic" scale="10" />
+        </filter>
+      </svg>
+      <div
+        style={{
+          position: 'fixed',
+          left: mousePos.x,
+          top: mousePos.y,
+          transform: 'translate(-50%, -50%)',
+          width: '85px',
+          height: '85px',
+          pointerEvents: 'none',
+          ...mistStyle,
+        }}
+      />
+    </>
   );
 }
 
@@ -178,8 +196,8 @@ function App() {
         container.classList.remove("snap-active");
       }
     };
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
@@ -203,6 +221,7 @@ function App() {
             <div className="container mx-auto px-4 md:px-6 py-16 relative z-10">
               <div className="flex flex-col items-center text-center mb-12">
                 <motion.div
+                  translate="no"
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5 }}
@@ -227,6 +246,7 @@ function App() {
                 <DiscordCard />
               </motion.div>
               <motion.div
+                translate="no"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 0.75, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.6 }}
@@ -326,17 +346,22 @@ function App() {
         </section>
 
         {/* Footer */}
-        <div>
+        <div translate="no">
           <Footer />
         </div>
       </div>
 
-      {/* Modal dışı */}
+      {/* Modal page-container dışında */}
       <Modal isOpen={activeModal !== null} onClose={() => setActiveModal(null)}>
         {activeModal === 'ai' && <AIModalContent />}
         {activeModal === 'games' && <GamesModalContent />}
         {activeModal === 'gallery' && <GalleryModalContent />}
       </Modal>
+
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap');
+        .font-permanent-marker { font-family: 'Permanent Marker', cursive; }
+      `}</style>
     </>
   );
 }
